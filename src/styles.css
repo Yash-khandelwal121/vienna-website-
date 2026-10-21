@@ -1,0 +1,1165 @@
+/* =====================================================================
+   VIENNA DAY TRIP — WORLD-CLASS STRADA ULTRA-LUXURY DESIGN SYSTEM
+   €70,000 BUDGET TIER: BESPOKE WHITE PEARL & IMPERIAL GOLD EDITION
+   ===================================================================== */
+
+:root {
+  /* Color Architecture: Exact User Palette */
+  --bg-main: #FFFFFF;
+  --bg-surface: #FAF8F4;
+  --bg-card: #FFFFFF;
+  --bg-card-hover: #FCFCFD;
+  --bg-card-subtle: #F3F4F7;
+  --bg-input: #FFFFFF;
+
+  /* Champagne Gold Accents */
+  --accent: #C69C50;
+  --accent-light: #F9F5EE;
+  --accent-hover: #B58B3F;
+  --accent-deep: #A0782C;
+  --accent-glow: rgba(198, 156, 80, 0.25);
+  --accent-muted: rgba(198, 156, 80, 0.08);
+  --accent-border: rgba(198, 156, 80, 0.35);
+  --accent-subtle: rgba(198, 156, 80, 0.04);
+
+  /* Refined Text Hierarchy */
+  --text-primary: #17191C;
+  --text-secondary: #62666D;
+  --text-muted: #8E929B;
+  --text-inverse: #FFFFFF;
+  --text-gold: #C69C50;
+
+  /* Borders & Hairlines */
+  --border: #E8E4DC;
+  --border-strong: rgba(0, 0, 0, 0.12);
+  --border-accent: rgba(198, 156, 80, 0.4);
+  --border-subtle: rgba(0, 0, 0, 0.04);
+  --border-gold: rgba(198, 156, 80, 0.3);
+
+  /* Luxury Typography Hierarchy */
+  --font-display: 'Cinzel', Georgia, serif;
+  --font-serif: 'Playfair Display', Georgia, serif;
+  --font-heading: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* Radius System */
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-xl: 32px;
+  --radius-full: 9999px;
+
+  /* Motion Timing */
+  --ease-luxury: cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-fast: 0.18s var(--ease-luxury);
+  --transition-normal: 0.35s var(--ease-luxury);
+  --transition-slow: 0.7s var(--ease-luxury);
+}
+
+/* Base & Reset */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+  line-height: 1.65;
+  overflow-x: hidden;
+  min-height: 100vh;
+  background-image: 
+    radial-gradient(1100px circle at 85% 20%, rgba(197, 160, 89, 0.05), transparent 60%),
+    radial-gradient(900px circle at 15% 65%, rgba(197, 160, 89, 0.035), transparent 55%),
+    radial-gradient(1000px circle at 50% 95%, rgba(240, 243, 248, 0.8), transparent 60%);
+  background-attachment: fixed;
+}
+
+/* Custom Luxury Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #FFFFFF;
+}
+::-webkit-scrollbar-thumb {
+  background: #E2E5EB;
+  border-radius: var(--radius-full);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}
+
+/* Typography Presets */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  line-height: 1.1;
+  color: var(--text-primary);
+}
+
+.font-display {
+  font-family: var(--font-display) !important;
+  letter-spacing: 0.04em !important;
+}
+
+.font-serif-italic {
+  font-family: var(--font-serif) !important;
+  font-style: italic !important;
+}
+
+.heading-massive {
+  font-size: clamp(3.2rem, 7.5vw, 6.2rem);
+  font-weight: 800;
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+}
+
+.heading-xl {
+  font-size: clamp(2.3rem, 4.8vw, 3.8rem);
+  font-weight: 800;
+  line-height: 1.08;
+  letter-spacing: -0.015em;
+}
+
+.heading-lg {
+  font-size: clamp(1.85rem, 3.2vw, 2.6rem);
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.heading-md {
+  font-size: clamp(1.3rem, 2vw, 1.75rem);
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.heading-sm {
+  font-size: 1.15rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+/* Luxury Shimmer & Gold Gradient Texts */
+.text-shimmer {
+  background: linear-gradient(135deg, #111215 0%, #374151 45%, #967425 85%, #B58F48 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-gold-gradient {
+  background: linear-gradient(135deg, #C5A059 0%, #967425 60%, #6E5316 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-accent-gradient {
+  background: linear-gradient(135deg, #C5A059 0%, #967425 60%, #6E5316 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Eyebrow Label */
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-family: var(--font-heading);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--text-gold);
+  margin-bottom: 0.85rem;
+}
+.eyebrow::before {
+  content: '✦';
+  font-size: 0.75rem;
+  color: var(--accent);
+}
+
+/* High-End Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  font-family: var(--font-heading);
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.95rem 2rem;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  text-decoration: none;
+  transition: all var(--transition-normal);
+  border: 1px solid transparent;
+  white-space: nowrap;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #DFC187 0%, #C5A059 50%, #967425 100%);
+  color: #FFFFFF;
+  box-shadow: 0 4px 20px rgba(197, 160, 89, 0.35), inset 0 1px 0 rgba(255,255,255,0.4);
+}
+.btn-primary:hover {
+  background: linear-gradient(135deg, #E8CA93 0%, #D4AF67 50%, #A88331 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(197, 160, 89, 0.45), inset 0 1px 0 rgba(255,255,255,0.6);
+}
+
+.btn-secondary {
+  background-color: #FFFFFF;
+  color: var(--text-primary);
+  border: 1px solid var(--border-strong);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+.btn-secondary:hover {
+  border-color: var(--accent);
+  color: var(--text-gold);
+  background-color: var(--accent-light);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+}
+
+.btn-outline-lime,
+.btn-outline-gold {
+  background-color: transparent;
+  color: var(--text-gold);
+  border: 1px solid var(--border-accent);
+}
+.btn-outline-lime:hover,
+.btn-outline-gold:hover {
+  background: var(--accent);
+  color: #FFFFFF;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(197, 160, 89, 0.35);
+}
+
+.btn-sm {
+  padding: 0.6rem 1.35rem;
+  font-size: 0.85rem;
+}
+
+.btn-icon {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border-radius: var(--radius-full);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Containers */
+.container {
+  width: 100%;
+  max-width: 1360px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: clamp(1.2rem, 3.5vw, 2.5rem);
+  padding-right: clamp(1.2rem, 3.5vw, 2.5rem);
+}
+
+.container-narrow {
+  width: 100%;
+  max-width: 960px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: clamp(1.2rem, 3vw, 2rem);
+  padding-right: clamp(1.2rem, 3vw, 2rem);
+}
+
+.container-wide {
+  width: 100%;
+  max-width: 1560px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: clamp(1.2rem, 4vw, 3rem);
+  padding-right: clamp(1.2rem, 4vw, 3rem);
+}
+
+/* Sections */
+.section {
+  padding-top: clamp(5rem, 8vw, 8.5rem);
+  padding-bottom: clamp(5rem, 8vw, 8.5rem);
+  position: relative;
+}
+
+.section-dark {
+  background-color: var(--bg-main);
+}
+
+.section-secondary {
+  background-color: var(--bg-surface);
+}
+
+/* Cards */
+.card-strada {
+  background: #FFFFFF;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: clamp(1.75rem, 3vw, 2.5rem);
+  transition: all var(--transition-normal);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.05), 0 2px 8px rgba(0, 0, 0, 0.02);
+}
+.card-strada::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, rgba(197, 160, 89, 0.4) 50%, transparent 100%);
+  pointer-events: none;
+}
+.card-strada:hover {
+  border-color: var(--border-accent);
+  transform: translateY(-4px);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.08), 0 0 30px rgba(197, 160, 89, 0.12);
+}
+
+/* Pill Badges */
+.pill-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.35rem 0.95rem;
+  border-radius: var(--radius-full);
+  font-family: var(--font-heading);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background-color: var(--accent-light);
+  color: var(--text-gold);
+  border: 1px solid rgba(197, 160, 89, 0.35);
+}
+
+/* Inputs */
+.input-strada {
+  width: 100%;
+  background-color: var(--bg-input);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding: 0.85rem 1.15rem;
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  outline: none;
+  transition: all var(--transition-fast);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.02);
+}
+.input-strada:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(197, 160, 89, 0.18);
+}
+.input-strada::placeholder {
+  color: var(--text-muted);
+}
+
+select.input-strada option {
+  background-color: #FFFFFF;
+  color: #111215;
+}
+
+.label-strada {
+  display: block;
+  font-family: var(--font-heading);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-bottom: 0.45rem;
+}
+
+/* Marquee / Infinite Ticker */
+.marquee-container {
+  overflow: hidden;
+  white-space: nowrap;
+  user-select: none;
+  background-color: var(--bg-surface);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 1.15rem 0;
+}
+.marquee-content {
+  display: inline-flex;
+  align-items: center;
+  animation: marquee 32s linear infinite;
+}
+.marquee-item {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-heading);
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  padding: 0 2.2rem;
+}
+.marquee-dot {
+  width: 5px;
+  height: 5px;
+  background-color: var(--accent);
+  border-radius: 50%;
+  box-shadow: 0 0 6px var(--accent);
+  margin-left: 2.2rem;
+}
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+/* Grids */
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(1.5rem, 3vw, 2.5rem);
+}
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(1.2rem, 2.5vw, 2rem);
+}
+.grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(1rem, 2vw, 1.75rem);
+}
+
+@media (max-width: 1024px) {
+  .grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 768px) {
+  .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* =========================================================================
+   VIENNA DAY TRIP — PREMIUM SERVICES & FLEET (2x2 Grid System)
+   ========================================================================= */
+
+.vdt-section {
+  background: var(--background, #FAF8F4);
+  padding: 65px 35px;
+}
+
+.vdt-container {
+  max-width: 1320px;
+  margin: 0 auto;
+}
+
+.vdt-section-heading {
+  text-align: center;
+  margin-bottom: 38px;
+}
+
+.vdt-eyebrow {
+  color: var(--primary-gold, #C69C50);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  font-family: var(--font-body, 'Lora', Georgia, serif);
+}
+
+.vdt-section-heading h2 {
+  font-size: clamp(34px, 4vw, 50px);
+  color: var(--primary-text, #17191C);
+  font-weight: 500;
+  margin: 12px 0;
+  font-family: var(--font-heading, 'Playfair Display', Georgia, serif);
+}
+
+.vdt-section-heading p {
+  font-size: 14px;
+  color: var(--secondary-text, #62666D);
+  line-height: 1.7;
+  font-family: var(--font-body, 'Lora', Georgia, serif);
+}
+
+/* 2x2 GRID */
+
+.vdt-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+}
+
+/* CARD */
+
+.vdt-card {
+  background: var(--card-background, #FFFFFF);
+  border: 1px solid var(--border-color, #E6D8C3);
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+  transition:
+    transform 0.35s ease,
+    border-color 0.35s ease,
+    box-shadow 0.35s ease;
+}
+
+.vdt-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--primary-gold, #C69C50);
+  box-shadow: 0 15px 35px rgba(0,0,0,0.09);
+}
+
+/* SERVICE IMAGES */
+
+.vdt-service-image {
+  width: 100%;
+  height: 220px;
+  overflow: hidden;
+  background: #F8F6F2;
+}
+
+.vdt-service-image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.vdt-card:hover .vdt-service-image img {
+  transform: scale(1.03);
+}
+
+/* CARD CONTENT */
+
+.vdt-card-content {
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.vdt-category {
+  color: var(--primary-gold, #C69C50);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  font-family: var(--font-body, 'Lora', Georgia, serif);
+}
+
+.vdt-card h3 {
+  font-family: var(--font-heading, 'Playfair Display', Georgia, serif);
+  font-size: 27px;
+  font-weight: 500;
+  color: var(--primary-text, #17191C);
+  margin: 0 0 10px;
+}
+
+.vdt-description {
+  color: var(--secondary-text, #62666D);
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 0 0 18px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-family: var(--font-body, 'Lora', Georgia, serif);
+}
+
+/* BUTTON */
+
+.vdt-outline-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  align-self: flex-start;
+  margin-top: auto;
+  padding: 11px 20px;
+  border: 1px solid var(--primary-gold, #C69C50);
+  border-radius: 30px;
+  color: var(--primary-gold, #C69C50);
+  background: transparent;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: 0.35s ease;
+  font-family: var(--font-body, 'Lora', Georgia, serif);
+}
+
+.vdt-outline-btn:hover {
+  background: var(--primary-gold, #C69C50);
+  color: white;
+}
+
+/* FLEET */
+
+.vdt-fleet-image {
+  width: 100%;
+  height: 240px;
+  background: #F8F6F2;
+  padding: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.vdt-fleet-image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  mix-blend-mode: multiply;
+}
+
+/* VEHICLE DETAILS */
+
+.vdt-fleet-details {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+  color: var(--secondary-text, #62666D);
+  font-size: 12px;
+  font-family: var(--font-body, 'Lora', Georgia, serif);
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 768px) {
+  .vdt-section {
+    padding: 45px 18px;
+  }
+
+  .vdt-grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .vdt-service-image {
+    height: 200px;
+  }
+
+  .vdt-fleet-image {
+    height: 220px;
+  }
+
+  .vdt-card-content {
+    padding: 18px;
+  }
+
+  .vdt-card h3 {
+    font-size: 24px;
+  }
+}
+
+/* ==========================================
+   VIENNA DAY TRIP — PREMIUM 2×2 GALLERY
+   ========================================== */
+
+/* GALLERY SECTION */
+
+.vdt-gallery {
+  background: #FAF8F4;
+  padding: 55px 35px;
+}
+
+.vdt-gallery-container {
+  max-width: 1320px;
+  margin: 0 auto;
+}
+
+/* EXACTLY 2 CARDS PER ROW */
+
+.vdt-gallery-grid {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 22px !important;
+}
+
+/* PREMIUM CARDS */
+
+.vdt-gallery-card {
+  position: relative;
+  width: 100%;
+  height: 280px;
+  overflow: hidden;
+
+  border: 1px solid #D9BC87;
+  border-radius: 18px;
+
+  background: #F8F6F2;
+
+  box-shadow: 0 8px 25px rgba(0,0,0,0.06);
+
+  transition:
+    transform 0.35s ease,
+    box-shadow 0.35s ease,
+    border-color 0.35s ease;
+}
+
+.vdt-gallery-card:hover {
+  transform: translateY(-4px);
+  border-color: #C69C50;
+  box-shadow: 0 14px 35px rgba(0,0,0,0.12);
+}
+
+/* IMAGE */
+
+.vdt-gallery-card img {
+  display: block;
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+  object-position: center;
+
+  transition: transform 0.5s ease;
+}
+
+.vdt-gallery-card:hover img {
+  transform: scale(1.04);
+}
+
+/* PREMIUM BOTTOM GRADIENT */
+
+.vdt-gallery-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  background: linear-gradient(
+    180deg,
+    transparent 45%,
+    rgba(0,0,0,0.08) 65%,
+    rgba(0,0,0,0.72) 100%
+  );
+
+  pointer-events: none;
+}
+
+/* DESTINATION DETAILS */
+
+.vdt-gallery-card-content {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+
+  z-index: 2;
+  padding: 22px 25px;
+
+  color: #FFFFFF;
+}
+
+/* LOCATION LABEL */
+
+.vdt-gallery-card-content span {
+  display: block;
+
+  font-family: 'Lora', serif;
+  font-size: 11px;
+  font-weight: 600;
+
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+
+  color: #EACB91;
+  margin-bottom: 6px;
+}
+
+/* DESTINATION NAME */
+
+.vdt-gallery-card-content h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 27px;
+  font-weight: 500;
+
+  line-height: 1.2;
+  margin: 0;
+
+  color: #FFFFFF;
+}
+
+/* TABLET */
+
+@media (max-width: 1024px) {
+  .vdt-gallery {
+    padding: 45px 25px;
+  }
+
+  .vdt-gallery-card {
+    height: 250px;
+  }
+}
+
+/* MOBILE */
+
+@media (max-width: 767px) {
+  .vdt-gallery {
+    padding: 35px 15px;
+  }
+
+  .vdt-gallery-grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+
+  .vdt-gallery-card {
+    height: 230px;
+    border-radius: 15px;
+  }
+
+  .vdt-gallery-card-content {
+    padding: 18px;
+  }
+
+  .vdt-gallery-card-content h3 {
+    font-size: 23px;
+  }
+}
+
+/* =========================================
+   VIENNA DAY TRIP - HERO IMAGE FIX
+   ========================================= */
+
+/* HERO CONTAINER */
+.vdt-hero {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  border-radius: 24px;
+  border: 1px solid #E6D8C3;
+}
+
+/* FIX BACKGROUND IMAGE */
+.vdt-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  background-image: url('/images/vienna-hero-clean.jpg');
+  background-position: center center;
+  background-size: cover;
+  background-repeat: no-repeat;
+
+  opacity: 1;
+  z-index: -2;
+}
+
+/* REDUCE WHITE OVERLAY */
+.vdt-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  background: linear-gradient(
+    90deg,
+    rgba(250, 248, 244, 0.88) 0%,
+    rgba(250, 248, 244, 0.65) 25%,
+    rgba(250, 248, 244, 0.18) 48%,
+    rgba(250, 248, 244, 0.00) 70%
+  );
+
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* CONTENT */
+.vdt-inner {
+  position: relative;
+  z-index: 1;
+}
+
+/* BOOKING FORM */
+.vdt-form {
+  position: relative;
+  z-index: 2;
+  background: #FFFFFF;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.10);
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+  .vdt-hero::before {
+    background-position: 58% center;
+  }
+
+  .vdt-hero::after {
+    background: linear-gradient(
+      180deg,
+      rgba(250, 248, 244, 0.88) 0%,
+      rgba(250, 248, 244, 0.55) 48%,
+      rgba(250, 248, 244, 0.15) 100%
+    );
+  }
+}
+
+/* ==========================================
+   VIENNA DAY TRIP | PREMIUM CINEMATIC SERVICES BANNER
+   ========================================== */
+
+.vdt-services-hero {
+  --gold: #C69C50;
+  --ivory: #FAF8F4;
+
+  position: relative;
+  width: calc(100% - 64px);
+  max-width: 1600px;
+  height: 440px;
+  margin: 24px auto 50px;
+  border: 1px solid var(--gold);
+  border-radius: 20px;
+  overflow: hidden;
+  isolation: isolate;
+  background: #201C19;
+  box-shadow: 0 12px 35px rgba(0,0,0,.10);
+}
+
+.vdt-services-hero *,
+.vdt-services-hero *::before,
+.vdt-services-hero *::after {
+  box-sizing: border-box;
+}
+
+.vdt-services-hero-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  width: 100%;
+  height: 100%;
+}
+
+.vdt-services-panel {
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+  border-right: 2px solid rgba(0,0,0,.55);
+  text-decoration: none;
+  color: white;
+  display: block;
+}
+
+.vdt-services-panel:last-child {
+  border-right: none;
+}
+
+.vdt-services-panel img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  object-position: center;
+  transition: transform .6s ease;
+}
+
+.vdt-services-panel:hover img {
+  transform: scale(1.06);
+}
+
+/* DARK GRADIENT */
+.vdt-services-panel::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(0,0,0,.02) 0%,
+    rgba(0,0,0,.04) 40%,
+    rgba(0,0,0,.75) 100%
+  );
+  pointer-events: none;
+}
+
+/* SERVICE DETAILS */
+.vdt-panel-info {
+  position: absolute;
+  bottom: 26px;
+  left: 25px;
+  right: 15px;
+  z-index: 2;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.vdt-panel-icon {
+  color: #D8B56F;
+  font-size: 29px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.vdt-panel-info h3 {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(15px, 1.4vw, 23px);
+  font-weight: 500;
+  line-height: 1.25;
+  color: white;
+  margin: 0 0 8px;
+}
+
+.vdt-panel-info p {
+  font-family: 'Lora', Georgia, serif;
+  font-size: 12px;
+  line-height: 1.5;
+  color: rgba(255,255,255,.9);
+  margin: 0;
+}
+
+/* CENTER HEADING */
+.vdt-services-center {
+  position: absolute;
+  top: 47%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 5;
+  text-align: center;
+  pointer-events: none;
+  width: 90%;
+}
+
+.vdt-services-center span {
+  display: block;
+  font-family: 'Lora', Georgia, serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 5px;
+  color: #E4C184;
+  margin-bottom: 13px;
+  text-shadow: 0 2px 10px rgba(0,0,0,.7);
+}
+
+.vdt-services-center h1,
+.vdt-services-center h2 {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(46px, 5vw, 74px);
+  font-weight: 400;
+  line-height: 1.1;
+  color: #FFFFFF;
+  margin: 0;
+  text-shadow: 0 4px 22px rgba(0,0,0,.85);
+}
+
+/* TABLET */
+@media (max-width: 1024px) {
+  .vdt-services-hero {
+    width: calc(100% - 40px);
+    height: 400px;
+  }
+
+  .vdt-panel-info {
+    left: 14px;
+    right: 10px;
+    gap: 8px;
+  }
+
+  .vdt-panel-icon {
+    font-size: 23px;
+  }
+
+  .vdt-panel-info p {
+    font-size: 10px;
+  }
+}
+
+/* MOBILE */
+@media (max-width: 767px) {
+  .vdt-services-hero {
+    width: calc(100% - 24px);
+    height: 520px;
+    margin: 12px auto 30px;
+    border-radius: 16px;
+  }
+
+  .vdt-services-hero-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+  }
+
+  .vdt-services-panel:nth-child(2) {
+    border-right: none;
+  }
+
+  .vdt-services-panel:nth-child(-n+2) {
+    border-bottom: 2px solid rgba(0,0,0,.55);
+  }
+
+  .vdt-services-panel:nth-child(-n+2) .vdt-panel-info {
+    top: 14px;
+    bottom: auto;
+  }
+
+  .vdt-services-center {
+    top: 50%;
+    width: 90%;
+  }
+
+  .vdt-services-center h1,
+  .vdt-services-center h2 {
+    font-size: 38px;
+  }
+
+  .vdt-services-center span {
+    font-size: 10px;
+    letter-spacing: 3px;
+    margin-bottom: 6px;
+  }
+
+  .vdt-panel-info {
+    left: 12px;
+    bottom: 12px;
+    right: 8px;
+    gap: 7px;
+  }
+
+  .vdt-panel-icon {
+    font-size: 18px;
+  }
+
+  .vdt-panel-info h3 {
+    font-size: 13px;
+    margin-bottom: 2px;
+  }
+
+  .vdt-panel-info p {
+    font-size: 9.5px;
+    line-height: 1.3;
+    opacity: 0.85;
+  }
+}
+
+
+
