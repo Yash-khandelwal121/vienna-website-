@@ -94,14 +94,14 @@ export default function DestinationCarousel() {
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'flex-end',
-          marginBottom: '2.5rem',
+          marginBottom: '1.5rem',
           flexWrap: 'wrap',
-          gap: '1.5rem'
+          gap: '1.25rem'
         }}
       >
         <div>
           <div className="eyebrow">SIGNATURE CHAUFFEUR TOURS</div>
-          <h2 className="heading-xl">EXPLORE BEYOND THE ORDINARY.</h2>
+          <h2 className="heading-xl">Explore Beyond the Ordinary.</h2>
         </div>
 
         {/* Carousel Navigation Buttons */}

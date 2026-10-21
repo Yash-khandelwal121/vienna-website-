@@ -135,15 +135,24 @@ export default function Home() {
             {/* Story Text & Statistics */}
             <div>
               <div className="eyebrow">OUR HERITAGE & MISSION</div>
-              <h2 className="heading-xl" style={{ marginBottom: '1.5rem', color: 'var(--text-primary)' }}>
-                VIENNA'S TRUSTED CHAUFFEUR & PRIVATE TOUR COMPANY.
+              <h2
+                style={{
+                  fontFamily: "'Playfair Display', Georgia, serif",
+                  fontSize: 'clamp(1.75rem, 2.8vw, 2.35rem)',
+                  fontWeight: 500,
+                  lineHeight: 1.2,
+                  marginBottom: '1.15rem',
+                  color: 'var(--text-primary)'
+                }}
+              >
+                Vienna's Trusted Chauffeur & Private Tour Company.
               </h2>
 
-              <p style={{ color: 'var(--text-secondary)', fontSize: '1.08rem', lineHeight: '1.75', marginBottom: '1.35rem' }}>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '1rem', lineHeight: '1.7', marginBottom: '1rem' }}>
                 Vienna Day Trip started as a private chauffeur service focused on one thing: getting Vienna’s visitors where they need to go, comfortably and on time, in a private Mercedes rather than a shared shuttle or public tour bus.
               </p>
 
-              <p style={{ color: 'var(--text-secondary)', fontSize: '1rem', lineHeight: '1.7', marginBottom: '2.5rem' }}>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', lineHeight: '1.65', marginBottom: '1.5rem' }}>
                 Working with foreign embassies, leading five-star hotels, cruise companies, and discerning independent travelers, we provide luxury airport transfers, private sightseeing, day trips across Austria, Hungary, Czechia, and Slovakia, and secure diplomatic convoys.
               </p>
 
@@ -152,33 +161,33 @@ export default function Home() {
                 style={{
                   display: 'grid',
                   gridTemplateColumns: 'repeat(2, 1fr)',
-                  gap: '1.25rem',
-                  marginBottom: '2.5rem'
+                  gap: '1rem',
+                  marginBottom: '1.5rem'
                 }}
               >
                 {siteConfig.stats.map((s) => (
                   <div
                     key={s.label}
                     style={{
-                      padding: '1.35rem',
+                      padding: '1.15rem',
                       backgroundColor: 'var(--bg-card)',
                       border: '1px solid var(--border)',
                       borderRadius: 'var(--radius-md)'
                     }}
                   >
-                    <div style={{ fontFamily: 'var(--font-heading)', fontSize: '2.4rem', fontWeight: 900, color: 'var(--accent)', lineHeight: 1 }}>
+                    <div style={{ fontFamily: 'var(--font-heading)', fontSize: '2rem', fontWeight: 700, color: 'var(--accent)', lineHeight: 1 }}>
                       {s.value}
                     </div>
-                    <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginTop: '0.35rem' }}>
+                    <div style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', marginTop: '0.35rem' }}>
                       {s.label}
                     </div>
                   </div>
                 ))}
               </div>
 
-              <Link to="/about-vienna-day-trip/" className="btn btn-primary">
+              <Link to="/about-vienna-day-trip/" className="btn btn-primary" style={{ padding: '0.85rem 1.8rem', fontSize: '0.88rem' }}>
                 <span>READ OUR FULL STORY</span>
-                <ArrowRight size={16} />
+                <ArrowRight size={15} />
               </Link>
             </div>
           </div>
@@ -204,7 +213,7 @@ export default function Home() {
           ========================================================================= */}
       <section
         style={{
-          padding: 'clamp(5rem, 10vw, 8.5rem) 0',
+          padding: 'clamp(2.8rem, 4.5vw, 4.25rem) 0',
           position: 'relative',
           backgroundColor: 'var(--bg-surface)',
           borderTop: '1px solid var(--border)',
@@ -218,34 +227,46 @@ export default function Home() {
             top: '50%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
-            width: '800px',
-            height: '400px',
+            width: '700px',
+            height: '350px',
             borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(197, 160, 89, 0.14) 0%, transparent 70%)',
+            background: 'radial-gradient(circle, rgba(197, 160, 89, 0.12) 0%, transparent 70%)',
             pointerEvents: 'none'
           }}
         />
 
         <div className="container" style={{ position: 'relative', zIndex: 10 }}>
           <div className="eyebrow" style={{ justifyContent: 'center' }}>YOUR BESPOKE EXPEDITION AWAITS</div>
-          <h2 className="heading-massive" style={{ marginBottom: '1.75rem', color: 'var(--text-primary)' }}>
-            YOUR NEXT JOURNEY<br />
-            <span className="text-accent-gradient">STARTS HERE.</span>
+          <h2
+            style={{
+              fontFamily: "'Playfair Display', Georgia, serif",
+              fontSize: 'clamp(2rem, 3.8vw, 3rem)',
+              fontWeight: 500,
+              lineHeight: 1.15,
+              marginBottom: '1rem',
+              color: 'var(--text-primary)',
+              letterSpacing: '-0.01em'
+            }}
+          >
+            Your Next Journey<br />
+            <span className="text-accent-gradient" style={{ fontStyle: 'italic', fontWeight: 600 }}>
+              Starts Here.
+            </span>
           </h2>
 
-          <p style={{ color: 'var(--text-secondary)', fontSize: '1.2rem', maxWidth: '640px', margin: '0 auto 2.75rem', lineHeight: '1.7' }}>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '1.02rem', maxWidth: '620px', margin: '0 auto 1.65rem', lineHeight: '1.65' }}>
             Whether you require a seamless airport meet-and-greet, an executive roadshow, or a grand tour to Hallstatt and Budapest, experience the pinnacle of European chauffeuring.
           </p>
 
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.25rem', justifyContent: 'center' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'center' }}>
             <button
               type="button"
               onClick={scrollToBooking}
               className="btn btn-primary"
-              style={{ padding: '1.15rem 2.6rem', fontSize: '1.12rem' }}
+              style={{ padding: '0.95rem 2.2rem', fontSize: '0.95rem' }}
             >
               <span>PLAN YOUR JOURNEY</span>
-              <ArrowRight size={18} />
+              <ArrowRight size={16} />
             </button>
 
             <a
@@ -253,9 +274,9 @@ export default function Home() {
               target="_blank"
               rel="noopener noreferrer"
               className="btn btn-secondary"
-              style={{ padding: '1.15rem 2.4rem', fontSize: '1.12rem' }}
+              style={{ padding: '0.95rem 2rem', fontSize: '0.95rem' }}
             >
-              <MessageSquare size={18} style={{ color: 'var(--accent)' }} />
+              <MessageSquare size={16} style={{ color: 'var(--accent)' }} />
               <span>WHATSAPP CONCIERGE</span>
             </a>
           </div>

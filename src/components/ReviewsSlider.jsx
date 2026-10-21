@@ -21,14 +21,14 @@ export default function ReviewsSlider() {
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'flex-end',
-          marginBottom: '2.5rem',
+          marginBottom: '1.5rem',
           flexWrap: 'wrap',
-          gap: '1.5rem'
+          gap: '1.25rem'
         }}
       >
         <div>
           <div className="eyebrow">VERIFIED CLIENT TESTIMONIALS</div>
-          <h2 className="heading-xl">PRAISED ACROSS CONTINENTS.</h2>
+          <h2 className="heading-xl">Praised Across Continents.</h2>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>

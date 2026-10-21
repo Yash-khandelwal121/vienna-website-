@@ -29,10 +29,10 @@ const steps = [
 export default function TimelineSection() {
   return (
     <div style={{ position: 'relative' }}>
-      <div style={{ textAlign: 'center', maxWidth: '780px', margin: '0 auto 4rem' }}>
+      <div style={{ textAlign: 'center', maxWidth: '780px', margin: '0 auto 2.2rem' }}>
         <div className="eyebrow" style={{ justifyContent: 'center' }}>HOW IT WORKS</div>
-        <h2 className="heading-xl">SEAMLESS FROM FIRST CONTACT.</h2>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '1.05rem', marginTop: '1rem' }}>
+        <h2 className="heading-xl">Seamless from First Contact.</h2>
+        <p style={{ color: 'var(--text-secondary)', fontSize: '1rem', marginTop: '0.65rem' }}>
           Three simple steps to world-class private travel across Austria and Central Europe.
         </p>
       </div>
