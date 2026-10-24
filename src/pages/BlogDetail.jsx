@@ -4,17 +4,45 @@ import { ArrowLeft, Calendar, User, Clock, Tag, Share2, Sparkles, ArrowRight, Sh
 import { getBlogPostBySlug, getRelatedBlogPosts } from '../data/blogs';
 import { siteConfig } from '../data/site';
 import { useLanguage } from '../context/LanguageContext';
+import { fetchPublicBlogBySlug } from '../services/api';
 
 export default function BlogDetail() {
   const { slug } = useParams();
   const navigate = useNavigate();
   const { t } = useLanguage();
 
-  const post = useMemo(() => getBlogPostBySlug(slug), [slug]);
+  const [post, setPost] = React.useState(() => getBlogPostBySlug(slug));
+  const [liveRelated, setLiveRelated] = React.useState([]);
+
+  useEffect(() => {
+    const local = getBlogPostBySlug(slug);
+    if (local) setPost(local);
+
+    let isMounted = true;
+    fetchPublicBlogBySlug(slug).then((res) => {
+      if (isMounted && res?.blog) {
+        setPost((prev) => ({
+          ...(prev || {}),
+          ...res.blog,
+          primaryCategory: res.blog.category || prev?.primaryCategory || 'Luxury Travel',
+          categories: res.blog.categories || prev?.categories || [res.blog.category || 'Luxury Travel'],
+        }));
+        if (res.related?.length > 0) {
+          setLiveRelated(res.related);
+        }
+      }
+    });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [slug]);
+
   const relatedPosts = useMemo(() => {
+    if (liveRelated.length > 0) return liveRelated;
     if (!post) return [];
-    return getRelatedBlogPosts(post.slug, post.primaryCategory, 3);
-  }, [post]);
+    return getRelatedBlogPosts(post.slug, post.primaryCategory || post.category, 3);
+  }, [post, liveRelated]);
 
   // Dynamic SEO Tags & Schema injection
   useEffect(() => {

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Search, Calendar, Clock, ArrowRight, Sparkles, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { allBlogPosts, blogCategories } from '../data/blogs';
 import { useLanguage } from '../context/LanguageContext';
+import { fetchPublicBlogs } from '../services/api';
 
 const POSTS_PER_PAGE = 9;
 
@@ -11,6 +12,8 @@ export default function Blog() {
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [currentPage, setCurrentPage] = useState(1);
+  const [livePosts, setLivePosts] = useState(allBlogPosts);
+  const [isLoading, setIsLoading] = useState(false);
 
   // SEO document title & meta tags
   useEffect(() => {
@@ -25,6 +28,33 @@ export default function Blog() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [currentPage, selectedCategory]);
 
+  // Sync with Sanity CMS & Backend API
+  useEffect(() => {
+    let isMounted = true;
+    async function loadLiveData() {
+      setIsLoading(true);
+      try {
+        const res = await fetchPublicBlogs({ limit: 200, category: selectedCategory, search });
+        if (isMounted && res?.blogs?.length > 0) {
+          const mapped = res.blogs.map((b) => ({
+            ...b,
+            categories: b.categories || [b.category || 'Luxury Travel'],
+            primaryCategory: b.category || b.categories?.[0] || 'Luxury Travel',
+          }));
+          setLivePosts(mapped);
+        }
+      } catch (e) {
+        // preserve local
+      } finally {
+        if (isMounted) setIsLoading(false);
+      }
+    }
+    loadLiveData();
+    return () => {
+      isMounted = false;
+    };
+  }, [search, selectedCategory]);
+
   // Reset page when category or search changes
   useEffect(() => {
     setCurrentPage(1);
@@ -33,21 +63,24 @@ export default function Blog() {
   // Filtered posts based on search query and category
   const filteredPosts = useMemo(() => {
     const query = search.trim().toLowerCase();
-    return allBlogPosts.filter((post) => {
+    return livePosts.filter((post) => {
+      const categories = post.categories || [post.category || 'Luxury Travel'];
+      const primaryCat = post.primaryCategory || post.category || 'Luxury Travel';
+
       const matchesCategory =
         selectedCategory === 'All' ||
-        post.categories.some((c) => c.toLowerCase() === selectedCategory.toLowerCase()) ||
-        post.primaryCategory.toLowerCase() === selectedCategory.toLowerCase();
+        categories.some((c) => c.toLowerCase() === selectedCategory.toLowerCase()) ||
+        primaryCat.toLowerCase() === selectedCategory.toLowerCase();
 
       if (!matchesCategory) return false;
       if (!query) return true;
 
-      const titleMatch = post.title.toLowerCase().includes(query);
-      const excerptMatch = post.excerpt.toLowerCase().includes(query);
-      const categoryMatch = post.categories.some((c) => c.toLowerCase().includes(query));
+      const titleMatch = post.title?.toLowerCase().includes(query);
+      const excerptMatch = post.excerpt?.toLowerCase().includes(query);
+      const categoryMatch = categories.some((c) => c.toLowerCase().includes(query));
       return titleMatch || excerptMatch || categoryMatch;
     });
-  }, [search, selectedCategory]);
+  }, [search, selectedCategory, livePosts]);
 
   // Pagination calculation
   const totalPosts = filteredPosts.length;

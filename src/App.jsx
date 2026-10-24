@@ -13,10 +13,71 @@ import Contact from './pages/Contact';
 import Legal from './pages/Legal';
 import TourPage from './pages/TourPage';
 import NotFound from './pages/NotFound';
+import AdminApp from './admin/AdminApp';
+
+const StudioPage = React.lazy(() => import('./studio/StudioPage'));
 
 export default function App() {
   return (
     <Routes>
+      {/* =========================================================================
+          SANITY STUDIO CMS (Accessible directly at /studio)
+          ========================================================================= */}
+      <Route
+        path="/studio/*"
+        element={
+          <React.Suspense
+            fallback={
+              <div
+                style={{
+                  height: '100vh',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: '#101112',
+                  color: '#FAF8F4',
+                  fontFamily: 'sans-serif',
+                }}
+              >
+                <div
+                  style={{
+                    width: '42px',
+                    height: '42px',
+                    border: '3px solid rgba(198,156,80,0.2)',
+                    borderTop: '3px solid #C69C50',
+                    borderRadius: '50%',
+                    animation: 'vdtSpin 1s linear infinite',
+                  }}
+                />
+                <p
+                  style={{
+                    marginTop: '1.25rem',
+                    color: '#C69C50',
+                    letterSpacing: '0.12em',
+                    fontSize: '0.85rem',
+                    textTransform: 'uppercase',
+                  }}
+                >
+                  Loading Vienna Day Trip Sanity Studio...
+                </p>
+                <style>{`@keyframes vdtSpin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
+              </div>
+            }
+          >
+            <StudioPage />
+          </React.Suspense>
+        }
+      />
+
+      {/* =========================================================================
+          ADMIN DASHBOARD & CMS PORTAL (Independent Clean Luxury Console)
+          ========================================================================= */}
+      <Route path="/admin/*" element={<AdminApp />} />
+
+      {/* =========================================================================
+          PUBLIC CLIENT WEBSITE (With Luxury Chauffeur Layout & Navbar)
+          ========================================================================= */}
       <Route path="/" element={<Layout />}>
         {/* 1. Homepage */}
         <Route index element={<Home />} />

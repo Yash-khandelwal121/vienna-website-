@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { MapPin, Phone, Mail, Clock, MessageSquare, Send, CheckCircle2, ShieldCheck } from 'lucide-react';
 import { siteConfig } from '../data/site';
+import { submitContactEnquiry } from '../services/api';
 
 export default function Contact() {
   const [name, setName] = useState('');
@@ -11,7 +12,7 @@ export default function Contact() {
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!name.trim() || !email.trim()) {
       setError('Please provide your name and email address.');
@@ -20,7 +21,24 @@ export default function Contact() {
     setError('');
     setSubmitted(true);
 
-    const fullMsg = `Hello Vienna Day Trip!
+    let enqRef = '';
+    try {
+      const res = await submitContactEnquiry({
+        name,
+        email,
+        phone,
+        subject: service,
+        message
+      });
+      if (res && res.success && res.reference) {
+        enqRef = res.reference;
+      }
+    } catch (err) {
+      // offline fallback
+    }
+
+    const refLine = enqRef ? `\n• Reference: ${enqRef}` : '';
+    const fullMsg = `Hello Vienna Day Trip!${refLine}
 New Contact Inquiry:
 • Name: ${name}
 • Email: ${email}

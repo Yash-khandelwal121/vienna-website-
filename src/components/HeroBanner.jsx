@@ -16,9 +16,9 @@ import {
   ChevronRight,
   Maximize2
 } from 'lucide-react';
-import { siteConfig } from '../data/site';
 import VehicleModal from './VehicleModal';
 import { useLanguage } from '../context/LanguageContext';
+import { submitBookingEnquiry } from '../services/api';
 
 /* 
   SIXT-STYLE HERO VEHICLES (Independent from Booking Form selection)
@@ -342,7 +342,7 @@ export default function HeroBanner() {
     if (errorMsg) setErrorMsg('');
   };
 
-  const handleGetQuote = (e) => {
+  const handleGetQuote = async (e) => {
     e.preventDefault();
     if (!formData.pickup || !formData.dropoff || !formData.date || !formData.time) {
       setErrorMsg('Please complete all journey fields before requesting your quote.');
@@ -356,7 +356,29 @@ export default function HeroBanner() {
         ? 'Private Day Trip'
         : 'Hourly Chauffeur';
 
-    const message = `Hello Vienna Day Trip! I would like to request a private chauffeur quote:\n\n• Service: ${tabName}\n• Pickup Location: ${formData.pickup}\n• Drop-off Location: ${formData.dropoff}\n• Pickup Date: ${formData.date}\n• Pickup Time: ${formData.time}\n• Passengers: ${formData.passengers}\n• Preferred Vehicle: ${formData.vehicle}\n\nPlease let me know availability and private quote details. Thank you!`;
+    // Asynchronously register enquiry in PostgreSQL database
+    let bookingRef = '';
+    try {
+      const apiRes = await submitBookingEnquiry({
+        customerName: 'Website Guest',
+        email: 'concierge-lead@viennadaytrip.com',
+        serviceType: tabName,
+        pickupLocation: formData.pickup,
+        dropoffLocation: formData.dropoff,
+        pickupDate: formData.date,
+        pickupTime: formData.time,
+        passengerCount: formData.passengers,
+        preferredVehicle: formData.vehicle
+      });
+      if (apiRes && apiRes.success && apiRes.reference) {
+        bookingRef = apiRes.reference;
+      }
+    } catch (err) {
+      // Graceful offline fallback
+    }
+
+    const refLine = bookingRef ? `\n• Booking Reference: ${bookingRef}` : '';
+    const message = `Hello Vienna Day Trip! I would like to request a private chauffeur quote:${refLine}\n\n• Service: ${tabName}\n• Pickup Location: ${formData.pickup}\n• Drop-off Location: ${formData.dropoff}\n• Pickup Date: ${formData.date}\n• Pickup Time: ${formData.time}\n• Passengers: ${formData.passengers}\n• Preferred Vehicle: ${formData.vehicle}\n\nPlease let me know availability and private quote details. Thank you!`;
 
     const encoded = encodeURIComponent(message);
     const whatsappUrl = `https://wa.me/436642035445?text=${encoded}`;

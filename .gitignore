@@ -29,3 +29,15 @@ Thumbs.db
 
 # Temporary / scratch directory
 scratch/
+
+.vercel
+.env*
+
+# Backups & Data Migrations (Protect Customer Data)
+backups/
+sanity-import.ndjson
+image-urls.txt
+CONTENT_AND_TECH_DOCUMENT.md
+*.pem
+*.key
+*.cert

@@ -1,0 +1,320 @@
+// Vienna Day Trip — Complete Prisma Schema (PostgreSQL)
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-1.0.x", "rhel-openssl-3.0.x", "debian-openssl-3.0.x"]
+}
+
+enum Role {
+  SUPER_ADMIN
+  CONTENT_EDITOR
+  BOOKING_MANAGER
+}
+
+enum BookingStatus {
+  NEW
+  CONTACTED
+  QUOTATION_SENT
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
+
+enum EnquiryStatus {
+  NEW
+  CONTACTED
+  FOLLOW_UP_REQUIRED
+  RESOLVED
+  ARCHIVED
+}
+
+model AdminUser {
+  id           String     @id @default(uuid())
+  email        String     @unique
+  passwordHash String
+  name         String
+  role         Role       @default(CONTENT_EDITOR)
+  isActive     Boolean    @default(true)
+  lastLogin    DateTime?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  sessions     Session[]
+  auditLogs    AuditLog[]
+
+  @@index([email])
+}
+
+model Session {
+  id        String    @id @default(uuid())
+  userId    String
+  user      AdminUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String    @unique
+  expiresAt DateTime
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+  @@index([token])
+}
+
+model AuditLog {
+  id        String    @id @default(uuid())
+  userId    String?
+  user      AdminUser? @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action    String
+  entity    String
+  entityId  String?
+  details   Json?
+  ipAddress String?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+  @@index([entity, action])
+  @@index([createdAt])
+}
+
+model Booking {
+  id               String                 @id @default(uuid())
+  reference        String                 @unique
+  customerName     String
+  email            String
+  phone            String
+  serviceType      String
+  pickupLocation   String
+  dropoffLocation  String
+  pickupDate       String
+  pickupTime       String
+  passengerCount   String                 @default("1-3")
+  luggageDetails   String?
+  preferredVehicle String?
+  specialRequests  String?
+  status           BookingStatus          @default(NEW)
+  internalNotes    String?
+  source           String                 @default("WEBSITE_FORM")
+  history          BookingStatusHistory[]
+  createdAt        DateTime               @default(now())
+  updatedAt        DateTime               @updatedAt
+
+  @@index([reference])
+  @@index([email])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model BookingStatusHistory {
+  id        String        @id @default(uuid())
+  bookingId String
+  booking   Booking       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  oldStatus BookingStatus
+  newStatus BookingStatus
+  changedBy String?
+  notes     String?
+  createdAt DateTime      @default(now())
+
+  @@index([bookingId])
+}
+
+model ContactEnquiry {
+  id            String        @id @default(uuid())
+  reference     String        @unique
+  name          String
+  email         String
+  phone         String?
+  subject       String?
+  message       String
+  status        EnquiryStatus @default(NEW)
+  internalNotes String?
+  isArchived    Boolean       @default(false)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@index([reference])
+  @@index([email])
+  @@index([status])
+}
+
+model Vehicle {
+  id               String   @id @default(uuid())
+  vehicleId        String   @unique
+  name             String
+  category         String
+  badge            String?
+  tagline          String?
+  shortDescription String
+  fullDescription  String
+  passengers       String
+  luggage          String
+  ride             String?
+  features         Json?
+  mainImage        String
+  transparentImage String?
+  gallery          Json?
+  availability     String   @default("AVAILABLE")
+  displayOrder     Int      @default(0)
+  isPublished      Boolean  @default(true)
+  seoTitle         String?
+  seoDescription   String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([vehicleId])
+  @@index([isPublished])
+  @@index([displayOrder])
+}
+
+model Service {
+  id           String   @id @default(uuid())
+  slug         String   @unique
+  name         String
+  shortDesc    String
+  fullDesc     String?
+  features     Json?
+  icon         String?
+  image        String
+  ctaLabel     String   @default("Book Service")
+  ctaUrl       String?
+  displayOrder Int      @default(0)
+  isPublished  Boolean  @default(true)
+  seoTitle     String?
+  seoDesc      String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([slug])
+  @@index([isPublished])
+}
+
+model DayTrip {
+  id           String   @id @default(uuid())
+  slug         String   @unique
+  name         String
+  title        String
+  eyebrow      String?
+  shortDesc    String
+  fullDesc     String
+  duration     String
+  image        String
+  gallery      Json?
+  itinerary    Json?
+  highlights   Json?
+  inclusions   Json?
+  exclusions   Json?
+  price        String?
+  isPublished  Boolean  @default(true)
+  displayOrder Int      @default(0)
+  seoTitle     String?
+  seoDesc      String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([slug])
+  @@index([isPublished])
+}
+
+model BlogPost {
+  id            String   @id @default(uuid())
+  slug          String   @unique
+  title         String
+  excerpt       String
+  content       String
+  featuredImage String
+  category      String
+  categories    Json?
+  author        String   @default("Vienna Day Trip Concierge")
+  date          String
+  rawDate       String?
+  isPublished   Boolean  @default(true)
+  seo           Json?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([slug])
+  @@index([category])
+  @@index([isPublished])
+  @@index([createdAt])
+}
+
+model PageSection {
+  id         String   @id @default(uuid())
+  pageKey    String
+  sectionKey String
+  title      String?
+  subtitle   String?
+  content    Json
+  updatedAt  DateTime @updatedAt
+
+  @@unique([pageKey, sectionKey])
+  @@index([pageKey])
+}
+
+model MediaAsset {
+  id           String   @id @default(uuid())
+  filename     String
+  originalName String
+  mimeType     String
+  size         Int
+  url          String
+  altText      String?
+  category     String   @default("general")
+  createdAt    DateTime @default(now())
+
+  @@index([category])
+  @@index([createdAt])
+}
+
+model Translation {
+  id          String   @id @default(uuid())
+  language    String
+  key         String
+  value       String
+  group       String   @default("common")
+  isPublished Boolean  @default(true)
+  updatedAt   DateTime @updatedAt
+
+  @@unique([language, key])
+  @@index([language])
+}
+
+model SEORecord {
+  id              String   @id @default(uuid())
+  routePath       String   @unique
+  metaTitle       String
+  metaDescription String
+  canonicalUrl    String?
+  ogImage         String?
+  keywords        String?
+  isIndexed       Boolean  @default(true)
+  updatedAt       DateTime @updatedAt
+
+  @@index([routePath])
+}
+
+model ReviewIntegration {
+  id            String   @id @default("singleton")
+  googleMapsUrl String
+  isVisible     Boolean  @default(true)
+  maxReviews    Int      @default(6)
+  minRating     Float    @default(4.5)
+  reviewCount   Int      @default(240)
+  averageRating Float    @default(4.9)
+  updatedAt     DateTime @updatedAt
+}
+
+model SiteSettings {
+  id              String   @id @default("singleton")
+  businessName    String   @default("Vienna Day Trip")
+  contactEmail    String   @default("info@viennadaytrip.com")
+  phone           String   @default("+43 664 203 5445")
+  whatsappNumber  String   @default("+43 664 203 5445")
+  address         String   @default("Vienna, Austria")
+  logo            String   @default("/images/logo2.png")
+  favicon         String   @default("/favicon.png")
+  mapsUrl         String   @default("https://maps.google.com/?q=Vienna+Day+Trip")
+  defaultLanguage String   @default("en")
+  updatedAt       DateTime @updatedAt
+}

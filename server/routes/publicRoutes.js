@@ -1,0 +1,26 @@
+import { Router } from 'express';
+import { createBooking } from '../controllers/bookingController.js';
+import { createContactEnquiry } from '../controllers/enquiryController.js';
+import { getPublicVehicles } from '../controllers/fleetController.js';
+import { getPublicServices } from '../controllers/serviceController.js';
+import { getPublicDayTrips, getPublicDayTripBySlug } from '../controllers/dayTripController.js';
+import { getPublicBlogs, getPublicBlogBySlug } from '../controllers/blogController.js';
+import { getSettings, getReviewsSettings } from '../controllers/settingsController.js';
+
+const router = Router();
+
+// Public Enquiries & Bookings
+router.post('/bookings', createBooking);
+router.post('/contact', createContactEnquiry);
+
+// Public Content Endpoints (Only published items)
+router.get('/vehicles', getPublicVehicles);
+router.get('/services', getPublicServices);
+router.get('/day-trips', getPublicDayTrips);
+router.get('/day-trips/:slug', getPublicDayTripBySlug);
+router.get('/blogs', getPublicBlogs);
+router.get('/blogs/:slug', getPublicBlogBySlug);
+router.get('/settings', getSettings);
+router.get('/reviews', getReviewsSettings);
+
+export default router;
