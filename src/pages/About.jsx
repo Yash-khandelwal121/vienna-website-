@@ -240,6 +240,7 @@ export default function About() {
           ========================================================================= */}
       <style>{`
         .about-page-wrapper {
+          padding-top: 74px;
           background-color: #FAF8F4;
           color: #17191C;
           font-family: 'Lora', Georgia, serif;
