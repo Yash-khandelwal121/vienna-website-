@@ -8,6 +8,7 @@ import Fleet from './pages/Fleet';
 import B2B from './pages/B2B';
 import Pricing from './pages/Pricing';
 import Blog from './pages/Blog';
+import BlogDetail from './pages/BlogDetail';
 import Contact from './pages/Contact';
 import Legal from './pages/Legal';
 import TourPage from './pages/TourPage';
@@ -36,12 +37,16 @@ export default function App() {
         <Route path="airport-pick-drop-off" element={<TourPage tourKey="airport-transfer-vienna" />} />
         <Route path="airport-transfer/" element={<TourPage tourKey="airport-transfer-vienna" />} />
         <Route path="airport-transfer" element={<TourPage tourKey="airport-transfer-vienna" />} />
+        <Route path="services/airport-transfers/" element={<TourPage tourKey="airport-transfer-vienna" />} />
+        <Route path="services/airport-transfers" element={<TourPage tourKey="airport-transfer-vienna" />} />
 
         {/* 5. Hourly Chauffeur */}
         <Route path="hourly-chauffeur-service/" element={<TourPage tourKey="hourly-chauffeur-service" />} />
         <Route path="hourly-chauffeur-service" element={<TourPage tourKey="hourly-chauffeur-service" />} />
         <Route path="hourly-chauffeur/" element={<TourPage tourKey="hourly-chauffeur-service" />} />
         <Route path="hourly-chauffeur" element={<TourPage tourKey="hourly-chauffeur-service" />} />
+        <Route path="services/hourly-chauffeur/" element={<TourPage tourKey="hourly-chauffeur-service" />} />
+        <Route path="services/hourly-chauffeur" element={<TourPage tourKey="hourly-chauffeur-service" />} />
 
         {/* 6. Vienna Sightseeing */}
         <Route path="vienna-sightseeing-tour/" element={<TourPage tourKey="vienna-sightseeing-tour" />} />
@@ -83,6 +88,8 @@ export default function App() {
         {/* 14. Secure Transportation */}
         <Route path="secure-transportation/" element={<TourPage tourKey="secure-transportation" />} />
         <Route path="secure-transportation" element={<TourPage tourKey="secure-transportation" />} />
+        <Route path="services/secure-transportation/" element={<TourPage tourKey="secure-transportation" />} />
+        <Route path="services/secure-transportation" element={<TourPage tourKey="secure-transportation" />} />
 
         {/* 15. Luxury Fleet */}
         <Route path="our-fleet/" element={<Fleet />} />
@@ -98,9 +105,13 @@ export default function App() {
         <Route path="tour-pricing/" element={<Pricing />} />
         <Route path="tour-pricing" element={<Pricing />} />
 
-        {/* 18. Blog */}
+        {/* 18. Blog Listing */}
         <Route path="blog" element={<Blog />} />
         <Route path="blog/" element={<Blog />} />
+
+        {/* 18b. Blog Article Details */}
+        <Route path="blog/:slug/" element={<BlogDetail />} />
+        <Route path="blog/:slug" element={<BlogDetail />} />
 
         {/* 19. Contact Us */}
         <Route path="contact-us-i/" element={<Contact />} />

@@ -141,14 +141,7 @@ Please confirm availability and provide a tailored quote. Thank you!`;
 
       {/* Booking Form Inputs */}
       <form onSubmit={handleBooking}>
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-            gap: '1rem',
-            alignItems: 'flex-end'
-          }}
-        >
+        <div className="booking-widget-grid">
           {/* Pickup Location */}
           <div>
             <label className="label-strada">
@@ -213,7 +206,7 @@ Please confirm availability and provide a tailored quote. Thank you!`;
               value={date}
               onChange={(e) => setDate(e.target.value)}
               className="input-strada"
-              style={{ borderColor: errors.date ? '#ff4d4f' : undefined, colorScheme: 'dark' }}
+              style={{ borderColor: errors.date ? '#ff4d4f' : undefined, colorScheme: 'light' }}
             />
           </div>
 
@@ -229,7 +222,7 @@ Please confirm availability and provide a tailored quote. Thank you!`;
               value={time}
               onChange={(e) => setTime(e.target.value)}
               className="input-strada"
-              style={{ borderColor: errors.time ? '#ff4d4f' : undefined, colorScheme: 'dark' }}
+              style={{ borderColor: errors.time ? '#ff4d4f' : undefined, colorScheme: 'light' }}
             />
           </div>
 
@@ -275,7 +268,7 @@ Please confirm availability and provide a tailored quote. Thank you!`;
           </div>
 
           {/* Submit CTA */}
-          <div style={{ minWidth: '180px' }}>
+          <div className="booking-widget-submit-col" style={{ minWidth: '180px' }}>
             <button
               type="submit"
               className="btn btn-primary"
@@ -335,6 +328,26 @@ Please confirm availability and provide a tailored quote. Thank you!`;
           </div>
         )}
       </form>
+
+      <style>{`
+        .booking-widget-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
+          gap: 1rem;
+          align-items: flex-end;
+        }
+
+        @media (max-width: 680px) {
+          .booking-widget-grid {
+            grid-template-columns: 1fr;
+            gap: 1.15rem;
+          }
+          .booking-widget-submit-col {
+            min-width: 100% !important;
+            width: 100% !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }

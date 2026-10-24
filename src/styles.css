@@ -5,11 +5,11 @@
 
 :root {
   /* Color Architecture: Exact User Palette */
-  --bg-main: #FFFFFF;
+  --bg-main: #FAF8F4;
   --bg-surface: #FAF8F4;
   --bg-card: #FFFFFF;
   --bg-card-hover: #FCFCFD;
-  --bg-card-subtle: #F3F4F7;
+  --bg-card-subtle: #F5F1E9;
   --bg-input: #FFFFFF;
 
   /* Champagne Gold Accents */
@@ -29,12 +29,12 @@
   --text-inverse: #FFFFFF;
   --text-gold: #C69C50;
 
-  /* Borders & Hairlines */
-  --border: #E8E4DC;
-  --border-strong: rgba(0, 0, 0, 0.12);
+  /* Borders & Hairlines: Soft Gold */
+  --border: #E6D8C3;
+  --border-strong: rgba(23, 25, 28, 0.12);
   --border-accent: rgba(198, 156, 80, 0.4);
-  --border-subtle: rgba(0, 0, 0, 0.04);
-  --border-gold: rgba(198, 156, 80, 0.3);
+  --border-subtle: rgba(230, 216, 195, 0.4);
+  --border-gold: rgba(198, 156, 80, 0.35);
 
   /* Luxury Typography Hierarchy */
   --font-display: 'Cinzel', Georgia, serif;
@@ -64,6 +64,10 @@
   padding: 0;
 }
 
+img, picture, video, canvas {
+  max-width: 100%;
+}
+
 html {
   font-size: 16px;
   scroll-behavior: smooth;
@@ -72,6 +76,9 @@ html {
   font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  max-width: 100vw;
+  width: 100%;
 }
 
 body {
@@ -79,12 +86,20 @@ body {
   color: var(--text-primary);
   line-height: 1.65;
   overflow-x: hidden;
+  max-width: 100vw;
+  width: 100%;
   min-height: 100vh;
   background-image: 
     radial-gradient(1100px circle at 85% 20%, rgba(197, 160, 89, 0.05), transparent 60%),
     radial-gradient(900px circle at 15% 65%, rgba(197, 160, 89, 0.035), transparent 55%),
     radial-gradient(1000px circle at 50% 95%, rgba(240, 243, 248, 0.8), transparent 60%);
   background-attachment: fixed;
+}
+
+#root {
+  overflow-x: hidden;
+  max-width: 100vw;
+  width: 100%;
 }
 
 /* Custom Luxury Scrollbar */
@@ -865,41 +880,14 @@ select.input-strada option {
   position: relative;
   overflow: hidden;
   isolation: isolate;
-  border-radius: 24px;
+  border-radius: 28px;
   border: 1px solid #E6D8C3;
 }
 
-/* FIX BACKGROUND IMAGE */
-.vdt-hero::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-
-  background-image: url('/images/vienna-hero-clean.jpg');
-  background-position: center center;
-  background-size: cover;
-  background-repeat: no-repeat;
-
-  opacity: 1;
-  z-index: -2;
-}
-
-/* REDUCE WHITE OVERLAY */
+/* Background handled via high-performance GPU cinematic stage */
+.vdt-hero::before,
 .vdt-hero::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-
-  background: linear-gradient(
-    90deg,
-    rgba(250, 248, 244, 0.88) 0%,
-    rgba(250, 248, 244, 0.65) 25%,
-    rgba(250, 248, 244, 0.18) 48%,
-    rgba(250, 248, 244, 0.00) 70%
-  );
-
-  z-index: -1;
-  pointer-events: none;
+  display: none;
 }
 
 /* CONTENT */
@@ -1164,6 +1152,265 @@ select.input-strada option {
     opacity: 0.85;
   }
 }
+
+/* =====================================================================
+   PREMIUM CINEMATIC SCROLL REVEAL SYSTEM (TourlyTransfer Inspired)
+   - Duration: 600ms
+   - Translate Y: 24px → 0
+   - Opacity: 0 → 1
+   - Easing: cubic-bezier(0.22, 1, 0.36, 1)
+   - Single execution via IntersectionObserver
+   ===================================================================== */
+
+/* Individual reveal element */
+.reveal-on-scroll {
+  opacity: 0;
+  transform: translate3d(0, 24px, 0);
+  transition: opacity 600ms cubic-bezier(0.22, 1, 0.36, 1),
+              transform 600ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+
+.reveal-on-scroll.is-revealed {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+/* Section Headings: Subtitle, Title, Description smoothly reveal upward */
+.vdt-section-heading,
+.section-header,
+.reveal-header {
+  opacity: 0;
+  transform: translate3d(0, 24px, 0);
+  transition: opacity 600ms cubic-bezier(0.22, 1, 0.36, 1),
+              transform 600ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+
+.vdt-section-heading.is-revealed,
+.section-header.is-revealed,
+.reveal-header.is-revealed {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+/* Staggered Cards (Fleet, Services, Process Steps, Grids) */
+.vdt-grid .vdt-card,
+.reveal-stagger > *,
+.reveal-stagger .stagger-item {
+  opacity: 0;
+  transform: translate3d(0, 24px, 0);
+  transition: opacity 600ms cubic-bezier(0.22, 1, 0.36, 1),
+              transform 600ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+
+/* When the parent container is revealed, trigger staggered card animations */
+.vdt-grid.is-revealed .vdt-card:nth-child(1),
+.reveal-stagger.is-revealed > *:nth-child(1),
+.reveal-stagger.is-revealed .stagger-item:nth-child(1) {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  transition-delay: 40ms;
+}
+
+.vdt-grid.is-revealed .vdt-card:nth-child(2),
+.reveal-stagger.is-revealed > *:nth-child(2),
+.reveal-stagger.is-revealed .stagger-item:nth-child(2) {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  transition-delay: 120ms;
+}
+
+.vdt-grid.is-revealed .vdt-card:nth-child(3),
+.reveal-stagger.is-revealed > *:nth-child(3),
+.reveal-stagger.is-revealed .stagger-item:nth-child(3) {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  transition-delay: 200ms;
+}
+
+.vdt-grid.is-revealed .vdt-card:nth-child(4),
+.reveal-stagger.is-revealed > *:nth-child(4),
+.reveal-stagger.is-revealed .stagger-item:nth-child(4) {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  transition-delay: 280ms;
+}
+
+.vdt-grid.is-revealed .vdt-card:nth-child(n+5),
+.reveal-stagger.is-revealed > *:nth-child(n+5),
+.reveal-stagger.is-revealed .stagger-item:nth-child(n+5) {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  transition-delay: 360ms;
+}
+
+/* Images appear smoothly without sudden movement */
+.vdt-card img,
+.vdt-service-image img,
+.vdt-fleet-image img {
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1), filter 0.4s ease;
+}
+
+/* Mobile & accessibility overrides */
+@media (max-width: 768px) {
+  .vdt-grid .vdt-card,
+  .reveal-stagger > *,
+  .reveal-stagger .stagger-item {
+    transition-delay: 0ms !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal-on-scroll,
+  .vdt-section-heading,
+  .section-header,
+  .reveal-header,
+  .vdt-grid .vdt-card,
+  .reveal-stagger > *,
+  .reveal-stagger .stagger-item {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+}
+
+/* =====================================================================
+   VIENNA TRAVEL JOURNAL — BESPOKE ARTICLE TYPOGRAPHY
+   ===================================================================== */
+.blog-article-content {
+  font-family: var(--font-body);
+  font-size: 1.12rem;
+  line-height: 1.85;
+  color: #24272C;
+}
+
+.blog-article-content h2 {
+  font-family: var(--font-heading);
+  font-size: clamp(1.6rem, 2.8vw, 2.1rem);
+  font-weight: 700;
+  color: #17191C;
+  margin: 2.8rem 0 1.15rem;
+  padding-bottom: 0.65rem;
+  border-bottom: 1.5px solid #E6D8C3;
+  line-height: 1.25;
+}
+
+.blog-article-content h3 {
+  font-family: var(--font-heading);
+  font-size: clamp(1.3rem, 2.2vw, 1.6rem);
+  font-weight: 700;
+  color: #17191C;
+  margin: 2.2rem 0 0.95rem;
+  line-height: 1.3;
+}
+
+.blog-article-content h4 {
+  font-family: var(--font-heading);
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #17191C;
+  margin: 1.8rem 0 0.85rem;
+}
+
+.blog-article-content p {
+  font-family: var(--font-body);
+  font-size: 1.1rem;
+  line-height: 1.85;
+  color: #33373E;
+  margin-bottom: 1.6rem;
+}
+
+.blog-article-content p strong,
+.blog-article-content strong {
+  font-weight: 700;
+  color: #17191C;
+}
+
+.blog-article-content ul,
+.blog-article-content ol {
+  font-family: var(--font-body);
+  font-size: 1.05rem;
+  line-height: 1.8;
+  color: #33373E;
+  margin: 1.5rem 0 2rem;
+  padding-left: 1.8rem;
+}
+
+.blog-article-content li {
+  margin-bottom: 0.6rem;
+}
+
+.blog-article-content a {
+  color: #C69C50;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color 0.18s ease;
+}
+
+.blog-article-content a:hover {
+  color: #B58B3F;
+}
+
+.blog-article-content blockquote {
+  border-left: 3px solid #C69C50;
+  padding: 1rem 1.5rem;
+  margin: 2rem 0;
+  background-color: #FFFFFF;
+  border-radius: 0 12px 12px 0;
+  font-style: italic;
+  color: #555960;
+  border-top: 1px solid #E6D8C3;
+  border-right: 1px solid #E6D8C3;
+  border-bottom: 1px solid #E6D8C3;
+}
+
+.blog-article-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 12px;
+  border: 1px solid #E6D8C3;
+  margin: 2rem 0;
+  box-shadow: 0 8px 25px rgba(23, 25, 28, 0.06);
+  display: block;
+}
+
+.blog-article-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 2.5rem 0;
+  background-color: #FFFFFF;
+  border: 1px solid #E6D8C3;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(23, 25, 28, 0.03);
+}
+
+.blog-article-content th {
+  background-color: #F8F5EE;
+  color: #17191C;
+  font-family: var(--font-heading);
+  font-size: 0.95rem;
+  font-weight: 700;
+  padding: 0.9rem 1.15rem;
+  text-align: left;
+  border: 1px solid #E6D8C3;
+}
+
+.blog-article-content td {
+  padding: 0.85rem 1.15rem;
+  border: 1px solid #E6D8C3;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  color: #33373E;
+}
+
+.blog-article-content tr:nth-child(even) td {
+  background-color: #FCFBF9;
+}
+
 
 
 

@@ -174,7 +174,7 @@ export default function DestinationCarousel() {
           <div
             key={dest.number}
             style={{
-              flex: '0 0 clamp(310px, 32vw, 420px)',
+              flex: '0 0 clamp(270px, 78vw, 420px)',
               scrollSnapAlign: 'start',
               position: 'relative',
               borderRadius: 'var(--radius-xl)',

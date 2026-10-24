@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, MessageSquare } from 'lucide-react';
 import HeroBanner from '../components/HeroBanner';
 import DestinationCarousel from '../components/DestinationCarousel';
-import BentoServices from '../components/BentoServices';
+import PremiumServices from '../components/PremiumServices';
 import VehicleShowcase from '../components/VehicleShowcase';
 import TimelineSection from '../components/TimelineSection';
 import DestinationGallery from '../components/DestinationGallery';
@@ -24,7 +24,7 @@ export default function Home() {
       <HeroBanner />
 
       {/* Animated Marquee Ticker */}
-      <div className="marquee-container">
+      <div className="marquee-container reveal-on-scroll">
         <div className="marquee-content">
           {[...marqueeItems, ...marqueeItems].map((item, idx) => (
             <span key={idx} className="marquee-item">
@@ -38,16 +38,16 @@ export default function Home() {
       {/* =========================================================================
           SECTION 4: PREMIUM DESTINATIONS (Horizontal Carousel)
           ========================================================================= */}
-      <section className="section section-dark">
+      <section className="section section-dark reveal-on-scroll">
         <div className="container-wide">
           <DestinationCarousel />
         </div>
       </section>
 
       {/* =========================================================================
-          SECTION 5: OUR SERVICES (2x2 Grid)
+          SECTION 5: OUR PREMIUM SERVICES (European Luxury Arch Showcase)
           ========================================================================= */}
-      <BentoServices />
+      <PremiumServices />
 
       {/* =========================================================================
           SECTION 6: LUXURY FLEET (2x2 Grid)
@@ -57,7 +57,7 @@ export default function Home() {
       {/* =========================================================================
           SECTION 7: HOW IT WORKS (Animated Horizontal Timeline)
           ========================================================================= */}
-      <section className="section section-secondary">
+      <section className="section section-secondary reveal-on-scroll">
         <div className="container">
           <TimelineSection />
         </div>
@@ -66,12 +66,12 @@ export default function Home() {
       {/* =========================================================================
           SECTION 8: ABOUT US (Editorial Split Layout)
           ========================================================================= */}
-      <section className="section section-dark">
+      <section className="section section-dark reveal-on-scroll">
         <div className="container-wide">
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 340px), 1fr))',
               gap: 'clamp(2.5rem, 5vw, 5rem)',
               alignItems: 'center'
             }}
@@ -84,7 +84,7 @@ export default function Home() {
                   overflow: 'hidden',
                   border: '1px solid var(--border)',
                   position: 'relative',
-                  height: '560px'
+                  height: 'clamp(340px, 55vw, 560px)'
                 }}
               >
                 <img
@@ -202,7 +202,7 @@ export default function Home() {
       {/* =========================================================================
           SECTION 10: CUSTOMER REVIEWS (Horizontal Testimonial Slider)
           ========================================================================= */}
-      <section className="section section-dark">
+      <section className="section section-dark reveal-on-scroll">
         <div className="container-wide">
           <ReviewsSlider />
         </div>
@@ -212,6 +212,7 @@ export default function Home() {
           SECTION 11: FINAL CTA (White Pearl & Champagne Gold)
           ========================================================================= */}
       <section
+        className="reveal-on-scroll"
         style={{
           padding: 'clamp(2.8rem, 4.5vw, 4.25rem) 0',
           position: 'relative',

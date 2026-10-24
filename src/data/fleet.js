@@ -69,7 +69,7 @@ export const fleetData = [
       "Privacy tinted glass & electric sliding doors"
     ],
     gallery: [
-      "https://viennadaytrip.com/wp-content/uploads/2026/03/V-Class.png",
+      "/cars/v-class.png",
       "https://viennadaytrip.com/wp-content/uploads/2026/05/V-class-interior-1.png",
       "https://viennadaytrip.com/wp-content/uploads/2026/05/V-class-interior-2.png"
     ]
@@ -79,7 +79,7 @@ export const fleetData = [
     name: "Mercedes-Benz Sprinter VIP",
     category: "Luxury Mini-Coach",
     tagline: "Spacious Group Travel with High-End Refinement",
-    image: "https://viennadaytrip.com/wp-content/uploads/2026/05/Mercedes-Sprinter-%E2%80%93-VIP-Group-Transport.jpeg",
+    image: "/cars/sprinter.png",
     passengers: "8-16 Guests",
     luggage: "16 Large Bags",
     transmission: "Heavy-Duty Comfort",
@@ -94,7 +94,7 @@ export const fleetData = [
       "Available only upon special advance request"
     ],
     gallery: [
-      "https://viennadaytrip.com/wp-content/uploads/2026/05/Mercedes-Sprinter-%E2%80%93-VIP-Group-Transport.jpeg",
+      "/cars/sprinter.png",
       "https://viennadaytrip.com/wp-content/uploads/2026/03/2-1-1024x768-1.jpg"
     ]
   },
@@ -103,7 +103,7 @@ export const fleetData = [
     name: "Armored Luxury Vehicle",
     category: "Tactical & Diplomatic Protection",
     tagline: "Discreet Ballistic Protection & Executive Security",
-    image: "https://viennadaytrip.com/wp-content/uploads/2026/05/Armored-Vehicle-.jpeg",
+    image: "/cars/armored.png",
     passengers: "3 Guests",
     luggage: "3 Bags",
     transmission: "Reinforced Chassis",
@@ -118,7 +118,7 @@ export const fleetData = [
       "Available upon confidential advance inquiry"
     ],
     gallery: [
-      "https://viennadaytrip.com/wp-content/uploads/2026/05/Armored-Vehicle-.jpeg",
+      "/cars/armored.png",
       "https://viennadaytrip.com/wp-content/uploads/2026/03/Celebrity-VIP-Secure-Transfers.jpeg",
       "https://viennadaytrip.com/wp-content/uploads/2026/03/Diplomatic-Embassy-Transportation.jpeg",
       "https://viennadaytrip.com/wp-content/uploads/2026/03/Executive-Chauffeur-Protection-Services.jpeg"

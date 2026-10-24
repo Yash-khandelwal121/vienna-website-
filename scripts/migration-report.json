@@ -1,0 +1,78 @@
+{
+  "totalDiscovered": 129,
+  "totalMigrated": 129,
+  "totalImagesDownloaded": 163,
+  "missingArticlesCount": 0,
+  "missingImagesCount": 12,
+  "articlesRequiringVerification": [],
+  "missingImagesList": [
+    {
+      "post": "hallstatt-salt-mines-tour-ancient-history-adventure",
+      "url": "none",
+      "type": "featured"
+    },
+    {
+      "post": "vienna-historical-sites-must-visit-day-trip-destinations",
+      "url": "none",
+      "type": "featured"
+    },
+    {
+      "post": "salzburg-christmas-markets-day-trip-from-vienna",
+      "url": "none",
+      "type": "featured"
+    },
+    {
+      "post": "why-choose-vienna-chauffeur-service-for-day-trips",
+      "url": "none",
+      "type": "featured"
+    },
+    {
+      "post": "hallstatt-in-winter-a-magical-winter-wonderland-guide",
+      "url": "none",
+      "type": "featured"
+    },
+    {
+      "post": "vienna-to-salzburg-day-trip-perfect-itinerary",
+      "url": "none",
+      "type": "featured"
+    },
+    {
+      "post": "hallstatt-day-trip-from-vienna-complete-travel-guide",
+      "url": "none",
+      "type": "featured"
+    },
+    {
+      "post": "salzburg-sound-of-music-tour-complete-guide",
+      "url": "none",
+      "type": "featured"
+    },
+    {
+      "post": "best-time-to-visit-vienna-seasonal-guide-for-day-trips",
+      "url": "none",
+      "type": "featured"
+    },
+    {
+      "post": "salzburg-in-a-day-a-clean-doable-route",
+      "url": "none",
+      "type": "featured"
+    },
+    {
+      "post": "hallstatt-or-wachau-pick-the-right-day-trip-for-you",
+      "url": "none",
+      "type": "featured"
+    },
+    {
+      "post": "vienna-day-trip-essentials-pack-smart-travel-easy",
+      "url": "none",
+      "type": "featured"
+    }
+  ],
+  "categoryBreakdown": {
+    "Our Blog": 56,
+    "Uncategorized": 27,
+    "Chauffeur": 40,
+    "General": 11,
+    "Car Rent": 8,
+    "Services": 1
+  }
+}

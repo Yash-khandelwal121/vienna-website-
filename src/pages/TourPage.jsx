@@ -40,14 +40,7 @@ export default function TourPage({ tourKey }) {
         }}
       >
         <div className="container-wide" style={{ position: 'relative', zIndex: 10 }}>
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))',
-              gap: 'clamp(2.5rem, 5vw, 4.5rem)',
-              alignItems: 'center'
-            }}
-          >
+          <div className="tour-hero-grid">
             {/* Left Column: Editorial Details */}
             <div>
               {/* Breadcrumb */}
@@ -123,8 +116,8 @@ export default function TourPage({ tourKey }) {
             {/* Right Column: Crisp Vibrant Destination Photography */}
             <div style={{ position: 'relative' }}>
               <div
+                className="tour-hero-img-box"
                 style={{
-                  height: '480px',
                   borderRadius: 'var(--radius-xl)',
                   overflow: 'hidden',
                   border: '1px solid rgba(0, 0, 0, 0.08)',
@@ -153,14 +146,7 @@ export default function TourPage({ tourKey }) {
           ========================================================================= */}
       <section className="section section-dark">
         <div className="container-wide">
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-              gap: '4rem',
-              alignItems: 'flex-start'
-            }}
-          >
+          <div className="tour-overview-grid">
             {/* Left: Detailed Overview */}
             <div>
               <div className="eyebrow">EXPERIENCE OVERVIEW</div>
@@ -263,18 +249,14 @@ export default function TourPage({ tourKey }) {
               {tour.itinerary.map((step, idx) => (
                 <div
                   key={idx}
+                  className="itinerary-item tour-itinerary-card"
                   style={{
                     backgroundColor: 'var(--bg-card)',
                     border: '1px solid var(--border)',
                     borderRadius: 'var(--radius-lg)',
                     padding: '1.75rem 2rem',
-                    display: 'grid',
-                    gridTemplateColumns: '130px 1fr',
-                    gap: '2rem',
-                    alignItems: 'center',
                     transition: 'all 0.2s ease'
                   }}
-                  className="itinerary-item"
                 >
                   <div>
                     <div style={{ fontFamily: 'var(--font-heading)', fontSize: '1.15rem', fontWeight: 800, color: 'var(--accent)' }}>
@@ -314,7 +296,7 @@ export default function TourPage({ tourKey }) {
             <div
               style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))',
                 gap: '2rem'
               }}
             >
@@ -366,7 +348,7 @@ export default function TourPage({ tourKey }) {
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))',
               gap: '2rem'
             }}
           >
@@ -452,7 +434,7 @@ export default function TourPage({ tourKey }) {
               </Link>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '2rem' }}>
               {relatedTours.map((rel) => (
                 <div
                   key={rel.slug}
@@ -498,6 +480,41 @@ export default function TourPage({ tourKey }) {
           <BookingWidget />
         </div>
       </section>
+
+      <style>{`
+        .tour-hero-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr));
+          gap: clamp(2rem, 4vw, 4.5rem);
+          align-items: center;
+        }
+
+        .tour-hero-img-box {
+          height: clamp(300px, 45vw, 480px);
+        }
+
+        .tour-overview-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+          gap: clamp(2rem, 4vw, 4rem);
+          align-items: flex-start;
+        }
+
+        .tour-itinerary-card {
+          display: grid;
+          grid-template-columns: 130px 1fr;
+          gap: 2rem;
+          align-items: center;
+        }
+
+        @media (max-width: 600px) {
+          .tour-itinerary-card {
+            grid-template-columns: 1fr;
+            gap: 0.75rem;
+            padding: 1.25rem 1.5rem !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }

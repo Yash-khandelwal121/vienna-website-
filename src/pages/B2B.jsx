@@ -90,7 +90,7 @@ New Partnership Inquiry:
           </div>
 
           {/* B2B Services & Benefits Grid */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '4rem', marginBottom: '5rem', alignItems: 'flex-start' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))', gap: '3rem', marginBottom: '5rem', alignItems: 'flex-start' }}>
             {/* Services for Partners */}
             <div className="card-strada">
               <div className="eyebrow">DEDICATED SERVICES</div>
@@ -185,7 +185,7 @@ New Partnership Inquiry:
             </div>
 
             <form onSubmit={handleSubmit} style={{ maxWidth: '820px', margin: '0 auto' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.25rem', marginBottom: '1.25rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap: '1.25rem', marginBottom: '1.25rem' }}>
                 <div>
                   <label className="label-strada">Partner Type</label>
                   <select

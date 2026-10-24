@@ -5,7 +5,7 @@ export const siteConfig = {
   phoneDisplay: "+43 664 2035445",
   email: "booking@viennadaytrip.com",
   address: "Lechnerstraße 2, 1030 Vienna, Austria",
-  googleMapsUrl: "https://www.google.com/maps/place/Vienna+Day+Trip+%7C+Luxury+Taxi+%26+Airport+Transfers/@48.1983157,16.4075483,17z/data=!3m1!4b1!4m6!3m5!1s0x8a448010b2701db5:0x8837fa7ac4dd2722!8m2!3d48.1983157!4d16.4075483!16s%2Fg%2F11zj40_mr5!18m1!1e1?entry=ttu",
+  googleMapsUrl: "https://www.google.com/maps/place/Vienna+Day+Trip+%7C+Private+Chauffeur+%26+Limousines+%7C+Airport+Transfers/@48.1972001,16.4100588,17z/data=!4m8!3m7!1s0x8a448010b2701db5:0x8837fa7ac4dd2722!8m2!3d48.1983157!4d16.4075483!9m1!1b1!16s%2Fg%2F11zj40_mr5!18m1!1e1?entry=ttu",
   whatsappUrl: "https://api.whatsapp.com/send/?phone=436642035445&text=Hello%21%20I%27m%20interested%20in%20your%20Vienna%20Limousine%20services.&type=phone_number&app_absent=0",
   socials: {
     facebook: "https://www.facebook.com/share/1GDCLKbEKY/?mibextid=wwXIfr",
@@ -32,37 +32,34 @@ export const siteConfig = {
 };
 
 export const navLinks = [
-  { label: "Home", href: "/" },
-  { label: "About Us", href: "/about-vienna-day-trip/" },
+  { label: "Home", href: "/", tKey: "nav_home" },
   {
     label: "Our Services",
     href: "/our-services/",
+    tKey: "nav_services",
     dropdown: [
-      { label: "Overview: All Services", href: "/our-services/" },
-      { label: "Vienna Airport Transfer", href: "/airport-transfer-vienna/" },
-      { label: "Hourly Chauffeur Service", href: "/hourly-chauffeur-service/" },
-      { label: "Vienna Sightseeing Tour", href: "/vienna-sightseeing-tour/" },
-      { label: "Secure Transportation", href: "/secure-transportation/" }
+      { label: "Airport Transfers", href: "/airport-transfer-vienna/", tKey: "nav_airport_transfer" },
+      { label: "Hourly Chauffeur", href: "/hourly-chauffeur-service/", tKey: "nav_hourly_chauffeur" },
+      { label: "Private Transfers", href: "/our-services/", tKey: "nav_private_transfers" },
+      { label: "B2B Solutions", href: "/b2b-solutions/", tKey: "nav_b2b_solutions" }
     ]
   },
   {
     label: "Day Trips",
     href: "/tour-pricing/",
+    tKey: "nav_daytrips",
     dropdown: [
-      { label: "Hallstatt Day Trip", href: "/hallstatt-day-trip-from-vienna/" },
-      { label: "Salzburg Day Trip", href: "/salzburg-day-trip/" },
-      { label: "Budapest Day Trip", href: "/budapest-day-trip/" },
-      { label: "Prague Day Trip", href: "/prague-day-trip/" },
-      { label: "Bratislava Day Trip", href: "/bratislava-day-trip/" },
-      { label: "Wachau Valley Trip", href: "/wachau-valley-trip/" },
-      { label: "Customized Day Trips", href: "/customized-day-trips/" }
+      { label: "Hallstatt Day Trip", href: "/hallstatt-day-trip-from-vienna/", tKey: "dt_hallstatt" },
+      { label: "Salzburg Day Trip", href: "/salzburg-day-trip/", tKey: "dt_salzburg" },
+      { label: "Budapest Day Trip", href: "/budapest-day-trip/", tKey: "dt_budapest" },
+      { label: "Prague Day Trip", href: "/prague-day-trip/", tKey: "dt_prague" },
+      { label: "Bratislava Day Trip", href: "/bratislava-day-trip/", tKey: "dt_bratislava" },
+      { label: "Wachau Valley Trip", href: "/wachau-valley-trip/", tKey: "dt_wachau" },
+      { label: "Customized Day Trips", href: "/customized-day-trips/", tKey: "dt_custom" }
     ]
   },
-  { label: "Luxury Fleet", href: "/our-fleet/" },
-  { label: "B2B Solutions", href: "/b2b-solutions/" },
-  { label: "Tours & Pricing", href: "/tour-pricing/" },
-  { label: "Blog", href: "/blog" },
-  { label: "Contact Us", href: "/contact-us-i/" }
+  { label: "Luxury Fleet", href: "/our-fleet/", tKey: "nav_fleet" },
+  { label: "About Us", href: "/about-vienna-day-trip/", tKey: "nav_about" }
 ];
 
 export const reviews = [

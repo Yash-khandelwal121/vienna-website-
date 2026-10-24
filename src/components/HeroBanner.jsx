@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
   MapPin,
@@ -11,11 +11,298 @@ import {
   ShieldCheck,
   Gem,
   Compass,
-  Lock
+  Lock,
+  ChevronLeft,
+  ChevronRight,
+  Maximize2
 } from 'lucide-react';
 import { siteConfig } from '../data/site';
+import VehicleModal from './VehicleModal';
+import { useLanguage } from '../context/LanguageContext';
+
+/* 
+  SIXT-STYLE HERO VEHICLES (Independent from Booking Form selection)
+  1. Mercedes-Benz S-Class (First Class Sedan)
+  2. Mercedes-Benz E-Class (Business Class Sedan)
+  3. Mercedes-Benz V-Class (VIP Business Van)
+  4. Mercedes-Benz Sprinter (VIP Group Minibus)
+  - Specifications authentic to src/data/fleet.js
+  - Fine-tuned scale & offset so V-Class and Sprinter never overlap the left description text
+*/
+const HERO_VEHICLES = [
+  {
+    id: 's-class',
+    fleetId: 's-class',
+    bookingValue: 'Mercedes S-Class',
+    name: 'Mercedes-Benz S-Class',
+    badge: 'First Class Sedan',
+    category: 'First Class Limousine',
+    tagline: 'The Pinnacle of Automotive Luxury',
+    image: '/cars/s-class.webp',
+    fallback: '/cars/s-class.png',
+    alt: 'Mercedes-Benz S-Class luxury chauffeur sedan',
+    scale: 0.98,
+    offsetY: '0px',
+    offsetX: '0px',
+    passengers: '3 Guests',
+    luggage: '2 Large Bags',
+    ride: 'AIRMATIC Suspension',
+    description: 'The Mercedes S-Class represents the highest level of luxury in our fleet. Every detail is designed to provide a first-class travel experience—from its ultra-quiet cabin to its cutting-edge technology.',
+    features: [
+      'Whisper-quiet acoustic insulation & double glazing',
+      'Rear reclining executive seats with massage function',
+      'Burmester® 3D surround sound system',
+      'Chilled refreshment compartment & evian water'
+    ]
+  },
+  {
+    id: 'e-class',
+    fleetId: 'e-class',
+    bookingValue: 'Mercedes E-Class',
+    name: 'Mercedes-Benz E-Class',
+    badge: 'Business Class Sedan',
+    category: 'Executive Business',
+    tagline: 'Sophistication Meets Everyday Efficiency',
+    image: '/cars/e-class.webp',
+    fallback: '/cars/e-class.png',
+    alt: 'Mercedes-Benz E-Class executive chauffeur sedan',
+    scale: 0.96,
+    offsetY: '0px',
+    offsetX: '0px',
+    passengers: '3 Guests',
+    luggage: '2 Large Bags',
+    ride: '9G-TRONIC Transmission',
+    description: 'The Mercedes E-Class is where sophistication meets everyday practicality. Designed for comfort and efficiency, it offers a smooth and quiet ride, suited to both business and private transfers.',
+    features: [
+      'Refined acoustic glass and ultra-quiet cabin',
+      'Executive leather seating with heating',
+      'Complimentary high-speed onboard Wi-Fi',
+      'Dual-zone climate control & mineral water'
+    ]
+  },
+  {
+    id: 'v-class',
+    fleetId: 'v-class',
+    bookingValue: 'Mercedes V-Class',
+    name: 'Mercedes-Benz V-Class',
+    badge: 'VIP Business Van',
+    category: 'VIP Executive Van',
+    tagline: 'First-Class Space for Families & Delegations',
+    image: '/cars/v-class.webp',
+    fallback: '/cars/v-class.png',
+    alt: 'Mercedes-Benz V-Class VIP luxury chauffeur van',
+    scale: 0.88,
+    offsetY: '-2px',
+    offsetX: '48px',
+    passengers: '7 Guests',
+    luggage: '7 Large Bags',
+    ride: 'Luxury Air Ride',
+    description: 'The Mercedes V-Class offers the perfect combination of generous space and uncompromised luxury. With flexible conference seating and abundant luggage space, it is ideal for families, small groups, and long-distance European journeys.',
+    features: [
+      'Spacious conference seating face-to-face setup',
+      'Separate rear digital passenger climate control',
+      'Generous luggage capacity for up to 7 large suitcases',
+      'Privacy tinted glass & electric sliding doors'
+    ]
+  },
+  {
+    id: 'sprinter',
+    fleetId: 'sprinter',
+    bookingValue: 'Mercedes Sprinter VIP',
+    name: 'Mercedes-Benz Sprinter',
+    badge: 'VIP Group Minibus',
+    category: 'Luxury Mini-Coach',
+    tagline: 'Spacious Group Travel with High-End Refinement',
+    image: '/cars/sprinter.webp',
+    fallback: '/cars/sprinter.png',
+    alt: 'Mercedes-Benz Sprinter VIP luxury minibus',
+    scale: 0.84,
+    offsetY: '2px',
+    offsetX: '54px',
+    passengers: '8-16 Guests',
+    luggage: '16 Large Bags',
+    ride: 'Heavy-Duty Comfort',
+    description: 'The Mercedes Sprinter offers premium comfort, generous headroom, and smooth long-distance travel for group transportation, airport transfers, corporate delegations, and private European tours.',
+    features: [
+      'Stand-up cabin height with panoramic tinted windows',
+      'Reclining leather captain chairs with armrests',
+      'Individual air conditioning vents & power outlets',
+      'Huge separate luggage compartment in the rear'
+    ]
+  }
+];
 
 export default function HeroBanner() {
+  const { t } = useLanguage();
+
+  // Vehicle Slider State (Independent State)
+  const [currentCarIdx, setCurrentCarIdx] = useState(0);
+  const [prevCarIdx, setPrevCarIdx] = useState(null);
+  const [slideDirection, setSlideDirection] = useState('next'); // 'next' | 'prev'
+  const [touchStart, setTouchStart] = useState(null);
+
+  // Auto-Slider & Modal Controls State
+  const [isHoveredNav, setIsHoveredNav] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalCarIdx, setModalCarIdx] = useState(0);
+  const [isTabActive, setIsTabActive] = useState(!document.hidden);
+  const [timerResetKey, setTimerResetKey] = useState(0);
+
+  // Preload all vehicle images immediately to eliminate delay or flicker
+  useEffect(() => {
+    HERO_VEHICLES.forEach((v) => {
+      const img = new Image();
+      img.src = v.image;
+    });
+  }, []);
+
+  // Listen for preselected vehicle requests (e.g. from Fleet page "Request This Vehicle")
+  useEffect(() => {
+    try {
+      const preselected = sessionStorage.getItem('vdt_selected_vehicle');
+      if (preselected) {
+        setFormData((prev) => ({ ...prev, vehicle: preselected }));
+        sessionStorage.removeItem('vdt_selected_vehicle');
+        const foundIdx = HERO_VEHICLES.findIndex(
+          (v) => v.bookingValue === preselected || v.name.toLowerCase().includes(preselected.toLowerCase())
+        );
+        if (foundIdx !== -1) {
+          setCurrentCarIdx(foundIdx);
+        }
+        setTimeout(() => {
+          const card = document.getElementById('hero-booking-card');
+          if (card) {
+            card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }, 150);
+      }
+    } catch (e) {
+      // ignore
+    }
+  }, []);
+
+  // Monitor document visibility to pause when inactive
+  useEffect(() => {
+    const handleVisibility = () => {
+      setIsTabActive(!document.hidden);
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
+  }, []);
+
+  // Automatic Vehicle Slider: 5-second interval
+  // Paused when: hovered over nav card, modal is open, or browser tab is inactive
+  useEffect(() => {
+    if (isModalOpen || isHoveredNav || !isTabActive) {
+      return;
+    }
+
+    const interval = setInterval(() => {
+      setSlideDirection('next');
+      setPrevCarIdx(currentCarIdx);
+      setCurrentCarIdx((prev) => (prev + 1) % HERO_VEHICLES.length);
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [currentCarIdx, isModalOpen, isHoveredNav, isTabActive, timerResetKey]);
+
+  // Transition duration: 700ms cleanup (matching 700ms CSS transition)
+  useEffect(() => {
+    if (prevCarIdx !== null) {
+      const timer = setTimeout(() => {
+        setPrevCarIdx(null);
+      }, 700);
+      return () => clearTimeout(timer);
+    }
+  }, [prevCarIdx]);
+
+  const handleNextCar = () => {
+    setSlideDirection('next');
+    setPrevCarIdx(currentCarIdx);
+    setCurrentCarIdx((prev) => (prev + 1) % HERO_VEHICLES.length);
+    setTimerResetKey((k) => k + 1);
+  };
+
+  const handlePrevCar = () => {
+    setSlideDirection('prev');
+    setPrevCarIdx(currentCarIdx);
+    setCurrentCarIdx((prev) => (prev - 1 + HERO_VEHICLES.length) % HERO_VEHICLES.length);
+    setTimerResetKey((k) => k + 1);
+  };
+
+  const handleSelectCar = (idx) => {
+    if (idx === currentCarIdx) return;
+    setSlideDirection(idx > currentCarIdx ? 'next' : 'prev');
+    setPrevCarIdx(currentCarIdx);
+    setCurrentCarIdx(idx);
+    setTimerResetKey((k) => k + 1);
+  };
+
+  const handleOpenVehicleModal = (idx = currentCarIdx) => {
+    setModalCarIdx(idx);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseVehicleModal = () => {
+    setIsModalOpen(false);
+    // Restart automatic timer when modal closes
+    setTimerResetKey((k) => k + 1);
+  };
+
+  const handleBookVehicleFromModal = (selectedCar) => {
+    // 1. Close popup
+    setIsModalOpen(false);
+    setTimerResetKey((k) => k + 1);
+
+    // 2. Update booking form's preferred vehicle using existing state management
+    setFormData((prev) => ({
+      ...prev,
+      vehicle: selectedCar.bookingValue || selectedCar.name
+    }));
+
+    // 3. Smoothly scroll to the booking form
+    setTimeout(() => {
+      const bookingCard = document.getElementById('hero-booking-card');
+      if (bookingCard) {
+        bookingCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+
+      // 4. Focus preferred vehicle field
+      const vehicleSelect = document.getElementById('hero-preferred-vehicle-select');
+      if (vehicleSelect) {
+        vehicleSelect.focus();
+      }
+    }, 100);
+  };
+
+  // Subtle Cinematic Parallax for Palace Backdrop Only (Disabled on mobile & reduced-motion)
+  useEffect(() => {
+    const isMobile = window.innerWidth <= 768;
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (isMobile || prefersReducedMotion) return;
+
+    let ticking = false;
+    const palaceImg = document.querySelector('.hero-palace-img');
+    if (!palaceImg) return;
+
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const scrollY = window.scrollY;
+          if (scrollY < 900) {
+            const parallaxOffset = scrollY * 0.16; // subtle 16% optical depth
+            palaceImg.style.setProperty('--palace-parallax', `${parallaxOffset.toFixed(1)}px`);
+          }
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   const [activeTab, setActiveTab] = useState('airport'); // 'airport' | 'daytrip' | 'hourly'
   const [formData, setFormData] = useState({
     pickup: 'Vienna International Airport (VIE)',
@@ -88,7 +375,78 @@ export default function HeroBanner() {
         - Shadow: 0 12px 35px rgba(0,0,0,0.06)
         =======================================================================
       */}
-      <div className="hero-rounded-banner vdt-hero">
+      <div
+        className="hero-rounded-banner vdt-hero"
+        onTouchStart={(e) => setTouchStart(e.touches[0].clientX)}
+        onTouchEnd={(e) => {
+          if (touchStart === null) return;
+          const touchEnd = e.changedTouches[0].clientX;
+          const diff = touchStart - touchEnd;
+          if (diff > 40) handleNextCar();
+          if (diff < -40) handlePrevCar();
+          setTouchStart(null);
+        }}
+      >
+        {/* =============================================================
+            LAYER 1: STATIC VIENNA PALACE BACKGROUND
+            - Static Vienna Hofburg Palace backdrop (Michaelerplatz)
+            - Palace remains 100% static when changing vehicles
+            ============================================================= */}
+        <div className="hero-palace-stage" aria-hidden="true">
+          <picture>
+            <source srcSet="/images/vienna-palace-backdrop.webp" type="image/webp" />
+            <img
+              src="/images/vienna-palace-backdrop.jpg"
+              alt="Vienna Hofburg Palace at Michaelerplatz"
+              className="hero-palace-img"
+              loading="eager"
+              decoding="async"
+              fetchpriority="high"
+            />
+          </picture>
+          {/* Subtle golden morning atmospheric sheen */}
+          <div className="hero-palace-sheen" />
+          {/* Luxury text protection gradient */}
+          <div className="hero-palace-gradient" />
+        </div>
+
+        {/* =============================================================
+            LAYER 2: SIXT-STYLE MERCEDES VEHICLE CAROUSEL
+            - Center-lower placement (matching existing hero composition)
+            - Transparent-background studio vehicles with natural ground shadow
+            - 550ms fade + 20px horizontal slide, cubic-bezier(0.22, 1, 0.36, 1)
+            ============================================================= */}
+        <div className="hero-vehicle-stage" aria-hidden="true">
+          {HERO_VEHICLES.map((vehicle, index) => {
+            const isCurrent = index === currentCarIdx;
+            const isPrev = index === prevCarIdx;
+            if (!isCurrent && !isPrev) return null;
+
+            return (
+              <div
+                key={vehicle.id}
+                className={`hero-vehicle-slide ${isCurrent ? 'active' : 'exiting'} slide-dir-${slideDirection}`}
+                style={{
+                  '--car-scale': vehicle.scale || 1.0,
+                  '--car-offset-y': vehicle.offsetY || '0px',
+                  '--car-offset-x': vehicle.offsetX || '0px'
+                }}
+              >
+                <picture>
+                  <source srcSet={vehicle.image} type="image/webp" />
+                  <img
+                    src={vehicle.fallback}
+                    alt={vehicle.alt}
+                    className="hero-vehicle-img"
+                    loading={index === 0 ? 'eager' : 'lazy'}
+                    decoding="async"
+                  />
+                </picture>
+              </div>
+            );
+          })}
+        </div>
+
         {/* Two-Column Layout Grid: 55% Left Content, 45% Right Booking Form */}
         <div className="hero-grid-layout vdt-inner">
           {/* =============================================================
@@ -160,9 +518,9 @@ export default function HeroBanner() {
               {/* 3 Booking Tabs */}
               <div className="hero-tabs-row">
                 {[
-                  { id: 'airport', label: 'Airport Transfer', icon: Plane },
-                  { id: 'daytrip', label: 'Private Day Trip', icon: Car },
-                  { id: 'hourly', label: 'Hourly Chauffeur', icon: Clock }
+                  { id: 'airport', label: t('tab_airport'), icon: Plane },
+                  { id: 'daytrip', label: t('tab_daytrip'), icon: Car },
+                  { id: 'hourly', label: t('tab_hourly'), icon: Clock }
                 ].map((tab) => {
                   const Icon = tab.icon;
                   const isActive = activeTab === tab.id;
@@ -185,7 +543,7 @@ export default function HeroBanner() {
                 <div className="hero-form-fields-grid">
                   {/* Field 1: Pickup Location */}
                   <div>
-                    <label className="hero-field-label">PICKUP LOCATION</label>
+                    <label className="hero-field-label">{t('lbl_pickup').toUpperCase()}</label>
                     <div className="hero-input-wrapper">
                       <MapPin size={13} className="hero-field-icon" />
                       <select
@@ -204,7 +562,7 @@ export default function HeroBanner() {
 
                   {/* Field 2: Drop-Off Location */}
                   <div>
-                    <label className="hero-field-label">DROP-OFF LOCATION</label>
+                    <label className="hero-field-label">{t('lbl_dropoff').toUpperCase()}</label>
                     <div className="hero-input-wrapper">
                       <MapPin size={13} className="hero-field-icon" />
                       <select
@@ -226,7 +584,7 @@ export default function HeroBanner() {
 
                   {/* Field 3: Pickup Date */}
                   <div>
-                    <label className="hero-field-label">PICKUP DATE</label>
+                    <label className="hero-field-label">{t('lbl_date').toUpperCase()}</label>
                     <div className="hero-input-wrapper">
                       <CalendarIcon size={13} className="hero-field-icon" />
                       <input
@@ -240,7 +598,7 @@ export default function HeroBanner() {
 
                   {/* Field 4: Pickup Time */}
                   <div>
-                    <label className="hero-field-label">PICKUP TIME</label>
+                    <label className="hero-field-label">{t('lbl_time').toUpperCase()}</label>
                     <div className="hero-input-wrapper">
                       <Clock size={13} className="hero-field-icon" />
                       <select
@@ -265,7 +623,7 @@ export default function HeroBanner() {
 
                   {/* Field 5: Passengers */}
                   <div>
-                    <label className="hero-field-label">PASSENGERS</label>
+                    <label className="hero-field-label">{t('lbl_passengers').toUpperCase()}</label>
                     <div className="hero-input-wrapper">
                       <Users size={13} className="hero-field-icon" />
                       <select
@@ -284,10 +642,11 @@ export default function HeroBanner() {
 
                   {/* Field 6: Preferred Vehicle */}
                   <div>
-                    <label className="hero-field-label">PREFERRED VEHICLE</label>
+                    <label className="hero-field-label">{t('lbl_vehicle').toUpperCase()}</label>
                     <div className="hero-input-wrapper">
                       <Car size={13} className="hero-field-icon" />
                       <select
+                        id="hero-preferred-vehicle-select"
                         value={formData.vehicle}
                         onChange={(e) => handleInputChange('vehicle', e.target.value)}
                         className="hero-custom-select"
@@ -309,7 +668,7 @@ export default function HeroBanner() {
 
                 {/* Booking Button: Height 52px */}
                 <button type="submit" className="hero-quote-btn">
-                  <span>GET YOUR PRIVATE QUOTE</span>
+                  <span>{t('btn_get_quote')}</span>
                   <ArrowRight size={15} />
                 </button>
 
@@ -322,7 +681,98 @@ export default function HeroBanner() {
             </div>
           </div>
         </div>
+
+        {/* =============================================================
+            SIXT-STYLE VEHICLE CONTROLS (Bottom Center/Right)
+            - Independent previous / next navigation arrows
+            - Central vehicle card opens luxury 360° vehicle details popup
+            - Pauses 5s auto-sliding on hover
+            - Champagne gold accents
+            ============================================================= */}
+        <div
+          className="hero-vehicle-nav-wrapper"
+          onMouseEnter={() => setIsHoveredNav(true)}
+          onMouseLeave={() => setIsHoveredNav(false)}
+        >
+          <div className="hero-vehicle-nav-pill">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                handlePrevCar();
+              }}
+              className="hero-vehicle-arrow-btn"
+              aria-label="Previous Mercedes vehicle"
+            >
+              <ChevronLeft size={16} />
+            </button>
+
+            {/* Central Clickable Vehicle Card Area: Opens Premium Vehicle Popup */}
+            <div
+              className="hero-vehicle-info-block clickable"
+              onClick={() => handleOpenVehicleModal(currentCarIdx)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  handleOpenVehicleModal(currentCarIdx);
+                }
+              }}
+              role="button"
+              tabIndex={0}
+              aria-label={`View 360° showcase and specifications for ${HERO_VEHICLES[currentCarIdx].name}`}
+              title={t('view_360_card')}
+            >
+              <span className="hero-vehicle-badge-text">{HERO_VEHICLES[currentCarIdx].badge}</span>
+              <div className="hero-vehicle-title-row">
+                <span className="hero-vehicle-title-text">{HERO_VEHICLES[currentCarIdx].name}</span>
+                <span className="hero-vehicle-expand-hint" aria-hidden="true">
+                  <Maximize2 size={11} />
+                </span>
+              </div>
+            </div>
+
+            <div className="hero-vehicle-dots-row">
+              {HERO_VEHICLES.map((v, i) => (
+                <button
+                  key={v.id}
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleSelectCar(i);
+                  }}
+                  className={`hero-vehicle-dot-btn ${i === currentCarIdx ? 'active' : ''}`}
+                  aria-label={`Select ${v.name}`}
+                />
+              ))}
+            </div>
+
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleNextCar();
+              }}
+              className="hero-vehicle-arrow-btn"
+              aria-label="Next Mercedes vehicle"
+            >
+              <ChevronRight size={16} />
+            </button>
+          </div>
+        </div>
       </div>
+
+      {/* =============================================================
+          LUXURY 360° VEHICLE SHOWCASE POPUP MODAL
+          ============================================================= */}
+      <VehicleModal
+        isOpen={isModalOpen}
+        onClose={handleCloseVehicleModal}
+        vehicle={HERO_VEHICLES[modalCarIdx]}
+        vehicles={HERO_VEHICLES}
+        currentCarIdx={modalCarIdx}
+        onSelectCar={(idx) => setModalCarIdx(idx)}
+        onBookVehicle={handleBookVehicleFromModal}
+      />
 
       {/* =============================================================
           BOTTOM TRUST BAR (Preserved cleanly below the hero banner)
@@ -388,22 +838,21 @@ export default function HeroBanner() {
         }
 
         /* 
-          1 & 2. Rounded Luxury Hero Banner Container
-          - Desktop height: 620px
-          - Laptop height: 580px
-          - Tablet height: auto, min 520px
-          - Mobile height: auto
-          - Margins: top 15px, sides 35px, bottom 25px
-          - Radius: 24px
+          STEP 3: HERO SIZE & CONTAINER
+          - Desktop Max width: 1820px
+          - Height: clamp(520px, 42vw, 650px)
+          - Border radius: 28px
+          - Outer margin: 20px 32px
           - Border: 1px solid #E6D8C3
-          - Shadow: 0 12px 35px rgba(0,0,0,0.06)
+          - Overflow: hidden
         */
         .hero-rounded-banner {
-          height: 620px;
-          margin: 15px 35px 25px 35px;
-          border-radius: 24px;
+          max-width: 1820px;
+          height: clamp(520px, 42vw, 650px);
+          margin: 20px 32px 25px 32px;
+          border-radius: 28px;
           border: 1px solid #E6D8C3;
-          box-shadow: 0 12px 35px rgba(0, 0, 0, 0.06);
+          box-shadow: 0 16px 45px rgba(0, 0, 0, 0.08);
           position: relative;
           overflow: hidden;
           isolation: isolate;
@@ -411,41 +860,289 @@ export default function HeroBanner() {
           align-items: center;
         }
 
-        /* HERO CONTAINER & BACKGROUND IMAGE */
+        @media (min-width: 1884px) {
+          .hero-rounded-banner {
+            margin-left: auto;
+            margin-right: auto;
+            width: calc(100% - 64px);
+          }
+        }
+
         .vdt-hero {
           position: relative;
           overflow: hidden;
           isolation: isolate;
-          border-radius: 24px;
+          border-radius: 28px;
           border: 1px solid #E6D8C3;
         }
 
-        .vdt-hero::before {
-          content: "";
-          position: absolute;
-          inset: 0;
-          background-image: url('/images/vienna-hero-clean.jpg');
-          background-position: center center;
-          background-size: cover;
-          background-repeat: no-repeat;
-          opacity: 1;
-          z-index: -2;
+        /* Disable legacy pseudo backgrounds in favor of hardware-accelerated stage */
+        .vdt-hero::before,
+        .vdt-hero::after {
+          display: none !important;
         }
 
-        /* REDUCE WHITE OVERLAY */
-        .vdt-hero::after {
-          content: "";
+        /* 
+          =============================================================
+          LAYER 1: STATIC VIENNA PALACE BACKDROP
+          Palace remains 100% static when changing vehicles
+          =============================================================
+        */
+        .hero-palace-stage {
           position: absolute;
           inset: 0;
+          width: 100%;
+          height: 100%;
+          overflow: hidden;
+          z-index: 0;
+          pointer-events: none;
+        }
+
+        .hero-palace-img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          object-position: center 54%;
+          display: block;
+          transform: translate3d(0, var(--palace-parallax, 0px), 0) scale(1.06);
+          transform-origin: center center;
+          will-change: transform;
+        }
+
+        .hero-palace-sheen {
+          position: absolute;
+          inset: 0;
+          z-index: 1;
+          pointer-events: none;
+          background: radial-gradient(
+            ellipse 65% 55% at 52% 40%,
+            rgba(212, 175, 55, 0.14) 0%,
+            rgba(198, 156, 80, 0.05) 45%,
+            transparent 75%
+          );
+          mix-blend-mode: soft-light;
+        }
+
+        .hero-palace-gradient {
+          position: absolute;
+          inset: 0;
+          z-index: 2;
+          pointer-events: none;
           background: linear-gradient(
             90deg,
-            rgba(250, 248, 244, 0.88) 0%,
-            rgba(250, 248, 244, 0.65) 25%,
-            rgba(250, 248, 244, 0.18) 48%,
-            rgba(250, 248, 244, 0.00) 70%
+            rgba(252, 250, 246, 0.94) 0%,
+            rgba(252, 250, 246, 0.82) 20%,
+            rgba(252, 250, 246, 0.44) 34%,
+            rgba(252, 250, 246, 0.08) 47%,
+            rgba(252, 250, 246, 0.00) 58%,
+            rgba(252, 250, 246, 0.00) 100%
           );
-          z-index: -1;
+        }
+
+        /* 
+          =============================================================
+          LAYER 2: SIXT-STYLE MERCEDES VEHICLE CAROUSEL
+          - Center-lower placement (matching existing hero composition)
+          - Transparent-background studio vehicles with natural ground shadow
+          - 700ms smooth fade + 24px horizontal slide, cubic-bezier(0.22, 1, 0.36, 1)
+          - Calibrated scale & offset so V-Class & Sprinter clear the left text
+          =============================================================
+        */
+        .hero-vehicle-stage {
+          position: absolute;
+          inset: 0;
+          z-index: 5;
           pointer-events: none;
+          overflow: hidden;
+        }
+
+        .hero-vehicle-slide {
+          position: absolute;
+          bottom: 14px;
+          left: 48%;
+          transform: translateX(calc(-50% + var(--car-offset-x, 0px))) translate3d(0, var(--car-offset-y, 0px), 0) scale(var(--car-scale, 1));
+          width: clamp(400px, 44vw, 640px);
+          height: clamp(230px, 24vw, 350px);
+          display: flex;
+          align-items: flex-end;
+          justify-content: center;
+          pointer-events: none;
+          transition: opacity 700ms cubic-bezier(0.22, 1, 0.36, 1),
+                      transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
+          will-change: transform, opacity;
+        }
+
+        .hero-vehicle-slide.active {
+          opacity: 1;
+          transform: translateX(calc(-50% + var(--car-offset-x, 0px))) translate3d(0, var(--car-offset-y, 0px), 0) scale(var(--car-scale, 1));
+          z-index: 2;
+        }
+
+        /* Subtle 24px horizontal slide on vehicle change */
+        .hero-vehicle-slide.exiting.slide-dir-next {
+          opacity: 0;
+          transform: translateX(calc(-50% + var(--car-offset-x, 0px))) translate3d(-24px, var(--car-offset-y, 0px), 0) scale(var(--car-scale, 1));
+          z-index: 1;
+        }
+
+        .hero-vehicle-slide.exiting.slide-dir-prev {
+          opacity: 0;
+          transform: translateX(calc(-50% + var(--car-offset-x, 0px))) translate3d(24px, var(--car-offset-y, 0px), 0) scale(var(--car-scale, 1));
+          z-index: 1;
+        }
+
+        .hero-vehicle-img {
+          width: 100%;
+          height: 100%;
+          object-fit: contain;
+          object-position: center bottom;
+          display: block;
+          filter: drop-shadow(0 12px 24px rgba(23, 25, 28, 0.16));
+        }
+
+        /* 
+          =============================================================
+          SIXT-STYLE VEHICLE NAVIGATION CONTROLS
+          - Bottom-center/right pill near car
+          - Central card is clickable with micro-interaction to open 360 viewer
+          - Champagne gold accents
+          =============================================================
+        */
+        .hero-vehicle-nav-wrapper {
+          position: absolute;
+          bottom: 22px;
+          left: 48%;
+          transform: translateX(-50%);
+          z-index: 15;
+          pointer-events: auto;
+        }
+
+        .hero-vehicle-nav-pill {
+          display: flex;
+          align-items: center;
+          gap: 0.65rem;
+          background: rgba(255, 255, 255, 0.94);
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
+          border: 1px solid #E6D8C3;
+          padding: 0.35rem 0.65rem;
+          border-radius: 30px;
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+          user-select: none;
+        }
+
+        .hero-vehicle-arrow-btn {
+          width: 30px;
+          height: 30px;
+          border-radius: 50%;
+          border: 1px solid #E6D8C3;
+          background: #FFFFFF;
+          color: #17191C;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          padding: 0;
+          flex-shrink: 0;
+        }
+
+        .hero-vehicle-arrow-btn:hover {
+          background: #C69C50;
+          color: #FFFFFF;
+          border-color: #C69C50;
+          transform: scale(1.06);
+          box-shadow: 0 3px 10px rgba(198, 156, 80, 0.35);
+        }
+
+        .hero-vehicle-arrow-btn:active {
+          transform: scale(0.96);
+        }
+
+        /* Central Clickable Vehicle Info Block */
+        .hero-vehicle-info-block {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          padding: 0 0.4rem;
+          min-width: 140px;
+        }
+
+        .hero-vehicle-info-block.clickable {
+          cursor: pointer;
+          border-radius: 12px;
+          padding: 2px 8px;
+          transition: all 0.2s ease;
+          outline: none;
+        }
+
+        .hero-vehicle-info-block.clickable:hover {
+          background: rgba(198, 156, 80, 0.10);
+        }
+
+        .hero-vehicle-info-block.clickable:focus-visible {
+          box-shadow: 0 0 0 2px #C69C50;
+        }
+
+        .hero-vehicle-title-row {
+          display: flex;
+          align-items: center;
+          gap: 5px;
+        }
+
+        .hero-vehicle-expand-hint {
+          color: #C69C50;
+          display: inline-flex;
+          align-items: center;
+          opacity: 0.65;
+          transition: transform 0.2s ease, opacity 0.2s ease;
+        }
+
+        .hero-vehicle-info-block.clickable:hover .hero-vehicle-expand-hint {
+          opacity: 1;
+          transform: scale(1.15);
+        }
+
+        .hero-vehicle-badge-text {
+          font-family: var(--font-heading);
+          font-size: 0.62rem;
+          font-weight: 700;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          color: #C69C50;
+          line-height: 1.1;
+        }
+
+        .hero-vehicle-title-text {
+          font-family: var(--font-heading);
+          font-size: 0.78rem;
+          font-weight: 700;
+          color: #17191C;
+          letter-spacing: 0.02em;
+          white-space: nowrap;
+        }
+
+        .hero-vehicle-dots-row {
+          display: flex;
+          align-items: center;
+          gap: 0.3rem;
+        }
+
+        .hero-vehicle-dot-btn {
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background: #D8D2C4;
+          border: none;
+          padding: 0;
+          cursor: pointer;
+          transition: all 0.25s ease;
+        }
+
+        .hero-vehicle-dot-btn.active {
+          background: #C69C50;
+          width: 16px;
+          border-radius: 4px;
         }
 
         /* CONTENT */
@@ -476,10 +1173,12 @@ export default function HeroBanner() {
 
         /* Left Side Content Area (55%) */
         .hero-left-content {
-          max-width: 490px;
+          max-width: 470px;
           display: flex;
           flex-direction: column;
           justify-content: center;
+          position: relative;
+          z-index: 12;
         }
 
         .hero-eyebrow-container {
@@ -876,25 +1575,35 @@ export default function HeroBanner() {
         /* Laptop (1024px - 1280px) */
         @media (max-width: 1280px) and (min-width: 1024px) {
           .hero-rounded-banner {
-            height: 580px;
+            height: clamp(520px, 44vw, 590px);
+            margin: 18px 24px 25px 24px;
           }
           .hero-heading {
-            font-size: 52px;
+            font-size: 50px;
           }
-          .hero-mercedes-img {
-            object-position: 40% 82%;
+          .hero-vehicle-slide {
+            width: clamp(380px, 42vw, 560px);
+            height: clamp(220px, 24vw, 320px);
+            left: 48%;
+            bottom: 12px;
+          }
+          .hero-vehicle-nav-wrapper {
+            bottom: 18px;
+            left: 48%;
           }
           .hero-compact-card {
-            max-width: 420px;
-            padding: 20px;
+            max-width: 430px;
+            padding: 22px;
           }
         }
 
-        /* Tablet (769px - 1023px): Adjust spacing and form width per requirement 9 */
+        /* Tablet (769px - 1023px): Keep vehicle centered, card on right */
         @media (max-width: 1023px) and (min-width: 769px) {
           .hero-rounded-banner {
             height: auto;
-            min-height: 520px;
+            min-height: 540px;
+            margin: 16px 20px 24px 20px;
+            border-radius: 24px;
             padding: 30px 0;
           }
           .hero-grid-layout {
@@ -907,14 +1616,31 @@ export default function HeroBanner() {
             max-width: 100%;
           }
           .hero-heading {
-            font-size: 44px;
+            font-size: 42px;
           }
           .hero-compact-card {
             max-width: 100%;
             padding: 20px 18px;
           }
-          .hero-mercedes-img {
-            object-position: 45% 80%;
+          .hero-vehicle-slide {
+            width: clamp(320px, 36vw, 440px);
+            height: clamp(180px, 22vw, 250px);
+            left: 46%;
+            bottom: 10px;
+          }
+          .hero-vehicle-nav-wrapper {
+            bottom: 12px;
+            left: 46%;
+          }
+          .hero-vehicle-nav-pill {
+            padding: 0.25rem 0.5rem;
+            gap: 0.45rem;
+          }
+          .hero-vehicle-info-block {
+            min-width: 110px;
+          }
+          .hero-vehicle-title-text {
+            font-size: 0.72rem;
           }
           .hero-trust-grid {
             grid-template-columns: repeat(2, 1fr);
@@ -925,41 +1651,108 @@ export default function HeroBanner() {
           }
         }
 
-        /* Mobile (<= 768px): Stack text and booking form vertically per requirement 9 */
+        /* Mobile (<= 768px): Strictly follow specified order:
+           1. Hero heading, 2. Description, 3. Main CTA, 4. Vehicle showcase, 5. Booking form */
         @media (max-width: 768px) {
           .hero-rounded-banner {
             height: auto;
             min-height: unset;
-            margin: 15px 12px 25px 12px;
-            border-radius: 14px;
-            padding: 24px 0;
+            margin: 14px 12px 20px 12px;
+            border-radius: 20px;
+            padding: 24px 0 20px 0;
+            display: flex;
+            flex-direction: column;
+            position: relative;
           }
           .hero-grid-layout {
-            grid-template-columns: 1fr;
-            gap: 24px;
-            padding: 0 16px;
-            height: auto;
+            display: contents;
           }
           .hero-left-content {
+            order: 1;
             max-width: 100%;
+            padding: 0 16px;
+            position: relative;
+            z-index: 2;
           }
           .hero-heading {
-            font-size: 36px;
+            font-size: clamp(28px, 6.5vw, 36px);
             line-height: 1.15;
+            margin-bottom: 0.65rem;
           }
           .hero-description {
             font-size: 0.88rem;
+            line-height: 1.55;
+            margin-bottom: 0.85rem;
           }
           .hero-features-grid {
             grid-template-columns: 1fr;
-            gap: 0.4rem;
+            gap: 0.45rem;
+            margin-bottom: 1rem;
           }
           .hero-cta-wrapper {
-            flex-wrap: wrap;
-            gap: 1rem;
+            margin-bottom: 0.75rem;
+          }
+          .hero-vehicle-stage {
+            order: 2;
+            position: relative;
+            inset: auto;
+            width: 100%;
+            height: clamp(160px, 45vw, 210px);
+            margin: 8px 0 0 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+            pointer-events: auto;
+          }
+          .hero-vehicle-slide {
+            width: 94%;
+            max-width: 380px;
+            height: 100%;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: 0;
+          }
+          .hero-vehicle-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            object-position: center bottom;
+          }
+          .hero-vehicle-nav-wrapper {
+            order: 3;
+            position: relative;
+            bottom: auto;
+            left: auto;
+            transform: none;
+            display: flex;
+            justify-content: center;
+            margin: 2px 0 16px 0;
+            z-index: 3;
+          }
+          .hero-vehicle-nav-pill {
+            padding: 0.35rem 0.65rem;
+            gap: 0.5rem;
+          }
+          .hero-vehicle-arrow-btn {
+            width: 38px;
+            height: 38px;
+            min-width: 38px;
+          }
+          .hero-vehicle-info-block {
+            min-width: 120px;
+          }
+          .hero-vehicle-title-text {
+            font-size: 0.74rem;
           }
           .hero-right-content {
+            order: 4;
             justify-content: stretch;
+            padding: 0 16px;
+            position: relative;
+            z-index: 2;
+            width: 100%;
           }
           .hero-compact-card {
             max-width: 100%;
@@ -977,19 +1770,27 @@ export default function HeroBanner() {
             font-size: 0.7rem;
             padding: 0.5rem 0.2rem;
           }
-          .vdt-hero::before {
-            background-position: 58% center;
+          .hero-palace-img {
+            object-position: center 38%;
+            transform: none !important;
+            will-change: auto;
           }
-          .vdt-hero::after {
+          .hero-palace-sheen {
+            display: none;
+          }
+          .hero-palace-gradient {
             background: linear-gradient(
               180deg,
-              rgba(250, 248, 244, 0.88) 0%,
-              rgba(250, 248, 244, 0.55) 48%,
-              rgba(250, 248, 244, 0.15) 100%
+              rgba(252, 250, 246, 0.94) 0%,
+              rgba(252, 250, 246, 0.82) 30%,
+              rgba(252, 250, 246, 0.35) 48%,
+              rgba(252, 250, 246, 0.10) 65%,
+              rgba(252, 250, 246, 0.35) 100%
             );
           }
           .hero-trust-container {
             padding: 0 12px;
+            margin-bottom: 1.5rem;
           }
           .hero-trust-grid {
             grid-template-columns: 1fr;
@@ -997,6 +1798,20 @@ export default function HeroBanner() {
           }
           .hero-trust-bordered {
             border-left: none;
+            border-top: 1px solid #E8E4DC;
+            padding-top: 0.85rem;
+          }
+        }
+
+        /* Respect accessibility preference: prefers-reduced-motion */
+        @media (prefers-reduced-motion: reduce) {
+          .hero-palace-img {
+            transform: none !important;
+            will-change: auto;
+          }
+          .hero-vehicle-slide {
+            transition: opacity 200ms ease !important;
+            transform: translateX(-50%) !important;
           }
         }
       `}</style>

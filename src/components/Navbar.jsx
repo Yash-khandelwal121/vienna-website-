@@ -1,27 +1,57 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, ChevronDown, Globe, Calendar, ArrowUpRight } from 'lucide-react';
+import { Menu, X, ChevronDown, Globe, Calendar, ArrowUpRight, Phone, MessageSquare, Check } from 'lucide-react';
 import { siteConfig, navLinks } from '../data/site';
+import { useLanguage, LANGUAGES } from '../context/LanguageContext';
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState(null);
+  const [langDropdownOpen, setLangDropdownOpen] = useState(false);
+  const [mobileLangOpen, setMobileLangOpen] = useState(false);
   const location = useLocation();
+  const { language, setLanguage, t } = useLanguage();
+  const langRef = useRef(null);
 
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
+      setScrolled(window.scrollY > 15);
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Close dropdowns on route change
   useEffect(() => {
     setMobileOpen(false);
     setOpenDropdown(null);
-    window.scrollTo(0, 0);
+    setLangDropdownOpen(false);
+    setMobileLangOpen(false);
   }, [location.pathname]);
+
+  // Lock body scroll when mobile drawer is open
+  useEffect(() => {
+    if (mobileOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [mobileOpen]);
+
+  // Click outside to close language dropdown
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (langRef.current && !langRef.current.contains(e.target)) {
+        setLangDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const isActive = (href) => {
     if (href === '/' && location.pathname === '/') return true;
@@ -32,73 +62,82 @@ export default function Navbar() {
   const scrollToHeroBooking = () => {
     const el = document.getElementById('hero-booking-card') || document.getElementById('booking-bar');
     if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
     } else {
-      window.open(siteConfig.whatsappUrl, '_blank');
+      window.location.href = '/#hero-booking-card';
     }
   };
+
+  const currentLangObj = LANGUAGES.find((l) => l.code === language) || LANGUAGES[1];
 
   return (
     <>
       <header
+        className={`main-header ${scrolled ? 'scrolled' : ''}`}
         style={{
           position: 'fixed',
           top: 0,
           left: 0,
           right: 0,
           height: '74px',
-          zIndex: 900,
-          backgroundColor: '#FFFFFF',
-          borderBottom: '1px solid #E8E4DC',
-          boxShadow: scrolled ? '0 6px 20px rgba(0, 0, 0, 0.04)' : 'none',
+          zIndex: 1000,
+          backgroundColor: scrolled ? 'rgba(250, 248, 244, 0.98)' : '#FAF8F4',
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',
+          borderBottom: scrolled ? '1px solid #E6D8C3' : '1px solid rgba(230, 216, 195, 0.65)',
+          boxShadow: scrolled ? '0 10px 30px rgba(23, 25, 28, 0.06)' : 'none',
           display: 'flex',
           alignItems: 'center',
-          transition: 'box-shadow 0.25s ease'
+          transition: 'background-color 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease'
         }}
       >
-        <div className="container-wide" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', height: '100%' }}>
-          {/* Vienna Day Trip Brand Logo */}
+        <div className="container-wide" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', height: '100%', gap: '1.5rem' }}>
+          {/* Brand Logo (LEFT) */}
           <Link
             to="/"
             style={{
               display: 'flex',
               alignItems: 'center',
               textDecoration: 'none',
-              gap: '0.85rem'
+              gap: '0.85rem',
+              flexShrink: 0
             }}
           >
-            {/* Gold Monogram Crest */}
+            {/* Official Brand Logo */}
             <div
               style={{
-                width: '40px',
-                height: '40px',
-                borderRadius: '8px',
-                border: '1px solid rgba(198, 156, 80, 0.45)',
-                background: '#FAF8F4',
+                width: '46px',
+                height: '46px',
+                borderRadius: '50%',
+                overflow: 'hidden',
+                border: '1.5px solid #C69C50',
+                background: '#0E1013',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                boxShadow: '0 2px 8px rgba(198, 156, 80, 0.15)'
+                boxShadow: '0 2px 10px rgba(198, 156, 80, 0.22)',
+                flexShrink: 0,
+                padding: '3px'
               }}
             >
-              <span
+              <img
+                src="/images/logo2.png"
+                alt="Vienna Day Trip"
                 style={{
-                  fontFamily: 'var(--font-display)',
-                  fontSize: '1.05rem',
-                  fontWeight: 800,
-                  color: '#C69C50',
-                  letterSpacing: '0.04em'
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'contain',
+                  display: 'block'
                 }}
-              >
-                V✦
-              </span>
+              />
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.12rem' }}>
               <span
+                className="brand-logo-text-main"
                 style={{
                   fontFamily: 'var(--font-heading)',
-                  fontSize: '1.22rem',
+                  fontSize: '1.2rem',
                   fontWeight: 800,
                   letterSpacing: '0.08em',
                   color: '#17191C',
@@ -109,6 +148,7 @@ export default function Navbar() {
                 VIENNA DAY TRIP
               </span>
               <span
+                className="brand-logo-text-sub"
                 style={{
                   fontFamily: 'var(--font-heading)',
                   fontSize: '0.64rem',
@@ -123,8 +163,8 @@ export default function Navbar() {
             </div>
           </Link>
 
-          {/* Desktop Navigation Links */}
-          <nav style={{ alignItems: 'center', gap: 'clamp(0.85rem, 1.35vw, 1.75rem)' }} className="desktop-nav">
+          {/* Desktop Navigation Links (CENTER): LOGO | Home | Our Services ▾ | Day Trips ▾ | Luxury Fleet | About Us */}
+          <nav className="desktop-nav">
             {navLinks.map((item) => {
               if (item.dropdown) {
                 return (
@@ -136,23 +176,33 @@ export default function Navbar() {
                   >
                     <button
                       type="button"
+                      className="dropdown-trigger-btn"
                       style={{
                         background: 'none',
                         border: 'none',
                         cursor: 'pointer',
-                        display: 'flex',
+                        display: 'inline-flex',
                         alignItems: 'center',
-                        gap: '0.35rem',
+                        gap: '8px',
                         fontFamily: 'var(--font-body)',
-                        fontSize: '0.9rem',
+                        fontSize: '0.92rem',
                         fontWeight: isActive(item.href) ? 600 : 500,
                         color: isActive(item.href) ? '#C69C50' : '#17191C',
                         padding: '0.5rem 0',
-                        transition: 'color 0.2s ease'
+                        transition: 'color 0.2s ease',
+                        whiteSpace: 'nowrap'
                       }}
                     >
-                      <span>{item.label}</span>
-                      <ChevronDown size={13} style={{ transform: openDropdown === item.label ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', opacity: 0.6 }} />
+                      <span>{t(item.tKey) || item.label}</span>
+                      <ChevronDown
+                        size={13}
+                        style={{
+                          transform: openDropdown === item.label ? 'rotate(180deg)' : 'none',
+                          transition: 'transform 0.2s',
+                          opacity: 0.65,
+                          flexShrink: 0
+                        }}
+                      />
                     </button>
 
                     {openDropdown === item.label && (
@@ -160,13 +210,14 @@ export default function Navbar() {
                         style={{
                           position: 'absolute',
                           top: '100%',
-                          left: 0,
-                          minWidth: '280px',
+                          left: '50%',
+                          transform: 'translateX(-50%)',
+                          minWidth: '270px',
                           backgroundColor: '#FFFFFF',
-                          border: '1px solid #E8E4DC',
+                          border: '1px solid #E6D8C3',
                           borderRadius: '12px',
-                          padding: '0.65rem 0',
-                          boxShadow: '0 20px 45px rgba(0,0,0,0.08), 0 0 20px rgba(198, 156, 80, 0.06)',
+                          padding: '0.6rem 0',
+                          boxShadow: '0 20px 45px rgba(23, 25, 28, 0.08), 0 0 20px rgba(198, 156, 80, 0.06)',
                           zIndex: 1000
                         }}
                       >
@@ -178,7 +229,7 @@ export default function Navbar() {
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'space-between',
-                              padding: '0.75rem 1.35rem',
+                              padding: '0.72rem 1.35rem',
                               color: isActive(sub.href) ? '#C69C50' : '#17191C',
                               textDecoration: 'none',
                               fontFamily: 'var(--font-body)',
@@ -195,7 +246,7 @@ export default function Navbar() {
                               e.currentTarget.style.backgroundColor = 'transparent';
                             }}
                           >
-                            <span>{sub.label}</span>
+                            <span>{t(sub.tKey) || sub.label}</span>
                             <ArrowUpRight size={13} style={{ opacity: 0.4 }} />
                           </Link>
                         ))}
@@ -211,18 +262,19 @@ export default function Navbar() {
                   to={item.href}
                   style={{
                     fontFamily: 'var(--font-body)',
-                    fontSize: '0.9rem',
+                    fontSize: '0.92rem',
                     fontWeight: isActive(item.href) ? 600 : 500,
                     color: isActive(item.href) ? '#C69C50' : '#17191C',
                     textDecoration: 'none',
                     position: 'relative',
                     padding: '0.5rem 0',
-                    transition: 'color 0.2s ease'
+                    transition: 'color 0.2s ease',
+                    whiteSpace: 'nowrap'
                   }}
                   onMouseEnter={(e) => (e.currentTarget.style.color = '#C69C50')}
                   onMouseLeave={(e) => (e.currentTarget.style.color = isActive(item.href) ? '#C69C50' : '#17191C')}
                 >
-                  {item.label}
+                  {t(item.tKey) || item.label}
                   {isActive(item.href) && (
                     <span
                       style={{
@@ -241,24 +293,119 @@ export default function Navbar() {
             })}
           </nav>
 
-          {/* Right Header Controls */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1.15rem' }}>
-            {/* Language Selector */}
-            <div
-              style={{
-                alignItems: 'center',
-                gap: '0.35rem',
-                color: '#17191C',
-                fontSize: '0.86rem',
-                fontWeight: 600,
-                cursor: 'pointer',
-                padding: '0.4rem 0.5rem'
-              }}
-              className="lang-selector"
-            >
-              <Globe size={15} style={{ color: '#C69C50' }} />
-              <span>EN</span>
-              <ChevronDown size={13} style={{ opacity: 0.6 }} />
+          {/* Right Header Controls (RIGHT): 🌐 EN ▾ | BOOK NOW */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', flexShrink: 0 }}>
+            {/* PART 3: SIX-LANGUAGE DROPDOWN */}
+            <div ref={langRef} style={{ position: 'relative' }} className="lang-selector-wrapper">
+              <button
+                type="button"
+                onClick={() => setLangDropdownOpen(!langDropdownOpen)}
+                aria-label="Select language"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.45rem',
+                  backgroundColor: '#FFFFFF',
+                  border: '1px solid #E6D8C3',
+                  borderRadius: '20px',
+                  color: '#17191C',
+                  fontSize: '0.84rem',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  padding: '0.42rem 0.85rem',
+                  boxShadow: '0 2px 6px rgba(0, 0, 0, 0.03)',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = '#C69C50';
+                  e.currentTarget.style.color = '#C69C50';
+                }}
+                onMouseLeave={(e) => {
+                  if (!langDropdownOpen) {
+                    e.currentTarget.style.borderColor = '#E6D8C3';
+                    e.currentTarget.style.color = '#17191C';
+                  }
+                }}
+              >
+                <span style={{ fontSize: '1rem', lineHeight: 1 }}>{currentLangObj.flag}</span>
+                <span style={{ textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  {currentLangObj.code.split('-')[0].toUpperCase()}
+                </span>
+                <ChevronDown
+                  size={12}
+                  style={{
+                    transform: langDropdownOpen ? 'rotate(180deg)' : 'none',
+                    transition: 'transform 0.2s',
+                    opacity: 0.65
+                  }}
+                />
+              </button>
+
+              {/* Dropdown Menu matching screenshot reference */}
+              {langDropdownOpen && (
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: 'calc(100% + 8px)',
+                    right: 0,
+                    width: '210px',
+                    backgroundColor: '#FFFFFF',
+                    border: '1px solid #E6D8C3',
+                    borderRadius: '12px',
+                    padding: '0.4rem 0',
+                    boxShadow: '0 16px 40px rgba(23, 25, 28, 0.12), 0 0 16px rgba(198, 156, 80, 0.08)',
+                    zIndex: 1100
+                  }}
+                >
+                  {LANGUAGES.map((item, idx) => {
+                    const isSelected = item.code === language;
+                    return (
+                      <React.Fragment key={item.code}>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setLanguage(item.code);
+                            setLangDropdownOpen(false);
+                          }}
+                          style={{
+                            width: '100%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            padding: '0.65rem 1rem',
+                            backgroundColor: isSelected ? 'rgba(198, 156, 80, 0.08)' : 'transparent',
+                            border: 'none',
+                            cursor: 'pointer',
+                            textAlign: 'left',
+                            fontFamily: 'var(--font-body)',
+                            fontSize: '0.86rem',
+                            fontWeight: isSelected ? 600 : 500,
+                            color: isSelected ? '#C69C50' : '#17191C',
+                            transition: 'all 0.15s ease'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = isSelected ? 'rgba(198, 156, 80, 0.12)' : '#FAF8F4';
+                            e.currentTarget.style.color = '#C69C50';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = isSelected ? 'rgba(198, 156, 80, 0.08)' : 'transparent';
+                            e.currentTarget.style.color = isSelected ? '#C69C50' : '#17191C';
+                          }}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                            <span style={{ fontSize: '1.1rem', lineHeight: 1 }}>{item.flag}</span>
+                            <span>{item.label}</span>
+                          </div>
+                          {isSelected && <Check size={14} style={{ color: '#C69C50' }} />}
+                        </button>
+                        {idx < LANGUAGES.length - 1 && (
+                          <div style={{ height: '1px', backgroundColor: '#F0ECE4', margin: '0 0.75rem' }} />
+                        )}
+                      </React.Fragment>
+                    );
+                  })}
+                </div>
+              )}
             </div>
 
             {/* Champagne Gold Book Now Button */}
@@ -273,14 +420,15 @@ export default function Navbar() {
                 backgroundColor: '#C69C50',
                 color: '#FFFFFF',
                 borderRadius: '30px',
-                padding: '0.65rem 1.45rem',
+                padding: '0.62rem 1.45rem',
                 fontSize: '0.84rem',
                 fontWeight: 700,
                 letterSpacing: '0.06em',
                 border: 'none',
-                boxShadow: '0 4px 14px rgba(198, 156, 80, 0.3)',
+                boxShadow: '0 4px 14px rgba(198, 156, 80, 0.28)',
                 cursor: 'pointer',
-                transition: 'all 0.25s ease'
+                transition: 'all 0.25s ease',
+                flexShrink: 0
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.backgroundColor = '#B58B3F';
@@ -292,24 +440,31 @@ export default function Navbar() {
               }}
             >
               <Calendar size={14} />
-              <span>BOOK NOW</span>
+              <span>{t('nav_book_now')}</span>
             </button>
 
-            {/* Mobile Hamburger Button */}
+            {/* Mobile Hamburger Button (44x44px recommended touch target) */}
             <button
               type="button"
               onClick={() => setMobileOpen(!mobileOpen)}
               aria-label="Toggle navigation menu"
               className="btn-icon mobile-menu-toggle"
               style={{
-                background: '#FAF8F4',
-                border: '1px solid #E8E4DC',
+                background: '#FFFFFF',
+                border: '1px solid #E6D8C3',
                 color: '#17191C',
                 cursor: 'pointer',
-                display: 'flex'
+                display: 'flex',
+                width: '44px',
+                height: '44px',
+                borderRadius: '10px',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 2px 6px rgba(0, 0, 0, 0.04)',
+                flexShrink: 0
               }}
             >
-              {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+              {mobileOpen ? <X size={22} /> : <Menu size={22} />}
             </button>
           </div>
         </div>
@@ -321,51 +476,156 @@ export default function Navbar() {
           style={{
             position: 'fixed',
             inset: 0,
-            top: '72px',
-            backgroundColor: '#FFFFFF',
-            zIndex: 890,
+            top: '74px',
+            backgroundColor: '#FAF8F4',
+            zIndex: 999,
             overflowY: 'auto',
-            padding: '2.5rem 1.5rem 4rem',
+            padding: '2rem 1.5rem 4rem',
             display: 'flex',
             flexDirection: 'column',
             gap: '1.25rem',
-            borderTop: '1px solid rgba(0, 0, 0, 0.08)'
+            borderTop: '1px solid #E6D8C3'
           }}
         >
-          {navLinks.map((item) => (
-            <div key={item.label} style={{ borderBottom: '1px solid rgba(0, 0, 0, 0.06)', paddingBottom: '0.85rem' }}>
-              <Link
-                to={item.href}
+          {/* Mobile Language Selector */}
+          <div
+            style={{
+              backgroundColor: '#FFFFFF',
+              border: '1px solid #E6D8C3',
+              borderRadius: '12px',
+              padding: '0.75rem 1rem',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.03)'
+            }}
+          >
+            <button
+              type="button"
+              onClick={() => setMobileLangOpen(!mobileLangOpen)}
+              style={{
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                fontFamily: 'var(--font-body)',
+                fontSize: '0.92rem',
+                fontWeight: 600,
+                color: '#17191C'
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                <Globe size={16} style={{ color: '#C69C50' }} />
+                <span>
+                  {currentLangObj.flag} {currentLangObj.label} ({currentLangObj.code})
+                </span>
+              </div>
+              <ChevronDown
+                size={14}
                 style={{
-                  fontFamily: 'var(--font-heading)',
-                  fontSize: '1.4rem',
-                  fontWeight: 700,
-                  textTransform: 'uppercase',
-                  color: isActive(item.href) ? 'var(--text-gold)' : 'var(--text-primary)',
-                  textDecoration: 'none',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between'
+                  transform: mobileLangOpen ? 'rotate(180deg)' : 'none',
+                  transition: 'transform 0.2s',
+                  color: '#C69C50'
                 }}
-              >
-                <span>{item.label}</span>
-                <ArrowUpRight size={18} style={{ color: 'var(--accent)', opacity: 0.8 }} />
-              </Link>
-              {item.dropdown && (
-                <div style={{ marginTop: '0.75rem', paddingLeft: '1rem', display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
+              />
+            </button>
+
+            {mobileLangOpen && (
+              <div style={{ marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid #F0ECE4', display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                {LANGUAGES.map((l) => (
+                  <button
+                    key={l.code}
+                    type="button"
+                    onClick={() => {
+                      setLanguage(l.code);
+                      setMobileLangOpen(false);
+                    }}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      padding: '0.5rem 0.65rem',
+                      borderRadius: '6px',
+                      backgroundColor: l.code === language ? 'rgba(198, 156, 80, 0.1)' : 'transparent',
+                      border: 'none',
+                      cursor: 'pointer',
+                      textAlign: 'left',
+                      color: l.code === language ? '#C69C50' : '#17191C',
+                      fontWeight: l.code === language ? 700 : 500,
+                      fontSize: '0.88rem'
+                    }}
+                  >
+                    <span>{l.flag} {l.label}</span>
+                    {l.code === language && <Check size={14} style={{ color: '#C69C50' }} />}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Navigation Links */}
+          {navLinks.map((item) => (
+            <div key={item.label} style={{ borderBottom: '1px solid #E6D8C3', paddingBottom: '0.85rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <Link
+                  to={item.href}
+                  onClick={() => setMobileOpen(false)}
+                  style={{
+                    fontFamily: 'var(--font-heading)',
+                    fontSize: '1.25rem',
+                    fontWeight: 700,
+                    textTransform: 'uppercase',
+                    color: isActive(item.href) ? '#C69C50' : '#17191C',
+                    textDecoration: 'none'
+                  }}
+                >
+                  {t(item.tKey) || item.label}
+                </Link>
+                {item.dropdown ? (
+                  <button
+                    type="button"
+                    onClick={() => setOpenDropdown(openDropdown === item.label ? null : item.label)}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      padding: '0.5rem',
+                      cursor: 'pointer',
+                      color: '#C69C50'
+                    }}
+                  >
+                    <ChevronDown
+                      size={18}
+                      style={{
+                        transform: openDropdown === item.label ? 'rotate(180deg)' : 'none',
+                        transition: 'transform 0.2s'
+                      }}
+                    />
+                  </button>
+                ) : (
+                  <ArrowUpRight size={18} style={{ color: '#C69C50', opacity: 0.7 }} />
+                )}
+              </div>
+
+              {item.dropdown && openDropdown === item.label && (
+                <div style={{ marginTop: '0.75rem', paddingLeft: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
                   {item.dropdown.map((sub) => (
                     <Link
                       key={sub.href}
                       to={sub.href}
+                      onClick={() => setMobileOpen(false)}
                       style={{
-                        color: 'var(--text-secondary)',
+                        color: isActive(sub.href) ? '#C69C50' : '#62666D',
                         textDecoration: 'none',
                         fontSize: '0.92rem',
                         fontFamily: 'var(--font-body)',
-                        padding: '0.2rem 0'
+                        padding: '0.25rem 0',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.4rem'
                       }}
                     >
-                      ✦ {sub.label}
+                      <span style={{ color: '#C69C50' }}>✦</span>
+                      <span>{t(sub.tKey) || sub.label}</span>
                     </Link>
                   ))}
                 </div>
@@ -373,21 +633,61 @@ export default function Navbar() {
             </div>
           ))}
 
-          <div style={{ marginTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+          {/* Additional pages in mobile menu so visitors can still reach them */}
+          <div style={{ borderBottom: '1px solid #E6D8C3', paddingBottom: '0.85rem' }}>
+            <div style={{ fontSize: '0.8rem', letterSpacing: '0.12em', color: '#8E929B', textTransform: 'uppercase', marginBottom: '0.5rem' }}>
+              More Links
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              <Link to="/tour-pricing/" onClick={() => setMobileOpen(false)} style={{ color: '#17191C', textDecoration: 'none', fontSize: '0.95rem' }}>
+                {t('nav_tours_pricing')}
+              </Link>
+              <Link to="/blog" onClick={() => setMobileOpen(false)} style={{ color: '#17191C', textDecoration: 'none', fontSize: '0.95rem' }}>
+                {t('nav_blog')}
+              </Link>
+              <Link to="/contact-us-i/" onClick={() => setMobileOpen(false)} style={{ color: '#17191C', textDecoration: 'none', fontSize: '0.95rem' }}>
+                {t('nav_contact')}
+              </Link>
+            </div>
+          </div>
+
+          <div style={{ marginTop: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+            <button
+              type="button"
+              onClick={() => {
+                setMobileOpen(false);
+                scrollToHeroBooking();
+              }}
+              className="btn btn-primary"
+              style={{ width: '100%', justifyContent: 'center', padding: '0.85rem' }}
+            >
+              <Calendar size={16} />
+              <span>{t('nav_book_now')}</span>
+            </button>
+
             <a
               href={`tel:${siteConfig.phone}`}
               className="btn btn-secondary"
-              style={{ width: '100%' }}
+              style={{ width: '100%', justifyContent: 'center', padding: '0.85rem' }}
             >
-              <Phone size={16} style={{ color: 'var(--accent)' }} />
+              <Phone size={16} style={{ color: '#C69C50' }} />
               CALL {siteConfig.phoneDisplay}
             </a>
             <a
               href={siteConfig.whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="btn btn-primary"
-              style={{ width: '100%' }}
+              className="btn"
+              style={{
+                width: '100%',
+                justifyContent: 'center',
+                padding: '0.85rem',
+                backgroundColor: '#25D366',
+                color: '#FFFFFF',
+                borderRadius: '30px',
+                border: 'none',
+                fontWeight: 700
+              }}
             >
               <MessageSquare size={16} />
               WHATSAPP CONCIERGE 24/7
@@ -400,7 +700,7 @@ export default function Navbar() {
         .desktop-nav {
           display: none;
         }
-        .lang-selector {
+        .lang-selector-wrapper {
           display: none;
         }
         .mobile-menu-toggle {
@@ -409,12 +709,59 @@ export default function Navbar() {
         @media (min-width: 1060px) {
           .desktop-nav {
             display: flex !important;
+            align-items: center;
+            justify-content: center;
+            flex: 1 1 auto;
+            gap: 20px;
           }
-          .lang-selector {
-            display: inline-flex !important;
+          .lang-selector-wrapper {
+            display: inline-block !important;
           }
           .mobile-menu-toggle {
             display: none !important;
+          }
+        }
+        @media (min-width: 1180px) {
+          .desktop-nav {
+            gap: 28px;
+          }
+        }
+        @media (min-width: 1360px) {
+          .desktop-nav {
+            gap: 34px;
+          }
+        }
+        .dropdown-trigger-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        /* Mobile Header Responsive Tuning */
+        @media (max-width: 600px) {
+          .header-book-btn {
+            padding: 0.5rem 1rem !important;
+            font-size: 0.78rem !important;
+          }
+        }
+        @media (max-width: 440px) {
+          .brand-logo-text-sub {
+            display: none !important;
+          }
+          .brand-logo-text-main {
+            font-size: 1.05rem !important;
+          }
+          .header-book-btn {
+            padding: 0.45rem 0.75rem !important;
+            font-size: 0.74rem !important;
+          }
+        }
+        @media (max-width: 360px) {
+          .header-book-btn {
+            display: none !important;
+          }
+          .brand-logo-text-main {
+            font-size: 0.96rem !important;
           }
         }
       `}</style>
