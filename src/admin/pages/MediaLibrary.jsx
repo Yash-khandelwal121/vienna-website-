@@ -213,69 +213,6 @@ export default function MediaLibrary() {
           </div>
         )}
       </div>
-
-      <style>{`
-        .vdt-media-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-          gap: 1.25rem;
-        }
-
-        .vdt-media-card {
-          padding: 0;
-          overflow: hidden;
-          display: flex;
-          flex-direction: column;
-        }
-
-        .vdt-media-preview-box {
-          height: 140px;
-          background: #FAF8F4;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          overflow: hidden;
-          border-bottom: 1px solid #F0EAE1;
-          padding: 0.5rem;
-        }
-
-        .vdt-media-preview-box img {
-          max-width: 100%;
-          max-height: 100%;
-          object-fit: contain;
-        }
-
-        .vdt-media-info {
-          padding: 0.85rem 1rem;
-          display: flex;
-          flex-direction: column;
-          gap: 0.4rem;
-        }
-
-        .vdt-media-name {
-          font-size: 0.82rem;
-          font-weight: 600;
-          color: #17191C;
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
-
-        .vdt-media-meta {
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          font-size: 0.72rem;
-          color: #8C877E;
-        }
-
-        .vdt-media-actions {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          margin-top: 0.25rem;
-        }
-      `}</style>
     </AdminLayout>
   );
 }

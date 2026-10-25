@@ -287,13 +287,6 @@ export default function Enquiries() {
           </div>
         </div>
       )}
-
-      <style>{`
-        .vdt-cell-subject {
-          font-weight: 600;
-          color: #17191C;
-        }
-      `}</style>
     </AdminLayout>
   );
 }

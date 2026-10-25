@@ -1,6 +1,7 @@
 import React from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AdminAuthProvider, useAdminAuth } from './context/AdminAuthContext';
+import './admin.css';
 
 import AdminLogin from './pages/AdminLogin';
 import Dashboard from './pages/Dashboard';

@@ -1,0 +1,946 @@
+/* =========================================================================
+   VIENNA DAY TRIP — LUXURY EDITORIAL BLOG DESIGN SYSTEM
+   Palette:
+     Warm Ivory:      #F8F5EF / #FAF8F4
+     Champagne Gold:  #A67C38
+     Soft Beige:      #EDE5D8
+     Dark Charcoal:   #171717 / #17191C
+     White:           #FFFFFF
+   ========================================================================= */
+
+.vdt-blog-page {
+  background-color: #FAF8F4;
+  color: #171717;
+  min-height: 100vh;
+  padding-top: 6.5rem;
+  padding-bottom: 5rem;
+  overflow-x: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+.vdt-blog-container {
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+/* =========================================================================
+   1. HERO SECTION (55% Content / 45% Image Balance)
+   ========================================================================= */
+.vdt-blog-hero-card {
+  background: linear-gradient(135deg, #F8F5EF 0%, #FAF8F4 50%, #F4EFE6 100%);
+  border: 1px solid #EDE5D8;
+  border-radius: 24px;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 55% 45%;
+  align-items: stretch;
+  box-shadow: 0 12px 36px rgba(23, 23, 23, 0.04);
+  margin-bottom: 3.5rem;
+  position: relative;
+  min-height: 480px;
+}
+
+.vdt-blog-hero-content {
+  padding: 3.5rem 3.25rem 3rem 3.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  z-index: 2;
+  position: relative;
+}
+
+.vdt-blog-hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #A67C38;
+  font-size: 0.78rem;
+  letter-spacing: 0.18em;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+
+.vdt-blog-hero-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(2.3rem, 3.8vw, 3.4rem);
+  font-weight: 800;
+  line-height: 1.14;
+  color: #171717;
+  letter-spacing: -0.015em;
+  margin-bottom: 1.25rem;
+}
+
+.vdt-blog-hero-title .vdt-gold-text {
+  color: #A67C38;
+}
+
+.vdt-blog-hero-desc {
+  font-size: clamp(0.98rem, 1.2vw, 1.05rem);
+  line-height: 1.7;
+  color: #52565E;
+  margin-bottom: 2rem;
+  max-width: 520px;
+}
+
+/* Hero Search Bar */
+.vdt-blog-search-box {
+  background: #FFFFFF;
+  border: 1.5px solid #EDE5D8;
+  border-radius: 9999px;
+  padding: 0.4rem 0.5rem 0.4rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  box-shadow: 0 6px 20px rgba(23, 23, 23, 0.04);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  max-width: 520px;
+  margin-bottom: 1.75rem;
+}
+
+.vdt-blog-search-box:focus-within {
+  border-color: #A67C38;
+  box-shadow: 0 8px 25px rgba(166, 124, 56, 0.15);
+}
+
+.vdt-blog-search-input {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 0.95rem;
+  color: #171717;
+  font-family: inherit;
+}
+
+.vdt-blog-search-input::placeholder {
+  color: #8E929B;
+}
+
+.vdt-blog-search-clear {
+  background: none;
+  border: none;
+  color: #8E929B;
+  cursor: pointer;
+  padding: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s;
+}
+
+.vdt-blog-search-clear:hover {
+  color: #171717;
+}
+
+.vdt-blog-search-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #A67C38;
+  color: #FFFFFF;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.vdt-blog-search-btn:hover {
+  background: #8E682C;
+  transform: scale(1.04);
+}
+
+/* Hero Category Pills */
+.vdt-hero-pills {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.vdt-hero-pills::-webkit-scrollbar {
+  display: none;
+}
+
+.vdt-pill-btn {
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  border: 1px solid #EDE5D8;
+  background: #FFFFFF;
+  color: #171717;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.vdt-pill-btn:hover {
+  border-color: #A67C38;
+  background: #FAF8F4;
+}
+
+.vdt-pill-btn.active {
+  background: #A67C38;
+  border-color: #A67C38;
+  color: #FFFFFF;
+}
+
+.vdt-pill-badge {
+  font-size: 0.72rem;
+  padding: 0.1rem 0.45rem;
+  border-radius: 9999px;
+  background: #EDE5D8;
+  color: #62666D;
+  transition: all 0.2s ease;
+}
+
+.vdt-pill-btn.active .vdt-pill-badge {
+  background: rgba(255, 255, 255, 0.25);
+  color: #FFFFFF;
+}
+
+/* Hero Image Right (Responsive container with proper position) */
+.vdt-blog-hero-image-wrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  overflow: hidden;
+  background-color: #F8F5EF;
+}
+
+.vdt-blog-hero-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 68%;
+  display: block;
+}
+
+.vdt-blog-hero-image-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right, #F8F5EF 0%, rgba(248, 245, 239, 0.5) 15%, transparent 35%);
+  pointer-events: none;
+}
+
+/* =========================================================================
+   2. REUSABLE COVER IMAGE COMPONENT STYLES (contain vs cover)
+   ========================================================================= */
+.vdt-cover-wrap {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+}
+
+.vdt-cover-wrap.is-poster {
+  background-color: transparent;
+}
+
+.vdt-cover-img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.vdt-cover-img.fit-contain {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.vdt-cover-img.fit-cover {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* =========================================================================
+   3. FEATURED BLOG & RECOMMENDED SECTION (60% / 40% Split)
+   ========================================================================= */
+.vdt-featured-section {
+  margin-bottom: 4.5rem;
+}
+
+.vdt-featured-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+/* 60% Left Featured Card (Top image + Dedicated content below) */
+.vdt-featured-card {
+  background: #FFFFFF;
+  border: 1px solid #EDE5D8;
+  border-radius: 20px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  box-shadow: 0 10px 30px rgba(23, 23, 23, 0.04);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.vdt-featured-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 18px 40px rgba(23, 23, 23, 0.09);
+  border-color: #A67C38;
+}
+
+.vdt-cover-wrap-featured {
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid #EDE5D8;
+  background-color: #FAF8F4;
+}
+
+.vdt-cover-img-featured {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.vdt-featured-card:hover .vdt-cover-wrap-featured.is-photo .vdt-cover-img-featured {
+  transform: scale(1.03);
+}
+
+.vdt-featured-body {
+  padding: 1.85rem 2.25rem 2rem;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  background: #FFFFFF;
+}
+
+.vdt-featured-cat-badge {
+  display: inline-block;
+  background: #A67C38;
+  color: #FFFFFF;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.35rem 0.85rem;
+  border-radius: 9999px;
+  margin-bottom: 0.9rem;
+  align-self: flex-start;
+}
+
+.vdt-featured-title-new {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(1.45rem, 2.1vw, 1.85rem);
+  font-weight: 700;
+  line-height: 1.3;
+  color: #171717;
+  margin-bottom: 0.75rem;
+  transition: color 0.2s ease;
+}
+
+.vdt-featured-card:hover .vdt-featured-title-new {
+  color: #A67C38;
+}
+
+.vdt-featured-desc-new {
+  color: #52565E;
+  font-size: 0.94rem;
+  line-height: 1.65;
+  margin-bottom: 1.5rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.vdt-featured-footer-new {
+  margin-top: auto;
+  padding-top: 1.25rem;
+  border-top: 1px solid #F4EFE6;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.vdt-featured-meta-new {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  color: #8E929B;
+  font-size: 0.82rem;
+}
+
+.vdt-featured-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #A67C38;
+  transition: gap 0.2s ease, color 0.2s ease;
+}
+
+.vdt-featured-card:hover .vdt-featured-cta-btn {
+  gap: 0.75rem;
+  color: #8E682C;
+}
+
+/* 40% Right Recommended Articles */
+.vdt-recommended-card {
+  background: #FFFFFF;
+  border: 1px solid #EDE5D8;
+  border-radius: 20px;
+  padding: 1.85rem 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  box-shadow: 0 10px 30px rgba(23, 23, 23, 0.04);
+}
+
+.vdt-recommended-header {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #171717;
+  margin-bottom: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #EDE5D8;
+  padding-bottom: 0.85rem;
+}
+
+.vdt-recommended-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.vdt-recommended-item {
+  display: flex;
+  align-items: center;
+  gap: 1.15rem;
+  text-decoration: none;
+  padding: 1.1rem 0;
+  border-bottom: 1px solid #EDE5D8;
+  transition: all 0.2s ease;
+}
+
+.vdt-recommended-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.vdt-cover-wrap-recommended {
+  width: 110px;
+  height: 85px;
+  border-radius: 10px;
+  background-color: #F8F5EF;
+  border: 1px solid #EDE5D8;
+  flex-shrink: 0;
+}
+
+.vdt-recommended-info {
+  flex-grow: 1;
+  min-width: 0;
+}
+
+.vdt-recommended-cat {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #A67C38;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 0.25rem;
+}
+
+.vdt-recommended-item-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 0.96rem;
+  font-weight: 700;
+  line-height: 1.35;
+  color: #171717;
+  margin-bottom: 0.35rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  transition: color 0.2s ease;
+}
+
+.vdt-recommended-item:hover .vdt-recommended-item-title {
+  color: #A67C38;
+}
+
+.vdt-recommended-meta {
+  font-size: 0.76rem;
+  color: #8E929B;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.vdt-recommended-arrow {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid #EDE5D8;
+  background: #FAF8F4;
+  color: #A67C38;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.vdt-recommended-item:hover .vdt-recommended-arrow {
+  background: #A67C38;
+  border-color: #A67C38;
+  color: #FFFFFF;
+  transform: translateX(3px);
+}
+
+/* =========================================================================
+   4. EXPLORE OUR TRAVEL JOURNAL HEADER & CONTROLS
+   ========================================================================= */
+.vdt-journal-header {
+  margin-bottom: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.vdt-journal-title-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+}
+
+.vdt-journal-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(2rem, 3.2vw, 2.6rem);
+  font-weight: 800;
+  line-height: 1.15;
+  color: #171717;
+  letter-spacing: -0.01em;
+  margin-bottom: 0.5rem;
+}
+
+.vdt-journal-subtitle {
+  color: #62666D;
+  font-size: 1rem;
+  max-width: 650px;
+  line-height: 1.6;
+}
+
+.vdt-journal-filter-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 0;
+  border-top: 1px solid #EDE5D8;
+  border-bottom: 1px solid #EDE5D8;
+  flex-wrap: wrap;
+}
+
+.vdt-journal-count-text {
+  font-size: 0.88rem;
+  color: #62666D;
+  font-weight: 600;
+}
+
+.vdt-journal-count-highlight {
+  color: #A67C38;
+  font-weight: 700;
+}
+
+/* =========================================================================
+   5. PREMIUM BLOG CARD GRID
+   ========================================================================= */
+.vdt-blog-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 2.25rem;
+  margin-bottom: 4rem;
+}
+
+.vdt-card {
+  background: #FFFFFF;
+  border: 1px solid #EDE5D8;
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8px 24px rgba(23, 23, 23, 0.03);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.vdt-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 16px 36px rgba(23, 23, 23, 0.08);
+  border-color: #A67C38;
+}
+
+.vdt-card-img-wrap {
+  position: relative;
+  display: block;
+  text-decoration: none;
+}
+
+.vdt-cover-wrap-card {
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid #EDE5D8;
+  background-color: #FAF8F4;
+}
+
+.vdt-cover-img-card {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.vdt-cover-wrap-card.is-photo .vdt-cover-img-card {
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.vdt-card:hover .vdt-cover-wrap-card.is-photo .vdt-cover-img-card {
+  transform: scale(1.04);
+}
+
+.vdt-card-body {
+  padding: 1.5rem 1.6rem 1.6rem;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.vdt-card-category-pill {
+  display: inline-block;
+  align-self: flex-start;
+  background: #FAF8F4;
+  color: #A67C38;
+  border: 1px solid #EDE5D8;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.28rem 0.75rem;
+  border-radius: 9999px;
+  margin-bottom: 0.85rem;
+  transition: all 0.25s ease;
+}
+
+.vdt-card:hover .vdt-card-category-pill {
+  background: #A67C38;
+  border-color: #A67C38;
+  color: #FFFFFF;
+}
+
+.vdt-card-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.22rem;
+  font-weight: 700;
+  line-height: 1.35;
+  color: #171717;
+  margin-bottom: 0.65rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.vdt-card-meta-strip {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  color: #8E929B;
+  font-size: 0.8rem;
+  margin-bottom: 1rem;
+}
+
+.vdt-card-title a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.vdt-card-title a:hover {
+  color: #A67C38;
+}
+
+.vdt-card-excerpt {
+  color: #52565E;
+  font-size: 0.92rem;
+  line-height: 1.65;
+  margin-bottom: 1.5rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  flex-grow: 1;
+}
+
+.vdt-card-footer {
+  margin-top: auto;
+  padding-top: 1rem;
+  border-top: 1px solid #F4EFE6;
+}
+
+.vdt-card-link {
+  font-size: 0.88rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #A67C38;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  transition: gap 0.2s ease, color 0.2s ease;
+}
+
+.vdt-card-link:hover {
+  gap: 0.7rem;
+  color: #8E682C;
+}
+
+/* =========================================================================
+   6. PAGINATION CONTROLS
+   ========================================================================= */
+.vdt-pagination-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 3.5rem;
+}
+
+.vdt-page-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 9999px;
+  border: 1px solid #EDE5D8;
+  background: #FFFFFF;
+  color: #171717;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.vdt-page-btn:hover:not(:disabled) {
+  border-color: #A67C38;
+  background: #FAF8F4;
+}
+
+.vdt-page-btn.active {
+  background: #A67C38;
+  border-color: #A67C38;
+  color: #FFFFFF;
+  box-shadow: 0 4px 12px rgba(166, 124, 56, 0.3);
+}
+
+.vdt-page-nav-btn {
+  padding: 0.6rem 1.15rem;
+  border-radius: 9999px;
+  border: 1px solid #EDE5D8;
+  background: #FFFFFF;
+  color: #171717;
+  font-size: 0.86rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  transition: all 0.2s ease;
+}
+
+.vdt-page-nav-btn:hover:not(:disabled) {
+  border-color: #A67C38;
+  background: #FAF8F4;
+}
+
+.vdt-page-nav-btn:disabled {
+  background: #F4EFE6;
+  border-color: #EDE5D8;
+  color: #8E929B;
+  cursor: not-allowed;
+}
+
+.vdt-pagination-ellipsis {
+  color: #8E929B;
+  padding: 0 0.35rem;
+}
+
+/* =========================================================================
+   7. RESPONSIVE BREAKPOINTS (Desktop 1440px / Tablet 768px / Mobile 390px)
+   ========================================================================= */
+
+/* Tablet Viewports (<= 1024px) */
+@media (max-width: 1024px) {
+  .vdt-blog-hero-card {
+    grid-template-columns: 1fr;
+    min-height: auto;
+  }
+
+  .vdt-blog-hero-content {
+    padding: 2.75rem 2rem 2rem;
+  }
+
+  .vdt-blog-hero-image-wrap {
+    height: 320px;
+  }
+
+  .vdt-blog-hero-image-overlay {
+    background: linear-gradient(to bottom, #F8F5EF 0%, transparent 25%);
+  }
+
+  .vdt-featured-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .vdt-blog-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.75rem;
+  }
+}
+
+/* Mobile Viewports (<= 768px) */
+@media (max-width: 768px) {
+  .vdt-blog-page {
+    padding-top: 5.5rem;
+    padding-bottom: 3.5rem;
+  }
+
+  .vdt-blog-container {
+    padding: 0 1rem;
+  }
+
+  .vdt-blog-hero-card {
+    border-radius: 18px;
+    margin-bottom: 2.5rem;
+  }
+
+  .vdt-blog-hero-content {
+    padding: 2rem 1.25rem 1.5rem;
+  }
+
+  .vdt-blog-hero-title {
+    font-size: 2.1rem;
+    margin-bottom: 1rem;
+  }
+
+  .vdt-blog-hero-desc {
+    font-size: 0.95rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .vdt-blog-search-box {
+    max-width: 100%;
+    margin-bottom: 1.25rem;
+  }
+
+  .vdt-blog-hero-image-wrap {
+    height: 250px;
+  }
+
+  .vdt-featured-section {
+    margin-bottom: 3rem;
+  }
+
+  .vdt-featured-body {
+    padding: 1.5rem 1.25rem;
+  }
+
+  .vdt-featured-title-new {
+    font-size: 1.35rem;
+  }
+
+  .vdt-recommended-card {
+    padding: 1.5rem 1.25rem;
+  }
+
+  .vdt-recommended-item {
+    gap: 0.85rem;
+  }
+
+  .vdt-cover-wrap-recommended {
+    width: 95px;
+    height: 75px;
+  }
+
+  .vdt-recommended-item-title {
+    font-size: 0.9rem;
+  }
+
+  .vdt-journal-title {
+    font-size: 1.85rem;
+  }
+
+  .vdt-blog-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .vdt-card-body {
+    padding: 1.25rem;
+  }
+}
+
+/* Compact Mobile (<= 480px, e.g. 390px) */
+@media (max-width: 480px) {
+  .vdt-blog-hero-title {
+    font-size: 1.85rem;
+  }
+
+  .vdt-blog-hero-image-wrap {
+    height: 220px;
+  }
+
+  .vdt-cover-wrap-recommended {
+    width: 85px;
+    height: 65px;
+  }
+
+  .vdt-recommended-arrow {
+    display: none;
+  }
+
+  .vdt-pagination-wrap {
+    gap: 0.35rem;
+  }
+
+  .vdt-page-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 0.8rem;
+  }
+
+  .vdt-page-nav-btn {
+    padding: 0.5rem 0.85rem;
+    font-size: 0.78rem;
+  }
+}

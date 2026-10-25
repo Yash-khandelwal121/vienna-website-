@@ -1,32 +1,73 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, Calendar, Clock, ArrowRight, Sparkles, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { allBlogPosts, blogCategories } from '../data/blogs';
 import { useLanguage } from '../context/LanguageContext';
 import { fetchPublicBlogs } from '../services/api';
+import BlogCoverImage from '../components/BlogCoverImage';
+import './Blog.css';
 
 const POSTS_PER_PAGE = 9;
 
 export default function Blog() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [currentPage, setCurrentPage] = useState(1);
   const [livePosts, setLivePosts] = useState(allBlogPosts);
   const [isLoading, setIsLoading] = useState(false);
+  const journalRef = useRef(null);
+
+  // Translation helpers
+  const getCategoryLabel = (catName) => {
+    if (!catName) return t('blog_guide_badge');
+    const lower = String(catName).toLowerCase().trim();
+    if (lower === 'all' || lower === 'all articles') return t('blog_all_articles');
+    if (lower === 'our blog') return t('blog_cat_our_blog');
+    if (lower === 'chauffeur') return t('blog_cat_chauffeur');
+    if (lower === 'car rent') return t('blog_cat_car_rent');
+    if (lower === 'services') return t('blog_cat_services');
+    if (lower === 'general') return t('blog_cat_general');
+    if (lower === 'uncategorized') return t('blog_cat_uncategorized');
+    return catName;
+  };
+
+  const formatReadTime = (readTimeStr) => {
+    if (!readTimeStr) return '';
+    const num = parseInt(readTimeStr, 10);
+    if (!isNaN(num)) {
+      return `${num} ${t('blog_min_read')}`;
+    }
+    return readTimeStr;
+  };
+
+  const formatDate = (dateStr) => {
+    if (!dateStr) return '';
+    try {
+      const d = new Date(dateStr);
+      if (!isNaN(d.getTime())) {
+        const locale = language === 'de' ? 'de-AT' : (language === 'zh-CN' ? 'zh-CN' : (language === 'fr' ? 'fr-FR' : (language === 'it' ? 'it-IT' : (language === 'es' ? 'es-ES' : 'en-US'))));
+        return d.toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' });
+      }
+    } catch (e) {}
+    return dateStr;
+  };
 
   // SEO document title & meta tags
   useEffect(() => {
-    document.title = 'The Vienna Travel Journal | Vienna Day Trip Luxury Insights';
+    if (language === 'de') {
+      document.title = 'Geschichten, für die es sich zu reisen lohnt | The Vienna Day Trip Journal';
+    } else {
+      document.title = 'Stories Worth Travelling For | The Vienna Day Trip Journal';
+    }
     let metaDesc = document.querySelector('meta[name="description"]');
     if (!metaDesc) {
       metaDesc = document.createElement('meta');
       metaDesc.name = 'description';
       document.head.appendChild(metaDesc);
     }
-    metaDesc.content = 'Discover inspiring destinations, travel guides, and luxury chauffeur experiences across Vienna, Austria, and Central Europe.';
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [currentPage, selectedCategory]);
+    metaDesc.content = t('blog_hero_desc');
+  }, [language, t]);
 
   // Sync with Sanity CMS & Backend API
   useEffect(() => {
@@ -36,15 +77,19 @@ export default function Blog() {
       try {
         const res = await fetchPublicBlogs({ limit: 200, category: selectedCategory, search });
         if (isMounted && res?.blogs?.length > 0) {
-          const mapped = res.blogs.map((b) => ({
-            ...b,
-            categories: b.categories || [b.category || 'Luxury Travel'],
-            primaryCategory: b.category || b.categories?.[0] || 'Luxury Travel',
-          }));
+          const mapped = res.blogs.map((b) => {
+            const localMatch = allBlogPosts.find((p) => p.slug === b.slug);
+            return {
+              ...b,
+              featuredImage: b.featuredImage || b.coverImage || localMatch?.featuredImage || '/images/gallery-hallstatt.webp',
+              categories: b.categories || [b.category || 'Our Blog'],
+              primaryCategory: b.category || b.categories?.[0] || 'Our Blog',
+            };
+          });
           setLivePosts(mapped);
         }
       } catch (e) {
-        // preserve local
+        // preserve local fallback
       } finally {
         if (isMounted) setIsLoading(false);
       }
@@ -60,24 +105,40 @@ export default function Blog() {
     setCurrentPage(1);
   }, [search, selectedCategory]);
 
+  // Dynamic category list from data with actual counts
+  const categoryCounts = useMemo(() => {
+    const counts = { All: livePosts.length };
+    livePosts.forEach((post) => {
+      const cats = post.categories || [post.category || 'Our Blog'];
+      cats.forEach((c) => {
+        if (!c) return;
+        counts[c] = (counts[c] || 0) + 1;
+      });
+      if (post.primaryCategory && !cats.includes(post.primaryCategory)) {
+        counts[post.primaryCategory] = (counts[post.primaryCategory] || 0) + 1;
+      }
+    });
+    return counts;
+  }, [livePosts]);
+
   // Filtered posts based on search query and category
   const filteredPosts = useMemo(() => {
     const query = search.trim().toLowerCase();
     return livePosts.filter((post) => {
-      const categories = post.categories || [post.category || 'Luxury Travel'];
-      const primaryCat = post.primaryCategory || post.category || 'Luxury Travel';
+      const categories = post.categories || [post.category || 'Our Blog'];
+      const primaryCat = post.primaryCategory || post.category || 'Our Blog';
 
       const matchesCategory =
         selectedCategory === 'All' ||
-        categories.some((c) => c.toLowerCase() === selectedCategory.toLowerCase()) ||
-        primaryCat.toLowerCase() === selectedCategory.toLowerCase();
+        categories.some((c) => c && c.toLowerCase() === selectedCategory.toLowerCase()) ||
+        (primaryCat && primaryCat.toLowerCase() === selectedCategory.toLowerCase());
 
       if (!matchesCategory) return false;
       if (!query) return true;
 
       const titleMatch = post.title?.toLowerCase().includes(query);
       const excerptMatch = post.excerpt?.toLowerCase().includes(query);
-      const categoryMatch = categories.some((c) => c.toLowerCase().includes(query));
+      const categoryMatch = categories.some((c) => c && c.toLowerCase().includes(query));
       return titleMatch || excerptMatch || categoryMatch;
     });
   }, [search, selectedCategory, livePosts]);
@@ -88,475 +149,390 @@ export default function Blog() {
   const startIndex = (currentPage - 1) * POSTS_PER_PAGE;
   const currentPosts = filteredPosts.slice(startIndex, startIndex + POSTS_PER_PAGE);
 
+  // Featured and recommended articles (derived from filtered posts)
+  const featuredPost = filteredPosts.length > 0 ? filteredPosts[0] : null;
+  const recommendedPosts = filteredPosts.length > 1 ? filteredPosts.slice(1, 5) : [];
+
+  // Smooth scroll helper for pagination
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+    if (journalRef.current) {
+      const yOffset = -90;
+      const element = journalRef.current;
+      const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
+      window.scrollTo({ top: y, behavior: 'smooth' });
+    }
+  };
+
   return (
-    <div style={{ backgroundColor: '#FAF8F4', minHeight: '100vh', color: '#17191C' }}>
-      {/* =========================================================================
-          HERO SECTION: THE VIENNA TRAVEL JOURNAL
-          ========================================================================= */}
-      <section
-        style={{
-          position: 'relative',
-          paddingTop: '8.5rem',
-          paddingBottom: '4.5rem',
-          backgroundColor: '#FAF8F4',
-          borderBottom: '1px solid #E6D8C3'
-        }}
-      >
-        <div className="container-wide" style={{ textAlign: 'center', maxWidth: '860px', margin: '0 auto' }}>
-          {/* Eyebrow */}
-          <div
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              color: '#C69C50',
-              fontFamily: 'var(--font-heading)',
-              fontSize: '0.82rem',
-              letterSpacing: '0.22em',
-              textTransform: 'uppercase',
-              fontWeight: 700,
-              marginBottom: '1rem'
-            }}
-          >
-            <Sparkles size={14} style={{ color: '#C69C50' }} />
-            <span>DISPATCHES & CURATED GUIDES</span>
-            <Sparkles size={14} style={{ color: '#C69C50' }} />
-          </div>
+    <div className="vdt-blog-page">
+      <div className="vdt-blog-container">
+        {/* =========================================================================
+            SECTION 1: BLOG HERO EDITORIAL SECTION (55% Content / 45% Image)
+            ========================================================================= */}
+        <section className="vdt-blog-hero-card" aria-label="Journal Hero">
+          <div className="vdt-blog-hero-content">
+            {/* Small Eyebrow Heading */}
+            <div className="vdt-blog-hero-eyebrow">
+              <Sparkles size={14} style={{ color: '#A67C38' }} />
+              <span>{t('blog_hero_eyebrow')}</span>
+            </div>
 
-          {/* Heading */}
-          <h1
-            style={{
-              fontFamily: 'Playfair Display, Georgia, serif',
-              fontSize: 'clamp(2.4rem, 4.5vw, 3.8rem)',
-              fontWeight: 800,
-              lineHeight: 1.15,
-              color: '#17191C',
-              letterSpacing: '-0.01em',
-              marginBottom: '1.25rem'
-            }}
-          >
-            The Vienna Travel Journal
-          </h1>
+            {/* Main Editorial Heading */}
+            <h1 className="vdt-blog-hero-title">
+              {t('blog_hero_title_1')}<br />
+              <span className="vdt-gold-text">{t('blog_hero_title_2')}</span>
+            </h1>
 
-          {/* Subtitle */}
-          <p
-            style={{
-              fontFamily: 'Lora, Georgia, serif',
-              fontSize: 'clamp(1.05rem, 1.8vw, 1.25rem)',
-              lineHeight: 1.7,
-              color: '#62666D',
-              maxWidth: '720px',
-              margin: '0 auto 2.5rem'
-            }}
-          >
-            Discover inspiring destinations, travel guides, and luxury chauffeur experiences across Europe.
-          </p>
+            {/* Description */}
+            <p className="vdt-blog-hero-desc">
+              {t('blog_hero_desc')}
+            </p>
 
-          {/* Search Bar */}
-          <div
-            style={{
-              position: 'relative',
-              maxWidth: '620px',
-              margin: '0 auto',
-              backgroundColor: '#FFFFFF',
-              border: '1.5px solid #E6D8C3',
-              borderRadius: '9999px',
-              padding: '0.5rem 0.75rem 0.5rem 1.4rem',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.75rem',
-              boxShadow: '0 8px 30px rgba(23, 25, 28, 0.05)',
-              transition: 'border-color 0.2s, box-shadow 0.2s'
-            }}
-          >
-            <Search size={20} style={{ color: '#C69C50', flexShrink: 0 }} />
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search guides, destinations, or chauffeur tips..."
-              style={{
-                width: '100%',
-                border: 'none',
-                outline: 'none',
-                fontFamily: 'Lora, Georgia, serif',
-                fontSize: '1rem',
-                color: '#17191C',
-                backgroundColor: 'transparent'
-              }}
-            />
-            {search && (
+            {/* Search Bar */}
+            <div className="vdt-blog-search-box">
+              <Search size={18} style={{ color: '#A67C38', flexShrink: 0 }} />
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder={t('blog_search_placeholder')}
+                className="vdt-blog-search-input"
+                aria-label="Search articles"
+              />
+              {search && (
+                <button
+                  type="button"
+                  onClick={() => setSearch('')}
+                  className="vdt-blog-search-clear"
+                  title="Clear search"
+                  aria-label="Clear search query"
+                >
+                  <X size={16} />
+                </button>
+              )}
               <button
                 type="button"
-                onClick={() => setSearch('')}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: '#8E929B',
-                  cursor: 'pointer',
-                  padding: '0.25rem',
-                  display: 'flex',
-                  alignItems: 'center'
+                className="vdt-blog-search-btn"
+                onClick={() => {
+                  if (journalRef.current) {
+                    journalRef.current.scrollIntoView({ behavior: 'smooth' });
+                  }
                 }}
+                title="Search articles"
+                aria-label="Submit search"
               >
-                <X size={16} />
+                <ArrowRight size={17} />
               </button>
-            )}
-          </div>
-        </div>
-      </section>
+            </div>
 
-      {/* =========================================================================
-          CATEGORY FILTER STRIP
-          ========================================================================= */}
-      <section
-        style={{
-          backgroundColor: '#FFFFFF',
-          borderBottom: '1px solid #E6D8C3',
-          padding: '1.25rem 0',
-          position: 'sticky',
-          top: '74px',
-          zIndex: 40,
-          backdropFilter: 'blur(8px)'
-        }}
-      >
-        <div className="container-wide">
+            {/* Category Filter Pills (Existing Sanity CMS Categories) */}
+            <div className="vdt-hero-pills" role="tablist" aria-label="Article categories">
+              <button
+                type="button"
+                role="tab"
+                aria-selected={selectedCategory === 'All'}
+                onClick={() => setSelectedCategory('All')}
+                className={`vdt-pill-btn ${selectedCategory === 'All' ? 'active' : ''}`}
+              >
+                <span>{t('blog_all_articles')}</span>
+                <span className="vdt-pill-badge">{totalPosts}</span>
+              </button>
+
+              {blogCategories.map((cat) => {
+                const isActive = selectedCategory.toLowerCase() === cat.name.toLowerCase();
+                const count = categoryCounts[cat.name] || cat.count || 0;
+                return (
+                  <button
+                    key={cat.name}
+                    type="button"
+                    role="tab"
+                    aria-selected={isActive}
+                    onClick={() => setSelectedCategory(cat.name)}
+                    className={`vdt-pill-btn ${isActive ? 'active' : ''}`}
+                  >
+                    <span>{getCategoryLabel(cat.name)}</span>
+                    <span className="vdt-pill-badge">{count}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Right Column: Beautiful Vienna Architecture & Mercedes S-Class */}
+          <div className="vdt-blog-hero-image-wrap">
+            <img
+              src="/images/vienna-hero-clean.jpg"
+              alt="Imperial Vienna Hofburg Palace and luxury chauffeur Mercedes-Benz"
+              className="vdt-blog-hero-image"
+              loading="eager"
+            />
+            <div className="vdt-blog-hero-image-overlay" />
+          </div>
+        </section>
+
+        {/* =========================================================================
+            SECTION 2: FEATURED BLOG SECTION (Separated Image & Content Architecture)
+            ========================================================================= */}
+        {featuredPost && (
+          <section className="vdt-featured-section" aria-label="Featured Stories">
+            <div className="vdt-featured-grid">
+              {/* Left 60%: Large Featured Article Card (Dedicated Top Image & Bottom Content) */}
+              <Link
+                to={`/blog/${featuredPost.slug}/`}
+                className="vdt-featured-card"
+                aria-label={`Featured: ${featuredPost.title}`}
+              >
+                <BlogCoverImage
+                  src={featuredPost.featuredImage}
+                  alt={featuredPost.featuredImageAlt || featuredPost.title}
+                  variant="featured"
+                  isPoster={featuredPost.isPoster}
+                  eager
+                />
+
+                <div className="vdt-featured-body">
+                  <span className="vdt-featured-cat-badge">
+                    {getCategoryLabel(featuredPost.primaryCategory)}
+                  </span>
+
+                  <h2 className="vdt-featured-title-new">
+                    {featuredPost.title}
+                  </h2>
+
+                  <p className="vdt-featured-desc-new">
+                    {featuredPost.excerpt}
+                  </p>
+
+                  <div className="vdt-featured-footer-new">
+                    <div className="vdt-featured-meta-new">
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+                        <Calendar size={13} style={{ color: '#A67C38' }} />
+                        <span>{formatDate(featuredPost.date)}</span>
+                      </span>
+                      <span>•</span>
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+                        <Clock size={13} style={{ color: '#A67C38' }} />
+                        <span>{formatReadTime(featuredPost.readTime)}</span>
+                      </span>
+                    </div>
+
+                    <span className="vdt-featured-cta-btn">
+                      <span>{t('blog_read_article')}</span>
+                      <ArrowRight size={16} />
+                    </span>
+                  </div>
+                </div>
+              </Link>
+
+              {/* Right 40%: Recommended Articles List */}
+              <div className="vdt-recommended-card">
+                <div className="vdt-recommended-header">
+                  <span>{t('blog_recommended_stories')}</span>
+                  <span style={{ fontSize: '0.8rem', color: '#A67C38', fontWeight: 600 }}>
+                    {t('blog_editors_picks')}
+                  </span>
+                </div>
+
+                <div className="vdt-recommended-list">
+                  {recommendedPosts.map((recPost) => (
+                    <Link
+                      key={recPost.slug}
+                      to={`/blog/${recPost.slug}/`}
+                      className="vdt-recommended-item"
+                    >
+                      <BlogCoverImage
+                        src={recPost.featuredImage}
+                        alt={recPost.title}
+                        variant="recommended"
+                        isPoster={recPost.isPoster}
+                      />
+
+                      <div className="vdt-recommended-info">
+                        <div className="vdt-recommended-cat">
+                          {getCategoryLabel(recPost.primaryCategory)}
+                        </div>
+                        <h3 className="vdt-recommended-item-title">
+                          {recPost.title}
+                        </h3>
+                        <div className="vdt-recommended-meta">
+                          <span>{formatDate(recPost.date)}</span>
+                          <span>•</span>
+                          <span>{formatReadTime(recPost.readTime)}</span>
+                        </div>
+                      </div>
+
+                      <div className="vdt-recommended-arrow">
+                        <ArrowRight size={14} />
+                      </div>
+                    </Link>
+                  ))}
+
+                  {recommendedPosts.length === 0 && (
+                    <div style={{ color: '#8E929B', fontSize: '0.9rem', padding: '1rem 0' }}>
+                      More recommendations will appear here.
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* =========================================================================
+            SECTION 3: EXPLORE OUR TRAVEL JOURNAL HEADER & CONTROLS
+            ========================================================================= */}
+        <section ref={journalRef} className="vdt-journal-header" id="journal-grid">
+          <div className="vdt-journal-title-row">
+            <div>
+              <h2 className="vdt-journal-title">{t('blog_explore_title')}</h2>
+              <p className="vdt-journal-subtitle">
+                {t('blog_explore_sub')}
+              </p>
+            </div>
+
+            {/* Quick Count & Search Summary */}
+            <div className="vdt-journal-count-text">
+              {t('blog_showing')} <span className="vdt-journal-count-highlight">{filteredPosts.length}</span> {filteredPosts.length === 1 ? t('blog_article_count') : t('blog_articles_count')}
+              {selectedCategory !== 'All' && <span> {t('blog_in_category')} <strong style={{ color: '#171717' }}>{getCategoryLabel(selectedCategory)}</strong></span>}
+              {search && <span> {t('blog_matching')} "<strong style={{ color: '#171717' }}>{search}</strong>"</span>}
+            </div>
+          </div>
+
+          <div className="vdt-journal-filter-strip">
+            <div className="vdt-hero-pills" style={{ padding: 0 }}>
+              <button
+                type="button"
+                onClick={() => setSelectedCategory('All')}
+                className={`vdt-pill-btn ${selectedCategory === 'All' ? 'active' : ''}`}
+                style={{ padding: '0.45rem 0.9rem', fontSize: '0.8rem' }}
+              >
+                <span>{t('blog_all_articles')}</span>
+                <span className="vdt-pill-badge">{livePosts.length}</span>
+              </button>
+
+              {blogCategories.map((cat) => {
+                const isActive = selectedCategory.toLowerCase() === cat.name.toLowerCase();
+                const count = categoryCounts[cat.name] || cat.count || 0;
+                return (
+                  <button
+                    key={cat.name}
+                    type="button"
+                    onClick={() => setSelectedCategory(cat.name)}
+                    className={`vdt-pill-btn ${isActive ? 'active' : ''}`}
+                    style={{ padding: '0.45rem 0.9rem', fontSize: '0.8rem' }}
+                  >
+                    <span>{getCategoryLabel(cat.name)}</span>
+                    <span className="vdt-pill-badge">{count}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            <div style={{ fontSize: '0.84rem', color: '#8E929B', whiteSpace: 'nowrap' }}>
+              {t('blog_page_indicator')} {currentPage} {t('blog_of')} {totalPages}
+            </div>
+          </div>
+        </section>
+
+        {/* =========================================================================
+            SECTION 4: PREMIUM BLOG CARD GRID (3 cols desktop, 2 tablet, 1 mobile)
+            ========================================================================= */}
+        {filteredPosts.length === 0 ? (
           <div
             style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.65rem',
-              overflowX: 'auto',
-              paddingBottom: '0.35rem',
-              scrollbarWidth: 'none'
+              textAlign: 'center',
+              padding: '4.5rem 2rem',
+              backgroundColor: '#FFFFFF',
+              borderRadius: '20px',
+              border: '1px solid #EDE5D8',
+              maxWidth: '560px',
+              margin: '2rem auto 4rem',
             }}
           >
-            {/* "All" Category Pill */}
-            <button
-              type="button"
-              onClick={() => setSelectedCategory('All')}
+            <Search size={40} style={{ color: '#A67C38', opacity: 0.6, marginBottom: '1.25rem' }} />
+            <h3
               style={{
                 fontFamily: 'Playfair Display, Georgia, serif',
-                fontSize: '0.88rem',
-                fontWeight: 700,
-                letterSpacing: '0.04em',
-                padding: '0.55rem 1.15rem',
-                borderRadius: '9999px',
-                border: selectedCategory === 'All' ? '1.5px solid #C69C50' : '1px solid #E6D8C3',
-                backgroundColor: selectedCategory === 'All' ? '#C69C50' : '#FAF8F4',
-                color: selectedCategory === 'All' ? '#FFFFFF' : '#17191C',
-                cursor: 'pointer',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.45rem',
-                whiteSpace: 'nowrap',
-                transition: 'all 0.2s ease',
-                flexShrink: 0
+                fontSize: '1.5rem',
+                color: '#171717',
+                marginBottom: '0.75rem',
               }}
             >
-              <span>All Articles</span>
-              <span
-                style={{
-                  fontSize: '0.72rem',
-                  padding: '0.1rem 0.45rem',
-                  borderRadius: '9999px',
-                  backgroundColor: selectedCategory === 'All' ? 'rgba(255,255,255,0.25)' : '#E6D8C3',
-                  color: selectedCategory === 'All' ? '#FFFFFF' : '#62666D'
-                }}
-              >
-                {allBlogPosts.length}
-              </span>
-            </button>
-
-            {/* Individual Category Pills */}
-            {blogCategories.map((cat) => {
-              const active = selectedCategory.toLowerCase() === cat.name.toLowerCase();
-              return (
-                <button
-                  key={cat.name}
-                  type="button"
-                  onClick={() => setSelectedCategory(cat.name)}
-                  style={{
-                    fontFamily: 'Playfair Display, Georgia, serif',
-                    fontSize: '0.88rem',
-                    fontWeight: 700,
-                    letterSpacing: '0.04em',
-                    padding: '0.55rem 1.15rem',
-                    borderRadius: '9999px',
-                    border: active ? '1.5px solid #C69C50' : '1px solid #E6D8C3',
-                    backgroundColor: active ? '#C69C50' : '#FAF8F4',
-                    color: active ? '#FFFFFF' : '#17191C',
-                    cursor: 'pointer',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '0.45rem',
-                    whiteSpace: 'nowrap',
-                    transition: 'all 0.2s ease',
-                    flexShrink: 0
-                  }}
-                >
-                  <span>{cat.name}</span>
-                  <span
-                    style={{
-                      fontSize: '0.72rem',
-                      padding: '0.1rem 0.45rem',
-                      borderRadius: '9999px',
-                      backgroundColor: active ? 'rgba(255,255,255,0.25)' : '#E6D8C3',
-                      color: active ? '#FFFFFF' : '#62666D'
-                    }}
-                  >
-                    {cat.count}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* =========================================================================
-          MAIN BLOG GRID: 3 COLS (DESKTOP) / 2 COLS (TABLET) / 1 COL (MOBILE)
-          ========================================================================= */}
-      <section style={{ padding: '4.5rem 0 6rem' }}>
-        <div className="container-wide">
-          {/* Header Info Strip */}
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              marginBottom: '2.5rem',
-              borderBottom: '1px solid #E6D8C3',
-              paddingBottom: '1rem'
-            }}
-          >
-            <div style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '1.15rem', color: '#17191C', fontWeight: 700 }}>
-              Showing {filteredPosts.length} {filteredPosts.length === 1 ? 'Article' : 'Articles'}
-              {selectedCategory !== 'All' && <span style={{ color: '#C69C50' }}> in {selectedCategory}</span>}
-              {search && <span style={{ color: '#62666D', fontWeight: 400 }}> matching "{search}"</span>}
-            </div>
-
-            <div style={{ fontFamily: 'Lora, Georgia, serif', fontSize: '0.9rem', color: '#62666D' }}>
-              Page {currentPage} of {totalPages}
-            </div>
-          </div>
-
-          {/* Empty State */}
-          {filteredPosts.length === 0 && (
-            <div
+              {t('blog_no_found_title')}
+            </h3>
+            <p style={{ color: '#62666D', fontSize: '0.95rem', lineHeight: 1.6, marginBottom: '1.75rem' }}>
+              {t('blog_no_found_desc')}
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                setSearch('');
+                setSelectedCategory('All');
+              }}
               style={{
-                textAlign: 'center',
-                padding: '5rem 2rem',
-                backgroundColor: '#FFFFFF',
-                borderRadius: '16px',
-                border: '1px solid #E6D8C3',
-                maxWidth: '600px',
-                margin: '0 auto'
+                padding: '0.65rem 1.5rem',
+                borderRadius: '9999px',
+                background: '#A67C38',
+                color: '#FFFFFF',
+                border: 'none',
+                cursor: 'pointer',
+                fontWeight: 600,
+                fontSize: '0.88rem',
               }}
             >
-              <Search size={44} style={{ color: '#C69C50', opacity: 0.6, marginBottom: '1.25rem' }} />
-              <h3 style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '1.5rem', color: '#17191C', marginBottom: '0.75rem' }}>
-                No Articles Found
-              </h3>
-              <p style={{ fontFamily: 'Lora, Georgia, serif', color: '#62666D', fontSize: '0.98rem', marginBottom: '1.75rem' }}>
-                We couldn't find any articles matching your search criteria. Try a different search term or reset the category filter.
-              </p>
-              <button
-                type="button"
-                onClick={() => {
-                  setSearch('');
-                  setSelectedCategory('All');
-                }}
-                className="btn btn-primary"
-                style={{ padding: '0.7rem 1.6rem', fontSize: '0.88rem' }}
-              >
-                Reset Filters
-              </button>
-            </div>
-          )}
-
-          {/* Responsive Blog Grid: 3 cols desktop, 2 cols tablet, 1 col mobile */}
-          <div className="blog-posts-grid">
+              {t('blog_reset_filters')}
+            </button>
+          </div>
+        ) : (
+          <div className="vdt-blog-grid">
             {currentPosts.map((post) => (
-              <article
-                key={post.slug}
-                style={{
-                  backgroundColor: '#FFFFFF',
-                  borderRadius: '16px',
-                  border: '1px solid #E6D8C3',
-                  overflow: 'hidden',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  boxShadow: '0 8px 30px rgba(23, 25, 28, 0.04)',
-                  transition: 'transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-6px)';
-                  e.currentTarget.style.boxShadow = '0 18px 45px rgba(23, 25, 28, 0.1)';
-                  e.currentTarget.style.borderColor = '#C69C50';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = '0 8px 30px rgba(23, 25, 28, 0.04)';
-                  e.currentTarget.style.borderColor = '#E6D8C3';
-                }}
-              >
-                {/* Featured Image Frame */}
+              <article key={post.slug} className="vdt-card">
+                {/* Cover Image Frame */}
                 <Link
                   to={`/blog/${post.slug}/`}
-                  style={{
-                    position: 'relative',
-                    height: '240px',
-                    overflow: 'hidden',
-                    display: 'block',
-                    backgroundColor: '#0E1013',
-                    textDecoration: 'none'
-                  }}
+                  className="vdt-card-img-wrap"
+                  aria-label={post.title}
                 >
-                  <img
+                  <BlogCoverImage
                     src={post.featuredImage}
                     alt={post.featuredImageAlt || post.title}
-                    loading="lazy"
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover',
-                      display: 'block',
-                      transition: 'transform 0.5s ease'
-                    }}
-                    onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.05)')}
-                    onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
+                    variant="card"
+                    isPoster={post.isPoster}
                   />
-
-                  {/* Category Pill Tag Overlay */}
-                  <div
-                    style={{
-                      position: 'absolute',
-                      top: '1rem',
-                      left: '1rem',
-                      backgroundColor: 'rgba(250, 248, 244, 0.95)',
-                      backdropFilter: 'blur(6px)',
-                      color: '#17191C',
-                      border: '1px solid #E6D8C3',
-                      fontFamily: 'Playfair Display, Georgia, serif',
-                      fontSize: '0.75rem',
-                      fontWeight: 700,
-                      letterSpacing: '0.08em',
-                      textTransform: 'uppercase',
-                      padding: '0.35rem 0.75rem',
-                      borderRadius: '9999px',
-                      boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
-                    }}
-                  >
-                    {post.primaryCategory}
-                  </div>
                 </Link>
 
                 {/* Card Body */}
-                <div
-                  style={{
-                    padding: '1.75rem',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    flexGrow: 1
-                  }}
-                >
-                  {/* Meta Strip: Date & Reading Time */}
-                  <div
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '1rem',
-                      color: '#8E929B',
-                      fontSize: '0.82rem',
-                      fontFamily: 'Lora, Georgia, serif',
-                      marginBottom: '0.85rem'
-                    }}
-                  >
-                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
-                      <Calendar size={13} style={{ color: '#C69C50' }} />
-                      <span>{post.date}</span>
-                    </div>
-                    <span>•</span>
-                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
-                      <Clock size={13} style={{ color: '#C69C50' }} />
-                      <span>{post.readTime}</span>
-                    </div>
-                  </div>
+                <div className="vdt-card-body">
+                  <span className="vdt-card-category-pill">
+                    {getCategoryLabel(post.primaryCategory)}
+                  </span>
 
-                  {/* Title */}
-                  <h2
-                    style={{
-                      fontFamily: 'Playfair Display, Georgia, serif',
-                      fontSize: '1.32rem',
-                      fontWeight: 700,
-                      lineHeight: 1.35,
-                      color: '#17191C',
-                      marginBottom: '0.85rem',
-                      display: '-webkit-box',
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: 'vertical',
-                      overflow: 'hidden'
-                    }}
-                  >
-                    <Link
-                      to={`/blog/${post.slug}/`}
-                      style={{
-                        color: 'inherit',
-                        textDecoration: 'none',
-                        transition: 'color 0.2s'
-                      }}
-                      onMouseEnter={(e) => (e.currentTarget.style.color = '#C69C50')}
-                      onMouseLeave={(e) => (e.currentTarget.style.color = '#17191C')}
-                    >
+                  <h3 className="vdt-card-title">
+                    <Link to={`/blog/${post.slug}/`}>
                       {post.title}
                     </Link>
-                  </h2>
+                  </h3>
 
-                  {/* Excerpt */}
-                  <p
-                    style={{
-                      fontFamily: 'Lora, Georgia, serif',
-                      fontSize: '0.94rem',
-                      lineHeight: 1.65,
-                      color: '#62666D',
-                      marginBottom: '1.5rem',
-                      display: '-webkit-box',
-                      WebkitLineClamp: 3,
-                      WebkitBoxOrient: 'vertical',
-                      overflow: 'hidden',
-                      flexGrow: 1
-                    }}
-                  >
+                  <div className="vdt-card-meta-strip">
+                    <span className="vdt-card-meta-item">
+                      <Calendar size={13} style={{ color: '#A67C38' }} />
+                      <span>{formatDate(post.date)}</span>
+                    </span>
+                    <span>•</span>
+                    <span className="vdt-card-meta-item">
+                      <Clock size={13} style={{ color: '#A67C38' }} />
+                      <span>{formatReadTime(post.readTime)}</span>
+                    </span>
+                  </div>
+
+                  <p className="vdt-card-excerpt">
                     {post.excerpt}
                   </p>
 
-                  {/* Footer Action: Read Article */}
-                  <div style={{ paddingTop: '1rem', borderTop: '1px solid #F0ECE4' }}>
-                    <Link
-                      to={`/blog/${post.slug}/`}
-                      style={{
-                        fontFamily: 'Playfair Display, Georgia, serif',
-                        fontSize: '0.9rem',
-                        fontWeight: 700,
-                        letterSpacing: '0.04em',
-                        color: '#C69C50',
-                        textDecoration: 'none',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '0.5rem',
-                        transition: 'gap 0.2s ease, color 0.2s ease'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.gap = '0.75rem';
-                        e.currentTarget.style.color = '#B58B3F';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.gap = '0.5rem';
-                        e.currentTarget.style.color = '#C69C50';
-                      }}
-                    >
-                      <span>Read Article</span>
+                  <div className="vdt-card-footer">
+                    <Link to={`/blog/${post.slug}/`} className="vdt-card-link">
+                      <span>{t('blog_read_article')}</span>
                       <ArrowRight size={15} />
                     </Link>
                   </div>
@@ -564,136 +540,68 @@ export default function Blog() {
               </article>
             ))}
           </div>
+        )}
 
-          {/* =========================================================================
-              PAGINATION CONTROLS
-              ========================================================================= */}
-          {totalPages > 1 && (
-            <div
-              style={{
-                marginTop: '4rem',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                gap: '0.5rem',
-                flexWrap: 'wrap'
-              }}
+        {/* =========================================================================
+            SECTION 5: PAGINATION CONTROLS
+            ========================================================================= */}
+        {totalPages > 1 && (
+          <nav className="vdt-pagination-wrap" aria-label="Blog Pagination">
+            {/* Previous Page */}
+            <button
+              type="button"
+              disabled={currentPage === 1}
+              onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
+              className="vdt-page-nav-btn"
+              aria-label="Go to previous page"
             >
-              {/* Previous Page */}
-              <button
-                type="button"
-                disabled={currentPage === 1}
-                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                style={{
-                  padding: '0.65rem 1rem',
-                  borderRadius: '8px',
-                  border: '1px solid #E6D8C3',
-                  backgroundColor: currentPage === 1 ? '#F5F1E9' : '#FFFFFF',
-                  color: currentPage === 1 ? '#8E929B' : '#17191C',
-                  cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0.35rem',
-                  fontFamily: 'Playfair Display, Georgia, serif',
-                  fontSize: '0.88rem',
-                  fontWeight: 600
-                }}
-              >
-                <ChevronLeft size={16} />
-                <span>Previous</span>
-              </button>
+              <ChevronLeft size={16} />
+              <span>{t('blog_prev')}</span>
+            </button>
 
-              {/* Page Number Buttons */}
-              {Array.from({ length: totalPages }, (_, i) => i + 1)
-                .filter((page) => {
-                  // Keep first, last, and window around current page
-                  return (
-                    page === 1 ||
-                    page === totalPages ||
-                    (page >= currentPage - 2 && page <= currentPage + 2)
-                  );
-                })
-                .map((page, idx, arr) => {
-                  const showEllipsisBefore = idx > 0 && page > arr[idx - 1] + 1;
-                  return (
-                    <React.Fragment key={page}>
-                      {showEllipsisBefore && (
-                        <span style={{ color: '#8E929B', padding: '0 0.4rem', fontFamily: 'Lora, Georgia, serif' }}>
-                          ...
-                        </span>
-                      )}
-                      <button
-                        type="button"
-                        onClick={() => setCurrentPage(page)}
-                        style={{
-                          width: '42px',
-                          height: '42px',
-                          borderRadius: '8px',
-                          border: currentPage === page ? '1.5px solid #C69C50' : '1px solid #E6D8C3',
-                          backgroundColor: currentPage === page ? '#C69C50' : '#FFFFFF',
-                          color: currentPage === page ? '#FFFFFF' : '#17191C',
-                          cursor: 'pointer',
-                          fontFamily: 'Playfair Display, Georgia, serif',
-                          fontSize: '0.92rem',
-                          fontWeight: 700,
-                          transition: 'all 0.15s'
-                        }}
-                      >
-                        {page}
-                      </button>
-                    </React.Fragment>
-                  );
-                })}
+            {/* Smart Page Numbers */}
+            {Array.from({ length: totalPages }, (_, i) => i + 1)
+              .filter((page) => {
+                return (
+                  page === 1 ||
+                  page === totalPages ||
+                  (page >= currentPage - 2 && page <= currentPage + 2)
+                );
+              })
+              .map((page, idx, arr) => {
+                const showEllipsisBefore = idx > 0 && page > arr[idx - 1] + 1;
+                return (
+                  <React.Fragment key={page}>
+                    {showEllipsisBefore && (
+                      <span className="vdt-pagination-ellipsis">...</span>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => handlePageChange(page)}
+                      className={`vdt-page-btn ${currentPage === page ? 'active' : ''}`}
+                      aria-current={currentPage === page ? 'page' : undefined}
+                      aria-label={`Page ${page}`}
+                    >
+                      {page}
+                    </button>
+                  </React.Fragment>
+                );
+              })}
 
-              {/* Next Page */}
-              <button
-                type="button"
-                disabled={currentPage === totalPages}
-                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                style={{
-                  padding: '0.65rem 1rem',
-                  borderRadius: '8px',
-                  border: '1px solid #E6D8C3',
-                  backgroundColor: currentPage === totalPages ? '#F5F1E9' : '#FFFFFF',
-                  color: currentPage === totalPages ? '#8E929B' : '#17191C',
-                  cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0.35rem',
-                  fontFamily: 'Playfair Display, Georgia, serif',
-                  fontSize: '0.88rem',
-                  fontWeight: 600
-                }}
-              >
-                <span>Next</span>
-                <ChevronRight size={16} />
-              </button>
-            </div>
-          )}
-        </div>
-      </section>
-
-      <style>{`
-        .blog-posts-grid {
-          display: grid;
-          grid-template-columns: repeat(3, minmax(0, 1fr));
-          gap: 2.25rem;
-        }
-
-        @media (max-width: 1024px) {
-          .blog-posts-grid {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 1.75rem;
-          }
-        }
-
-        @media (max-width: 640px) {
-          .blog-posts-grid {
-            grid-template-columns: 1fr;
-            gap: 1.5rem;
-          }
-        }
-      `}</style>
+            {/* Next Page */}
+            <button
+              type="button"
+              disabled={currentPage === totalPages}
+              onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
+              className="vdt-page-nav-btn"
+              aria-label="Go to next page"
+            >
+              <span>{t('blog_next')}</span>
+              <ChevronRight size={16} />
+            </button>
+          </nav>
+        )}
+      </div>
     </div>
   );
 }

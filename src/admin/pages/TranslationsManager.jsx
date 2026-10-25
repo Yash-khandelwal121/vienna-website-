@@ -105,57 +105,6 @@ export default function TranslationsManager() {
           </div>
         </form>
       </div>
-
-      <style>{`
-        .vdt-lang-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr));
-          gap: 1rem;
-        }
-
-        .vdt-lang-card {
-          cursor: pointer;
-          transition: all 0.2s ease;
-          border: 1px solid #E6D8C3;
-        }
-
-        .vdt-lang-card:hover {
-          border-color: #C69C50;
-        }
-
-        .vdt-lang-card.active {
-          border-color: #C69C50;
-          box-shadow: 0 0 0 2px #C69C50;
-          background: #FAF8F4;
-        }
-
-        .vdt-lang-name {
-          font-size: 0.92rem;
-          font-weight: 700;
-          color: #17191C;
-          margin: 0 0 0.5rem 0;
-        }
-
-        .vdt-completeness-bar {
-          width: 100%;
-          height: 6px;
-          background: #EAE6DF;
-          border-radius: 3px;
-          overflow: hidden;
-        }
-
-        .vdt-completeness-fill {
-          height: 100%;
-          background: #C69C50;
-        }
-
-        .vdt-completeness-text {
-          font-size: 0.72rem;
-          color: #8C877E;
-          display: block;
-          margin-top: 4px;
-        }
-      `}</style>
     </AdminLayout>
   );
 }
