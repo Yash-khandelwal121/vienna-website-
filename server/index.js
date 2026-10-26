@@ -22,39 +22,86 @@ app.use(async (req, res, next) => {
 });
 
 // Security & Parsing Middleware
-const customAllowedOrigins = (process.env.CORS_ORIGIN || '')
-  .split(',')
-  .map((s) => s.trim())
-  .filter(Boolean);
 
-const defaultAllowedOrigins = [
-  'http://localhost:5173',
-  'http://localhost:5174',
+// Explicitly approved production domains
+const defaultProductionOrigins = [
+  'https://vienna-website-seven.vercel.app',
   'https://viennadaytrip.com',
   'https://www.viennadaytrip.com'
 ];
 
-const allAllowedOrigins = [...new Set([...defaultAllowedOrigins, ...customAllowedOrigins])];
+// Helper to reliably check for loopback/localhost origins without unsafe substring matching
+function isLocalhostOrigin(origin) {
+  try {
+    const { hostname } = new URL(origin);
+    return (
+      hostname === 'localhost' ||
+      hostname === '127.0.0.1' ||
+      hostname === '[::1]' ||
+      hostname.endsWith('.localhost')
+    );
+  } catch {
+    return false;
+  }
+}
+
+// Helper to normalize origin string (trim and strip trailing slash)
+function normalizeOrigin(origin) {
+  return typeof origin === 'string' ? origin.trim().replace(/\/+$/, '') : '';
+}
+
+// User-supplied origins via environment variable
+const customAllowedOrigins = (process.env.CORS_ORIGIN || '')
+  .split(',')
+  .map(normalizeOrigin)
+  .filter(Boolean);
+
+// Strict production allowlist (localhost origins are explicitly excluded from production)
+const productionAllowedOrigins = new Set([
+  ...defaultProductionOrigins.map(normalizeOrigin),
+  ...customAllowedOrigins.filter((origin) => !isLocalhostOrigin(origin))
+]);
+
+// Development allowlist (includes common local dev ports plus all production origins)
+const developmentAllowedOrigins = new Set([
+  'http://localhost:5173',
+  'http://localhost:5174',
+  'http://localhost:3000',
+  'http://127.0.0.1:5173',
+  'http://127.0.0.1:5174',
+  ...defaultProductionOrigins.map(normalizeOrigin),
+  ...customAllowedOrigins
+]);
 
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow requests with no origin (like mobile apps, curl, or server-to-server)
-      if (
-        !origin ||
-        allAllowedOrigins.includes(origin) ||
-        origin.startsWith('http://localhost:') ||
-        origin.endsWith('.vercel.app') ||
-        origin.includes('viennadaytrip.com')
-      ) {
-        callback(null, true);
-      } else {
-        // In development, be permissive; in production, block unauthorized origins
-        if (process.env.NODE_ENV === 'production') {
-          callback(new Error(`CORS policy does not allow access from origin: ${origin}`));
-        } else {
-          callback(null, true);
+      // Allow requests with no origin (like mobile apps, curl, server-to-server, or same-origin)
+      if (!origin) {
+        return callback(null, true);
+      }
+
+      const normalized = normalizeOrigin(origin);
+      const isProduction = process.env.NODE_ENV === 'production';
+
+      if (isProduction) {
+        // PRODUCTION: strictly allow only explicitly configured production origins
+        if (productionAllowedOrigins.has(normalized)) {
+          return callback(null, true);
         }
+        return callback(
+          new Error(`CORS policy does not allow access from origin: ${origin}`)
+        );
+      } else {
+        // DEVELOPMENT: allow localhost / loopback interfaces and configured development origins
+        if (
+          developmentAllowedOrigins.has(normalized) ||
+          isLocalhostOrigin(normalized)
+        ) {
+          return callback(null, true);
+        }
+        // In development, permit other local network origins gracefully
+        return callback(null, true);
       }
     },
     credentials: true
