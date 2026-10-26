@@ -1,15 +1,18 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { useLanguage } from "../context/LanguageContext";
 
 export default function PremiumServices() {
+  const { t } = useLanguage();
   const [activeService, setActiveService] = useState(0);
 
   const services = [
     {
       number: "01",
       icon: "✈",
-      title: "Airport Transfers",
+      title: t('srv_airport_title') || "Airport Transfers",
       description:
+        t('srv_airport_desc') ||
         "Stress-free Vienna airport transfers with professional chauffeurs, flight tracking and luggage assistance.",
       image: "/images/airport-transfer.webp",
       link: "/airport-transfer-vienna/",
@@ -17,8 +20,9 @@ export default function PremiumServices() {
     {
       number: "02",
       icon: "♙",
-      title: "Hourly Chauffeur",
+      title: t('srv_hourly_title') || "Hourly Chauffeur",
       description:
+        t('srv_hourly_desc') ||
         "Enjoy a professional chauffeur and luxury Mercedes for business meetings, shopping and special occasions.",
       image: "/images/hourly-chauffeur.webp",
       link: "/hourly-chauffeur-service/",
@@ -26,8 +30,9 @@ export default function PremiumServices() {
     {
       number: "03",
       icon: "♜",
-      title: "Private Day Trips",
+      title: t('srv_daytrips_title') || "Private Day Trips",
       description:
+        t('srv_daytrips_desc') ||
         "Discover beautiful European destinations with personalized private tours and comfortable luxury transportation.",
       image: "/images/private-day-trips.webp",
       link: "/day-trips/",
@@ -35,8 +40,9 @@ export default function PremiumServices() {
     {
       number: "04",
       icon: "♢",
-      title: "Secure Transportation",
+      title: t('srv_secure_title') || "Secure Transportation",
       description:
+        t('srv_secure_desc') ||
         "Discreet, comfortable and professionally managed transportation for executives and private clients.",
       image: "/images/secure-transportation.webp?v=fitted1",
       link: "/secure-transportation/",
@@ -484,19 +490,17 @@ export default function PremiumServices() {
           {/* LEFT SIDE: Heading, Description, Four Compact Services */}
           <div className="vdt-services-left">
             <div className="vdt-services-eyebrow">
-              <span>OUR EXPERTISE</span>
+              <span>{t('services_eyebrow')}</span>
             </div>
 
             <h2 className="vdt-services-heading">
-              The Art of
+              {t('services_title_1')}
               <br />
-              <span>Exceptional Travel</span>
+              <span>{t('services_title_2')}</span>
             </h2>
 
             <p className="vdt-services-description">
-              From airport transfers to bespoke day trips, we provide
-              professional chauffeur services designed around your comfort,
-              privacy and peace of mind.
+              {t('services_desc')}
             </p>
 
             <div className="vdt-services-list">

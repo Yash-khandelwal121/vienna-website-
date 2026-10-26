@@ -68,7 +68,7 @@ export default function Navbar() {
     }
   };
 
-  const currentLangObj = LANGUAGES.find((l) => l.code === language) || LANGUAGES[1];
+  const currentLangObj = LANGUAGES.find((l) => l.code === language) || LANGUAGES[0];
 
   return (
     <>

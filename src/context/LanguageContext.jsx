@@ -1,12 +1,12 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 export const LANGUAGES = [
-  { code: 'zh-CN', label: '中文 (简体)', flag: '🇨🇳' },
   { code: 'en', label: 'English', flag: '🇬🇧' },
-  { code: 'fr', label: 'Français', flag: '🇫🇷' },
   { code: 'de', label: 'Deutsch', flag: '🇩🇪' },
+  { code: 'fr', label: 'Français', flag: '🇫🇷' },
   { code: 'it', label: 'Italiano', flag: '🇮🇹' },
   { code: 'es', label: 'Español', flag: '🇪🇸' },
+  { code: 'zh-CN', label: '中文 (简体)', flag: '🇨🇳' },
 ];
 
 const translations = {
@@ -35,13 +35,21 @@ const translations = {
     dt_wachau: 'Wachau Valley Trip',
     dt_custom: 'Customized Day Trips',
 
-    // Hero & Booking
-    hero_eyebrow: 'AUSTRIAN LIMOUSINE & CHAUFFEUR EXCELLENCE',
-    hero_title: 'Where Viennese Imperial Grandeur Meets Chauffeur Excellence.',
-    hero_desc: 'Bespoke airport transfers, executive city chauffeur services, and private panoramic day trips across Central Europe in pristine Mercedes-Benz vehicles.',
-    hero_hl_pricing: 'Fixed All-Inclusive Pricing',
-    hero_hl_flight: 'Flight Tracking & Meet-and-Greet',
-    hero_hl_concierge: 'Direct WhatsApp Concierge Dispatch',
+    // Hero & Booking (Task 3 Content)
+    hero_eyebrow: 'VIENNA DAY TRIP — PRIVATE CHAUFFEUR SERVICE',
+    hero_small_label: 'VIENNA DAY TRIP — PRIVATE CHAUFFEUR SERVICE',
+    hero_title: 'Vienna Chauffeur Service & Personalized Private Tours and Transfers',
+    hero_heading_part1: 'Vienna Chauffeur Service &',
+    hero_heading_highlight: 'Personalized Private Tours',
+    hero_heading_part2: 'and Transfers',
+    hero_desc: 'From airport arrivals and business schedules to family holidays and long-distance journeys, Vienna Day Trip gives you one experienced Vienna-based team to manage your travel from start to finish.',
+    hero_hl_licensed: 'Licensed Vienna Chauffeurs',
+    hero_hl_pricing: 'Fixed Pricing',
+    hero_hl_fleet: 'Mercedes-Benz Fleet',
+    hero_hl_flight: 'Flight Monitoring',
+    hero_hl_child_seats: 'Child Seats Available',
+    hero_cta_fleet: 'Explore Our Fleet',
+    hero_cta_services: 'Explore Our Services',
 
     // Booking Tabs
     tab_airport: 'Airport Transfer',
@@ -58,11 +66,37 @@ const translations = {
     lbl_flight: 'Flight Number (Optional)',
     lbl_hours: 'Duration (Hours)',
     lbl_destination: 'Select Destination',
-    btn_get_quote: 'GET INSTANT WHATSAPP QUOTE',
+    btn_get_quote: 'GET QUOTE ON WHATSAPP',
+    btn_get_quote_whatsapp: 'GET QUOTE ON WHATSAPP',
     btn_calculating: 'Preparing Itinerary...',
+    booking_no_payment: 'No payment required. Get a personalized quote via WhatsApp.',
     view_360_card: 'Click to open 360° showroom viewer & vehicle specifications',
     explore_viewer: 'Explore 360° Showroom',
     view_details: 'View Specs & 360°',
+
+    // Trust Bar
+    trust_chauffeurs_title: 'Licensed Vienna Chauffeurs',
+    trust_chauffeurs_sub: 'Experienced & Certified',
+    trust_fleet_title: 'Premium Mercedes-Benz Fleet',
+    trust_fleet_sub: 'Luxury & Pristine Comfort',
+    trust_pricing_title: 'Fixed All-Inclusive Pricing',
+    trust_pricing_sub: 'Zero Hidden Surcharges',
+    trust_support_title: 'Flight Monitoring & 24/7 Dispatch',
+    trust_support_sub: 'Always at Your Service',
+
+    // Services Section
+    services_eyebrow: 'OUR EXPERTISE',
+    services_title_1: 'The Art of',
+    services_title_2: 'Exceptional Travel',
+    services_desc: 'From airport transfers to bespoke day trips, we provide professional chauffeur services designed around your comfort, privacy and peace of mind.',
+    srv_airport_title: 'Airport Transfers',
+    srv_airport_desc: 'Stress-free Vienna airport transfers with professional chauffeurs, flight tracking and luggage assistance.',
+    srv_hourly_title: 'Hourly Chauffeur',
+    srv_hourly_desc: 'Enjoy a professional chauffeur and luxury Mercedes for business meetings, shopping and special occasions.',
+    srv_daytrips_title: 'Private Day Trips',
+    srv_daytrips_desc: 'Discover beautiful European destinations with personalized private tours and comfortable luxury transportation.',
+    srv_secure_title: 'Secure Transportation',
+    srv_secure_desc: 'Discreet, comfortable and professionally managed transportation for executives and private clients.',
 
     // Fleet Page
     fleet_hero_title: 'Our Luxury Fleet',
@@ -159,13 +193,21 @@ const translations = {
     dt_wachau: 'Wachau Tagesausflug',
     dt_custom: 'Individuelle Tagesausflüge',
 
-    // Hero & Booking
-    hero_eyebrow: 'ÖSTERREICHISCHE LIMOUSINEN- & CHAUFFEUR-EXZELLENZ',
-    hero_title: 'Wo Wiener imperiale Pracht auf erstklassigen Chauffeurservice trifft.',
-    hero_desc: 'Maßgeschneiderte Flughafentransfers, exklusive Chauffeurdienste und private Panoramatouren durch Mitteleuropa in makellosen Mercedes-Benz Fahrzeugen.',
+    // Hero & Booking (Task 3 Content)
+    hero_eyebrow: 'VIENNA DAY TRIP — PRIVATER CHAUFFEURSERVICE',
+    hero_small_label: 'VIENNA DAY TRIP — PRIVATER CHAUFFEURSERVICE',
+    hero_title: 'Wiener Chauffeurservice & Individuelle Private Touren und Transfers',
+    hero_heading_part1: 'Wiener Chauffeurservice &',
+    hero_heading_highlight: 'Individuelle Private Touren',
+    hero_heading_part2: 'und Transfers',
+    hero_desc: 'Von Flughafenankünften und Geschäftsterminen bis hin zu Familienurlauben und Fernreisen – Vienna Day Trip bietet Ihnen ein erfahrenes Wiener Team, das Ihre Reise von Anfang bis Ende betreut.',
+    hero_hl_licensed: 'Lizenzierte Wiener Chauffeure',
     hero_hl_pricing: 'Garantierte Festpreise',
-    hero_hl_flight: 'Flugüberwachung & Abholung',
-    hero_hl_concierge: 'Direkter WhatsApp-Concierge',
+    hero_hl_fleet: 'Mercedes-Benz Flotte',
+    hero_hl_flight: 'Flugüberwachung',
+    hero_hl_child_seats: 'Kindersitze Verfügbar',
+    hero_cta_fleet: 'Unsere Flotte Erkunden',
+    hero_cta_services: 'Unsere Services Erkunden',
 
     // Booking Tabs
     tab_airport: 'Flughafentransfer',
@@ -182,11 +224,37 @@ const translations = {
     lbl_flight: 'Flugnummer (Optional)',
     lbl_hours: 'Dauer (Stunden)',
     lbl_destination: 'Reiseziel wählen',
-    btn_get_quote: 'SOFORTIGES WHATSAPP-ANGEBOT',
+    btn_get_quote: 'ANGEBOT ÜBER WHATSAPP',
+    btn_get_quote_whatsapp: 'ANGEBOT ÜBER WHATSAPP',
     btn_calculating: 'Route wird vorbereitet...',
+    booking_no_payment: 'Keine Zahlung erforderlich. Erhalten Sie Ihr persönliches Angebot via WhatsApp.',
     view_360_card: 'Klicken für 360°-Showroom & Fahrzeugdetails',
     explore_viewer: '360° Showroom Erkunden',
     view_details: 'Details & 360° ansehen',
+
+    // Trust Bar
+    trust_chauffeurs_title: 'Lizenzierte Wiener Chauffeure',
+    trust_chauffeurs_sub: 'Erfahren & Zertifiziert',
+    trust_fleet_title: 'Premium Mercedes-Benz Flotte',
+    trust_fleet_sub: 'Höchster Luxus & Komfort',
+    trust_pricing_title: 'Garantierte Festpreise',
+    trust_pricing_sub: 'Ohne Versteckte Kosten',
+    trust_support_title: 'Flugüberwachung & 24/7 Concierge',
+    trust_support_sub: 'Rund um die Uhr Verfügbar',
+
+    // Services Section
+    services_eyebrow: 'UNSERE EXPERTISE',
+    services_title_1: 'Die Kunst',
+    services_title_2: 'Erstklassigen Reisens',
+    services_desc: 'Von Flughafentransfers bis zu maßgeschneiderten Tagesausflügen bieten wir professionelle Chauffeurdienste für Ihren Komfort, Diskretion und Seelenfrieden.',
+    srv_airport_title: 'Flughafentransfers',
+    srv_airport_desc: 'Stressfreie Wiener Flughafentransfers mit professionellen Chauffeuren, Flugüberwachung und Gepäckservice.',
+    srv_hourly_title: 'Stundenweiser Chauffeur',
+    srv_hourly_desc: 'Genießen Sie einen Chauffeur und exklusiven Mercedes für Geschäftstermine, Shopping und besondere Anlässe.',
+    srv_daytrips_title: 'Private Tagesausflüge',
+    srv_daytrips_desc: 'Entdecken Sie wunderschöne europäische Reiseziele mit individuellen Privattouren und Luxustransport.',
+    srv_secure_title: 'Sicherheits- & VIP-Transport',
+    srv_secure_desc: 'Diskreter, komfortabler und professionell geführter VIP-Transport für Führungskräfte und Privatgäste.',
 
     // Fleet Page
     fleet_hero_title: 'Unsere Luxusflotte',
