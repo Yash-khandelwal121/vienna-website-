@@ -1,18 +1,13 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { Clock, Users, ArrowRight, ShieldCheck, Check, Sparkles } from 'lucide-react';
+import { Clock, Users, ArrowRight, Sparkles } from 'lucide-react';
 import { pricingData } from '../data/pages';
 import BookingWidget from '../components/BookingWidget';
 
 export default function Pricing() {
-  const [filter, setFilter] = useState('all');
-
-  const filteredTours = pricingData.tours.filter((t) => {
-    if (filter === 'all') return true;
-    if (filter === 'transfers') return t.slug.includes('airport') || t.slug.includes('hourly') || t.slug.includes('secure');
-    if (filter === 'daytrips') return !t.slug.includes('airport') && !t.slug.includes('hourly') && !t.slug.includes('secure');
-    return true;
-  });
+  const signatureTours = pricingData.tours.filter(
+    (t) => !t.slug.includes('airport') && !t.slug.includes('hourly') && !t.slug.includes('secure')
+  );
 
   return (
     <div style={{ position: 'relative' }}>
@@ -39,36 +34,29 @@ export default function Pricing() {
       {/* Tour List & Filter Bar */}
       <section className="section section-dark">
         <div className="container-wide">
-          {/* Filter Pills */}
-          <div style={{ display: 'flex', gap: '0.65rem', marginBottom: '3.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
-            {[
-              { id: 'all', label: 'All Tours & Services' },
-              { id: 'daytrips', label: 'Signature Day Trips' },
-              { id: 'transfers', label: 'Airport, Hourly & Secure' }
-            ].map((f) => (
-              <button
-                key={f.id}
-                type="button"
-                onClick={() => setFilter(f.id)}
-                style={{
-                  fontFamily: 'var(--font-heading)',
-                  fontSize: '1rem',
-                  fontWeight: 700,
-                  letterSpacing: '0.06em',
-                  textTransform: 'uppercase',
-                  padding: '0.65rem 1.6rem',
-                  borderRadius: 'var(--radius-full)',
-                  border: filter === f.id ? '1px solid rgba(197, 160, 89, 0.45)' : '1px solid var(--border)',
-                  backgroundColor: filter === f.id ? 'var(--accent)' : '#FFFFFF',
-                  color: filter === f.id ? '#FFFFFF' : 'var(--text-secondary)',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s',
-                  boxShadow: filter === f.id ? '0 4px 15px rgba(197, 160, 89, 0.3)' : 'none'
-                }}
-              >
-                {f.label}
-              </button>
-            ))}
+          {/* Category Indicator */}
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '3.5rem' }}>
+            <div
+              style={{
+                fontFamily: 'var(--font-heading)',
+                fontSize: '1rem',
+                fontWeight: 700,
+                letterSpacing: '0.08em',
+                textTransform: 'uppercase',
+                padding: '0.65rem 1.8rem',
+                borderRadius: 'var(--radius-full)',
+                border: '1px solid rgba(197, 160, 89, 0.45)',
+                backgroundColor: 'var(--accent)',
+                color: '#FFFFFF',
+                boxShadow: '0 4px 15px rgba(197, 160, 89, 0.3)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.5rem'
+              }}
+            >
+              <Sparkles size={16} />
+              <span>Signature Day Trips</span>
+            </div>
           </div>
 
           {/* Cards Grid */}
@@ -80,7 +68,7 @@ export default function Pricing() {
               marginBottom: '5rem'
             }}
           >
-            {filteredTours.map((tour) => (
+            {signatureTours.map((tour) => (
               <div
                 key={tour.slug}
                 className="card-strada"

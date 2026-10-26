@@ -23,6 +23,7 @@ const translations = {
     nav_private_transfers: 'Private Transfers',
     nav_b2b_solutions: 'B2B Solutions',
     nav_tours_pricing: 'Tours & Pricing',
+    footer_private_day_trips: 'Private Day Trips',
     nav_blog: 'Blog',
     nav_contact: 'Contact Us',
 
@@ -181,6 +182,7 @@ const translations = {
     nav_private_transfers: 'Private Transfers',
     nav_b2b_solutions: 'B2B-Lösungen',
     nav_tours_pricing: 'Touren & Preise',
+    footer_private_day_trips: 'Private Tagesausflüge',
     nav_blog: 'Blog',
     nav_contact: 'Kontakt',
 
@@ -339,6 +341,7 @@ const translations = {
     nav_private_transfers: 'Transferts Privés',
     nav_b2b_solutions: 'Solutions B2B',
     nav_tours_pricing: 'Circuits & Tarifs',
+    footer_private_day_trips: 'Excursions Privées',
     nav_blog: 'Blog',
     nav_contact: 'Contactez-Nous',
 
@@ -429,6 +432,7 @@ const translations = {
     nav_private_transfers: 'Transfer Privati',
     nav_b2b_solutions: 'Soluzioni B2B',
     nav_tours_pricing: 'Tour & Tariffe',
+    footer_private_day_trips: 'Escursioni Private',
     nav_blog: 'Blog',
     nav_contact: 'Contattaci',
 
@@ -519,6 +523,7 @@ const translations = {
     nav_private_transfers: 'Traslados Privados',
     nav_b2b_solutions: 'Soluciones B2B',
     nav_tours_pricing: 'Tours & Precios',
+    footer_private_day_trips: 'Excursiones Privadas',
     nav_blog: 'Blog',
     nav_contact: 'Contacto',
 
@@ -609,6 +614,7 @@ const translations = {
     nav_private_transfers: '私人专车接送',
     nav_b2b_solutions: '企业B2B方案',
     nav_tours_pricing: '路线与价格',
+    footer_private_day_trips: '私人一日游',
     nav_blog: '旅行博客',
     nav_contact: '联系我们',
 

@@ -11,9 +11,7 @@ import {
   ShieldCheck,
   Gem,
   Compass,
-  Lock,
-  ChevronLeft,
-  ChevronRight
+  Lock
 } from 'lucide-react';
 import VehicleModal from './VehicleModal';
 import { useLanguage } from '../context/LanguageContext';
@@ -31,14 +29,14 @@ const HERO_VEHICLES = [
     bookingValue: 'Mercedes S-Class',
     name: 'Mercedes-Benz S-Class',
     badge: 'First Class Limousine',
-    image: '/cars/s-class.webp',
-    fallback: '/cars/s-class.png',
-    alt: 'Mercedes-Benz S-Class luxury chauffeur sedan',
+    image: '/cars/hero-s-class-car.webp',
+    fallback: '/cars/hero-s-class-car.png',
+    alt: 'Mercedes-Benz S-Class luxury sedan with professional chauffeur in Vienna',
     scale: 1.0,
-    offsetY: '38px', // Compensates for the 21% transparent padding at bottom of image
+    offsetY: '0px',
     offsetX: '0px',
-    shadowWidth: '88%',
-    shadowLeft: '6%',
+    shadowWidth: '92%',
+    shadowLeft: '4%',
     passengers: '3 Guests',
     luggage: '2 Large Bags',
     ride: 'AIRMATIC Suspension',
@@ -56,14 +54,14 @@ const HERO_VEHICLES = [
     bookingValue: 'Mercedes E-Class',
     name: 'Mercedes-Benz E-Class',
     badge: 'Business Class Sedan',
-    image: '/cars/e-class.webp',
-    fallback: '/cars/e-class.png',
-    alt: 'Mercedes-Benz E-Class executive chauffeur sedan',
-    scale: 0.98,
-    offsetY: '38px', // Compensates for transparent padding
+    image: '/cars/hero-e-class-car.webp',
+    fallback: '/cars/hero-e-class-car.png',
+    alt: 'Mercedes-Benz E-Class executive sedan with professional chauffeur in Vienna',
+    scale: 1.0,
+    offsetY: '0px',
     offsetX: '0px',
-    shadowWidth: '88%',
-    shadowLeft: '6%',
+    shadowWidth: '92%',
+    shadowLeft: '4%',
     passengers: '3 Guests',
     luggage: '2 Large Bags',
     ride: '9G-TRONIC Transmission',
@@ -81,14 +79,14 @@ const HERO_VEHICLES = [
     bookingValue: 'Mercedes V-Class',
     name: 'Mercedes-Benz V-Class',
     badge: 'VIP Business Van',
-    image: '/cars/v-class.webp',
-    fallback: '/cars/v-class.png',
-    alt: 'Mercedes-Benz V-Class VIP luxury chauffeur van',
-    scale: 0.91,
-    offsetY: '26px', // Calibrated so V-Class wheels align with sedan baseline
-    offsetX: '16px',
-    shadowWidth: '85%',
-    shadowLeft: '8%',
+    image: '/cars/hero-v-class-car.webp',
+    fallback: '/cars/hero-v-class-car.png',
+    alt: 'Mercedes-Benz V-Class VIP luxury van with professional chauffeur in Vienna',
+    scale: 1.0,
+    offsetY: '0px',
+    offsetX: '0px',
+    shadowWidth: '92%',
+    shadowLeft: '4%',
     passengers: '7 Guests',
     luggage: '7 Large Bags',
     ride: 'Luxury Air Ride',
@@ -106,14 +104,14 @@ const HERO_VEHICLES = [
     bookingValue: 'Mercedes Sprinter VIP',
     name: 'Mercedes-Benz Sprinter',
     badge: 'VIP Group Minibus',
-    image: '/cars/sprinter.webp',
-    fallback: '/cars/sprinter.png',
-    alt: 'Mercedes-Benz Sprinter VIP luxury minibus',
-    scale: 0.85, // Calibrated height so roof has ample headroom while wheels sit grounded
-    offsetY: '18px', // Calibrated baseline for large dual wheels
-    offsetX: '20px',
-    shadowWidth: '84%',
-    shadowLeft: '8%',
+    image: '/cars/hero-sprinter-car.webp',
+    fallback: '/cars/hero-sprinter-car.png',
+    alt: 'Mercedes-Benz Sprinter VIP luxury minibus with professional chauffeur in Vienna',
+    scale: 1.0,
+    offsetY: '0px',
+    offsetX: '0px',
+    shadowWidth: '92%',
+    shadowLeft: '4%',
     passengers: '8-16 Guests',
     luggage: '16 Large Bags',
     ride: 'Heavy-Duty Comfort',
@@ -444,49 +442,6 @@ export default function HeroBanner() {
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
         >
-          {/* Elegant Minimal Previous / Next Controls Floating Above Vehicle */}
-          <div className="hero-vehicle-controls-pill">
-            <button
-              id="hero-prev-car-btn"
-              type="button"
-              onClick={handlePrevCar}
-              className="hero-v-control-btn"
-              aria-label="Previous Mercedes Fleet Vehicle"
-              title="Previous Vehicle"
-            >
-              <ChevronLeft size={15} />
-            </button>
-
-            {/* Vehicle Indicator & Jump Dots */}
-            <div className="hero-v-indicator">
-              <span className="hero-v-name-text">{currentCar.name}</span>
-              <div className="hero-v-dots-row">
-                {HERO_VEHICLES.map((v, i) => (
-                  <button
-                    id={`hero-vehicle-dot-${i}`}
-                    key={v.id}
-                    type="button"
-                    onClick={() => handleSelectCar(i)}
-                    className={`hero-v-dot ${i === currentCarIdx ? 'active' : ''}`}
-                    aria-label={`Switch to ${v.name}`}
-                    title={v.name}
-                  />
-                ))}
-              </div>
-            </div>
-
-            <button
-              id="hero-next-car-btn"
-              type="button"
-              onClick={handleNextCar}
-              className="hero-v-control-btn"
-              aria-label="Next Mercedes Fleet Vehicle"
-              title="Next Vehicle"
-            >
-              <ChevronRight size={15} />
-            </button>
-          </div>
-
           {/* Vehicle Slides with Calibrated Ground Baseline */}
           <div className="hero-vehicle-viewport">
             {HERO_VEHICLES.map((vehicle, index) => {
@@ -501,17 +456,11 @@ export default function HeroBanner() {
                   style={{
                     '--car-scale': vehicle.scale || 1.0,
                     '--car-offset-y': vehicle.offsetY || '0px',
-                    '--car-offset-x': vehicle.offsetX || '0px',
-                    '--shadow-width': vehicle.shadowWidth || '88%',
-                    '--shadow-left': vehicle.shadowLeft || '6%'
+                    '--car-offset-x': vehicle.offsetX || '0px'
                   }}
                 >
-                  {/* Realistic Ground Contact Shadow System */}
-                  <div className="hero-car-ground-shadow" aria-hidden="true" />
-                  <div className="hero-car-contact-strip" aria-hidden="true" />
-
-                  {/* Vehicle Image */}
-                  <picture>
+                  {/* Standalone Mercedes Vehicle Presentation */}
+                  <picture className="hero-car-picture">
                     <source srcSet={vehicle.image} type="image/webp" />
                     <img
                       src={vehicle.fallback}
@@ -525,6 +474,18 @@ export default function HeroBanner() {
               );
             })}
           </div>
+
+          {/* Professional Vienna Chauffeur Layer */}
+          <picture>
+            <source srcSet="/images/hero-chauffeur-cutout.webp" type="image/webp" />
+            <img
+              src="/images/hero-chauffeur-cutout.png"
+              alt="Professional Vienna Chauffeur"
+              className="hero-chauffeur"
+              loading="eager"
+              decoding="async"
+            />
+          </picture>
         </div>
       </div>
 
@@ -1002,98 +963,16 @@ export default function HeroBanner() {
         */
         .hero-vehicle-carousel-stage {
           position: absolute;
-          right: clamp(15px, 2.5vw, 45px);
-          bottom: 2px;
+          right: clamp(10px, 2.5vw, 40px);
+          bottom: 0px;
           width: clamp(520px, 48vw, 760px);
-          height: clamp(280px, 28vw, 380px);
+          height: clamp(260px, 26vw, 380px);
           z-index: 10;
           pointer-events: auto;
           display: flex;
           flex-direction: column;
           justify-content: flex-end;
           align-items: flex-end;
-        }
-
-        /* Minimal Luxury Floating Controls */
-        .hero-vehicle-controls-pill {
-          position: absolute;
-          top: 10px;
-          right: 20px;
-          z-index: 15;
-          display: inline-flex;
-          align-items: center;
-          gap: 0.45rem;
-          background: rgba(255, 255, 255, 0.88);
-          backdrop-filter: blur(8px);
-          -webkit-backdrop-filter: blur(8px);
-          border: 1px solid rgba(198, 156, 80, 0.35);
-          border-radius: 30px;
-          padding: 3px 6px;
-          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
-          user-select: none;
-        }
-
-        .hero-v-control-btn {
-          width: 26px;
-          height: 26px;
-          border-radius: 50%;
-          border: 1px solid #E6D8C3;
-          background: #FFFFFF;
-          color: #17191C;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          cursor: pointer;
-          transition: all 0.2s ease;
-          padding: 0;
-          flex-shrink: 0;
-        }
-
-        .hero-v-control-btn:hover {
-          background-color: #C69C50;
-          border-color: #C69C50;
-          color: #FFFFFF;
-          transform: scale(1.08);
-        }
-
-        .hero-v-indicator {
-          display: flex;
-          align-items: center;
-          gap: 0.65rem;
-          padding: 0 0.5rem;
-          cursor: pointer;
-        }
-
-        .hero-v-name-text {
-          font-family: var(--font-heading);
-          font-size: 0.72rem;
-          font-weight: 700;
-          color: #17191C;
-          letter-spacing: 0.02em;
-          white-space: nowrap;
-        }
-
-        .hero-v-dots-row {
-          display: flex;
-          align-items: center;
-          gap: 4px;
-        }
-
-        .hero-v-dot {
-          width: 6px;
-          height: 6px;
-          border-radius: 50%;
-          background: #D8D2C4;
-          border: none;
-          padding: 0;
-          cursor: pointer;
-          transition: all 0.25s ease;
-        }
-
-        .hero-v-dot.active {
-          background: #C69C50;
-          width: 14px;
-          border-radius: 3px;
         }
 
         /* Vehicle Viewport Container */
@@ -1118,8 +997,8 @@ export default function HeroBanner() {
           align-items: flex-end;
           justify-content: flex-end;
           will-change: transform, opacity;
-          transition: opacity 550ms cubic-bezier(0.22, 1, 0.36, 1),
-                      transform 550ms cubic-bezier(0.22, 1, 0.36, 1);
+          transition: opacity 600ms cubic-bezier(0.22, 1, 0.36, 1),
+                      transform 600ms cubic-bezier(0.22, 1, 0.36, 1);
         }
 
         .hero-vehicle-slide.active {
@@ -1130,50 +1009,22 @@ export default function HeroBanner() {
 
         .hero-vehicle-slide.exiting.slide-dir-next {
           opacity: 0;
-          transform: translateX(calc(-20px + var(--car-offset-x, 0px))) translateY(var(--car-offset-y, 0px)) scale(var(--car-scale, 1));
+          transform: translateX(calc(-24px + var(--car-offset-x, 0px))) translateY(var(--car-offset-y, 0px)) scale(var(--car-scale, 1));
           z-index: 1;
         }
 
         .hero-vehicle-slide.exiting.slide-dir-prev {
           opacity: 0;
-          transform: translateX(calc(20px + var(--car-offset-x, 0px))) translateY(var(--car-offset-y, 0px)) scale(var(--car-scale, 1));
+          transform: translateX(calc(24px + var(--car-offset-x, 0px))) translateY(var(--car-offset-y, 0px)) scale(var(--car-scale, 1));
           z-index: 1;
         }
 
-        /* Authentic Realistic Ground Shadow System */
-        .hero-car-ground-shadow {
-          position: absolute;
-          bottom: 22px;
-          left: var(--shadow-left, 6%);
-          width: var(--shadow-width, 88%);
-          height: 24px;
-          background: radial-gradient(
-            ellipse 60% 45% at 50% 60%,
-            rgba(12, 14, 18, 0.48) 0%,
-            rgba(15, 18, 24, 0.28) 40%,
-            rgba(20, 24, 30, 0.10) 65%,
-            transparent 80%
-          );
-          filter: blur(5px);
-          pointer-events: none;
-          z-index: 1;
-        }
-
-        .hero-car-contact-strip {
-          position: absolute;
-          bottom: 24px;
-          left: var(--shadow-left, 6%);
-          width: var(--shadow-width, 88%);
-          height: 8px;
-          background: radial-gradient(
-            ellipse 50% 50% at 50% 50%,
-            rgba(8, 10, 14, 0.55) 0%,
-            rgba(12, 14, 18, 0.25) 50%,
-            transparent 75%
-          );
-          filter: blur(3px);
-          pointer-events: none;
-          z-index: 2;
+        .hero-car-picture {
+          width: 100%;
+          height: 100%;
+          display: flex;
+          align-items: flex-end;
+          justify-content: flex-end;
         }
 
         .hero-car-image {
@@ -1183,8 +1034,20 @@ export default function HeroBanner() {
           object-position: right bottom;
           display: block;
           position: relative;
+          z-index: 1;
+        }
+
+        /* CHAUFFEUR IMAGE SIZE FIX */
+        .hero-chauffeur {
+          position: absolute;
+          height: 100%;
+          width: auto;
+          right: 12%;
+          bottom: 0;
+          object-fit: contain;
+          object-position: bottom;
           z-index: 3;
-          filter: drop-shadow(0 10px 18px rgba(15, 18, 22, 0.22));
+          pointer-events: none;
         }
 
         /* 
@@ -1499,11 +1362,8 @@ export default function HeroBanner() {
             margin: 10px auto 0 auto;
             align-items: center;
           }
-          .hero-vehicle-controls-pill {
-            top: 0px;
-            right: auto;
-            left: 50%;
-            transform: translateX(-50%);
+          .hero-car-picture {
+            justify-content: center;
           }
           .hero-car-image {
             object-position: center bottom;
@@ -1542,7 +1402,7 @@ export default function HeroBanner() {
             min-height: unset;
             flex-direction: column;
             align-items: stretch;
-            padding-bottom: 16px;
+            padding-bottom: 22px;
           }
           .hero-palace-gradient {
             background: linear-gradient(
@@ -1570,33 +1430,24 @@ export default function HeroBanner() {
             margin-bottom: 1.15rem;
           }
 
-          /* Grounded Car in Mobile */
+          /* Grounded Car and Chauffeur in Mobile */
           .hero-vehicle-carousel-stage {
             position: relative;
             right: auto;
             bottom: auto;
             width: 100%;
-            max-width: 390px;
-            height: clamp(180px, 46vw, 220px);
-            margin: 10px auto 0 auto;
+            max-width: 440px;
+            height: clamp(210px, 54vw, 250px);
+            margin: 12px auto 0 auto;
             align-items: center;
+            justify-content: flex-end;
           }
-          .hero-vehicle-controls-pill {
-            top: -2px;
-            right: auto;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 2px 6px;
-          }
-          .hero-v-control-btn {
-            width: 24px;
-            height: 24px;
-          }
-          .hero-v-name-text {
-            font-size: 0.68rem;
+          .hero-car-picture {
+            justify-content: center;
           }
           .hero-car-image {
             object-position: center bottom;
+            padding-bottom: 2px;
           }
 
           /* Booking form stacked below hero banner, NEVER covering the car */

@@ -162,9 +162,11 @@ export default function App() {
         <Route path="b2b-solutions/" element={<B2B />} />
         <Route path="b2b-solutions" element={<B2B />} />
 
-        {/* 17. Tours & Pricing */}
+        {/* 17. Tours & Pricing / Private Day Trips */}
         <Route path="tour-pricing/" element={<Pricing />} />
         <Route path="tour-pricing" element={<Pricing />} />
+        <Route path="private-day-trips/" element={<Pricing />} />
+        <Route path="private-day-trips" element={<Pricing />} />
 
         {/* 18. Blog Listing */}
         <Route path="blog" element={<Blog />} />

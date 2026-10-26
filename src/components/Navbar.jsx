@@ -13,6 +13,7 @@ export default function Navbar() {
   const location = useLocation();
   const { language, setLanguage, t } = useLanguage();
   const langRef = useRef(null);
+  const desktopNavRef = useRef(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -42,21 +43,42 @@ export default function Navbar() {
     };
   }, [mobileOpen]);
 
-  // Click outside to close language dropdown
+  // Click outside to close language dropdown & nav dropdown, and Escape key
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (langRef.current && !langRef.current.contains(e.target)) {
         setLangDropdownOpen(false);
       }
+      if (desktopNavRef.current && !desktopNavRef.current.contains(e.target)) {
+        setOpenDropdown(null);
+      }
+    };
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setOpenDropdown(null);
+        setLangDropdownOpen(false);
+      }
     };
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
   }, []);
 
   const isActive = (href) => {
-    if (href === '/' && location.pathname === '/') return true;
-    if (href !== '/' && location.pathname.startsWith(href)) return true;
-    return false;
+    if (!href) return false;
+    const cleanCurrent = location.pathname.replace(/\/$/, '') || '/';
+    const cleanTarget = href.replace(/\/$/, '') || '/';
+    if (cleanTarget === '/') return cleanCurrent === '/';
+    if (
+      (cleanTarget === '/tour-pricing' || cleanTarget === '/private-day-trips') &&
+      (cleanCurrent === '/tour-pricing' || cleanCurrent === '/private-day-trips')
+    ) {
+      return true;
+    }
+    return cleanCurrent === cleanTarget || cleanCurrent.startsWith(`${cleanTarget}/`);
   };
 
   const scrollToHeroBooking = () => {
@@ -164,42 +186,85 @@ export default function Navbar() {
           </Link>
 
           {/* Desktop Navigation Links (CENTER): LOGO | Home | Our Services ▾ | Day Trips ▾ | Luxury Fleet | About Us */}
-          <nav className="desktop-nav">
+          <nav className="desktop-nav" ref={desktopNavRef}>
             {navLinks.map((item) => {
               if (item.dropdown) {
                 return (
                   <div
                     key={item.label}
-                    style={{ position: 'relative' }}
+                    className="desktop-dropdown-wrapper"
+                    style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}
                     onMouseEnter={() => setOpenDropdown(item.label)}
                     onMouseLeave={() => setOpenDropdown(null)}
                   >
-                    <button
-                      type="button"
-                      className="dropdown-trigger-btn"
+                    <Link
+                      to={item.href}
+                      onClick={() => setOpenDropdown(null)}
                       style={{
-                        background: 'none',
-                        border: 'none',
-                        cursor: 'pointer',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '8px',
                         fontFamily: 'var(--font-body)',
                         fontSize: '0.92rem',
                         fontWeight: isActive(item.href) ? 600 : 500,
                         color: isActive(item.href) ? '#C69C50' : '#17191C',
+                        textDecoration: 'none',
                         padding: '0.5rem 0',
                         transition: 'color 0.2s ease',
-                        whiteSpace: 'nowrap'
+                        whiteSpace: 'nowrap',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        position: 'relative'
                       }}
+                      onMouseEnter={(e) => (e.currentTarget.style.color = '#C69C50')}
+                      onMouseLeave={(e) => (e.currentTarget.style.color = isActive(item.href) ? '#C69C50' : '#17191C')}
                     >
                       <span>{t(item.tKey) || item.label}</span>
+                      {isActive(item.href) && (
+                        <span
+                          style={{
+                            position: 'absolute',
+                            bottom: '-2px',
+                            left: 0,
+                            right: 0,
+                            height: '2px',
+                            backgroundColor: '#C69C50',
+                            borderRadius: '2px'
+                          }}
+                        />
+                      )}
+                    </Link>
+
+                    <button
+                      type="button"
+                      aria-label={`Toggle ${item.label} dropdown`}
+                      aria-haspopup="true"
+                      aria-expanded={openDropdown === item.label}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setOpenDropdown((prev) => (prev === item.label ? null : item.label));
+                      }}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        cursor: 'pointer',
+                        padding: '0.5rem 0.2rem 0.5rem 0.35rem',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: openDropdown === item.label || isActive(item.href) ? '#C69C50' : '#17191C',
+                        transition: 'color 0.2s ease'
+                      }}
+                      onMouseEnter={(e) => (e.currentTarget.style.color = '#C69C50')}
+                      onMouseLeave={(e) =>
+                        (e.currentTarget.style.color =
+                          openDropdown === item.label || isActive(item.href) ? '#C69C50' : '#17191C')
+                      }
+                    >
                       <ChevronDown
                         size={13}
                         style={{
                           transform: openDropdown === item.label ? 'rotate(180deg)' : 'none',
-                          transition: 'transform 0.2s',
-                          opacity: 0.65,
+                          transition: 'transform 0.2s ease',
+                          opacity: 0.75,
                           flexShrink: 0
                         }}
                       />
@@ -207,6 +272,7 @@ export default function Navbar() {
 
                     {openDropdown === item.label && (
                       <div
+                        role="menu"
                         style={{
                           position: 'absolute',
                           top: '100%',
@@ -225,6 +291,8 @@ export default function Navbar() {
                           <Link
                             key={sub.href}
                             to={sub.href}
+                            role="menuitem"
+                            onClick={() => setOpenDropdown(null)}
                             style={{
                               display: 'flex',
                               alignItems: 'center',
@@ -576,7 +644,9 @@ export default function Navbar() {
                     fontWeight: 700,
                     textTransform: 'uppercase',
                     color: isActive(item.href) ? '#C69C50' : '#17191C',
-                    textDecoration: 'none'
+                    textDecoration: 'none',
+                    flexGrow: 1,
+                    padding: '0.35rem 0'
                   }}
                 >
                   {t(item.tKey) || item.label}
@@ -584,20 +654,26 @@ export default function Navbar() {
                 {item.dropdown ? (
                   <button
                     type="button"
+                    aria-label={`Toggle ${item.label} submenu`}
+                    aria-haspopup="true"
+                    aria-expanded={openDropdown === item.label}
                     onClick={() => setOpenDropdown(openDropdown === item.label ? null : item.label)}
                     style={{
                       background: 'none',
                       border: 'none',
-                      padding: '0.5rem',
+                      padding: '0.5rem 0.75rem',
                       cursor: 'pointer',
-                      color: '#C69C50'
+                      color: '#C69C50',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
                     }}
                   >
                     <ChevronDown
-                      size={18}
+                      size={20}
                       style={{
                         transform: openDropdown === item.label ? 'rotate(180deg)' : 'none',
-                        transition: 'transform 0.2s'
+                        transition: 'transform 0.2s ease'
                       }}
                     />
                   </button>
@@ -607,11 +683,12 @@ export default function Navbar() {
               </div>
 
               {item.dropdown && openDropdown === item.label && (
-                <div style={{ marginTop: '0.75rem', paddingLeft: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
+                <div role="menu" style={{ marginTop: '0.75rem', paddingLeft: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
                   {item.dropdown.map((sub) => (
                     <Link
                       key={sub.href}
                       to={sub.href}
+                      role="menuitem"
                       onClick={() => setMobileOpen(false)}
                       style={{
                         color: isActive(sub.href) ? '#C69C50' : '#62666D',
@@ -640,7 +717,7 @@ export default function Navbar() {
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               <Link to="/tour-pricing/" onClick={() => setMobileOpen(false)} style={{ color: '#17191C', textDecoration: 'none', fontSize: '0.95rem' }}>
-                {t('nav_tours_pricing')}
+                {t('footer_private_day_trips') || 'Private Day Trips'}
               </Link>
               <Link to="/blog" onClick={() => setMobileOpen(false)} style={{ color: '#17191C', textDecoration: 'none', fontSize: '0.95rem' }}>
                 {t('nav_blog')}

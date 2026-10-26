@@ -226,7 +226,7 @@ export default function Footer() {
                 { label: t('nav_home'), href: '/' },
                 { label: t('nav_about'), href: '/about-vienna-day-trip/' },
                 { label: t('nav_fleet'), href: '/our-fleet/' },
-                { label: t('nav_tours_pricing'), href: '/tour-pricing/' },
+                { label: t('footer_private_day_trips') || 'Private Day Trips', href: '/tour-pricing/' },
                 { label: t('nav_blog'), href: '/blog/' }
               ].map((link) => (
                 <li key={link.href}>
