@@ -1466,6 +1466,65 @@ select.input-strada option {
   background-color: #FCFBF9;
 }
 
+/* =====================================================================
+   RTL & ARABIC LANGUAGE SUPPORT (العربية)
+   ===================================================================== */
+[dir="rtl"] {
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Tahoma, Arial, sans-serif;
+  text-align: right;
+}
+
+[dir="rtl"] h1,
+[dir="rtl"] h2,
+[dir="rtl"] h3,
+[dir="rtl"] h4,
+[dir="rtl"] h5,
+[dir="rtl"] h6 {
+  font-family: 'Plus Jakarta Sans', 'Segoe UI', Tahoma, Arial, sans-serif;
+  letter-spacing: normal;
+}
+
+[dir="rtl"] .marquee-container .marquee-content {
+  direction: ltr; /* Keeps marquee scrolling smoothly */
+}
+
+[dir="rtl"] .blog-article-content th,
+[dir="rtl"] .blog-article-content td {
+  text-align: right;
+}
+
+[dir="rtl"] .blog-article-content blockquote {
+  border-right: 3px solid var(--accent);
+  border-left: none;
+  border-radius: 12px 0 0 12px;
+}
+
+[dir="rtl"] .lang-selector-wrapper button {
+  flex-direction: row;
+}
+
+/* Preserve hero vehicle & text spatial composition in RTL */
+[dir="rtl"] .hero-rounded-banner {
+  direction: ltr;
+}
+
+[dir="rtl"] .hero-left-col {
+  direction: rtl;
+  text-align: right;
+}
+
+[dir="rtl"] .hero-eyebrow-container {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .hero-cta-btn {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .hero-cta-btn svg {
+  transform: rotate(180deg);
+}
+
 
 
 

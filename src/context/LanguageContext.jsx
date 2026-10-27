@@ -7,6 +7,7 @@ export const LANGUAGES = [
   { code: 'it', label: 'Italiano', flag: '🇮🇹' },
   { code: 'es', label: 'Español', flag: '🇪🇸' },
   { code: 'zh-CN', label: '中文 (简体)', flag: '🇨🇳' },
+  { code: 'ar', label: 'العربية', flag: '🇦🇪' },
 ];
 
 const translations = {
@@ -709,6 +710,168 @@ const translations = {
     footer_247: '全天候 24小时 / 7天 无休',
     footer_read_reviews: '查阅谷歌评价 ↗',
     footer_rights: '版权所有 © 2026 Vienna Day Trip。商业登记号 GISA: 9110025257769。奥地利商会(WKO)认证会员。',
+  },
+  ar: {
+    // Nav
+    nav_home: 'الرئيسية',
+    nav_services: 'خدماتنا',
+    nav_daytrips: 'رحلات اليوم الواحد',
+    nav_fleet: 'أسطول السيارات الفاخرة',
+    nav_about: 'من نحن',
+    nav_book_now: 'احجز الآن',
+    nav_airport_transfer: 'توصيل المطار',
+    nav_hourly_chauffeur: 'سائق بالساعة',
+    nav_private_transfers: 'توصيلات خاصة',
+    nav_b2b_solutions: 'حلول الشركات B2B',
+    nav_tours_pricing: 'الجولات والأسعار',
+    footer_private_day_trips: 'رحلات يومية خاصة',
+    nav_blog: 'المدونة',
+    nav_contact: 'اتصل بنا',
+
+    // Day Trips
+    dt_hallstatt: 'رحلة هالشتات',
+    dt_salzburg: 'رحلة سالزبورغ',
+    dt_budapest: 'رحلة بودابست',
+    dt_prague: 'رحلة براغ',
+    dt_bratislava: 'رحلة براتيسلافا',
+    dt_wachau: 'رحلة وادي فاخاو',
+    dt_custom: 'رحلات مخصصة',
+    pricing_eyebrow: 'تجارب السائق الخاص الفاخرة',
+    pricing_title: 'رحلات يومية خاصة من فيينا مع سائق شخصي',
+    pricing_lead: 'استكشف النمسا في رحلات يومية خاصة من فيينا بسيارات مرسيدس الفاخرة. استمتع بالتوصيل من الباب إلى الباب وجداول زمنية مرنة وأسعار ثابتة لكل سيارة. تفضل بزيارة هالشتات، سالزبورغ، وادي فاخاو أو براتيسلافا مع سائقك الخاص.',
+
+    // Hero & Booking
+    hero_eyebrow: 'فيينا داي تريب — خدمة السائق الخاص الفاخرة',
+    hero_small_label: 'فيينا داي تريب — خدمة السائق الخاص الفاخرة',
+    hero_title: 'خدمة سائق فيينا وجولات وتوصيلات خاصة مخصصة',
+    hero_heading_part1: 'خدمة سائق خاص في فيينا و',
+    hero_heading_highlight: 'جولات خاصة مخصصة',
+    hero_heading_part2: 'وتوصيلات راقية',
+    hero_desc: 'من الاستقبال في المطار وجداول الأعمال إلى العطلات العائلية والرحلات الطويلة، يوفر لك فيينا داي تريب فريقاً محترفاً في فيينا لإدارة رحلتك من البداية حتى النهاية.',
+    hero_hl_licensed: 'سائقون مرخصون في فيينا',
+    hero_hl_pricing: 'أسعار ثابتة محددة',
+    hero_hl_fleet: 'أسطول مرسيدس-بنز',
+    hero_hl_flight: 'متابعة مواعيد الطيران',
+    hero_hl_child_seats: 'مقاعد أطفال متوفرة',
+    hero_cta_fleet: 'استكشف أسطولنا',
+    hero_cta_services: 'استكشف خدماتنا',
+
+    // Booking Tabs
+    tab_airport: 'توصيل المطار',
+    tab_daytrip: 'رحلة يومية خاصة',
+    tab_hourly: 'سائق بالساعة',
+
+    // Form labels
+    lbl_pickup: 'مكان الانطلاق',
+    lbl_dropoff: 'وجهة الوصول',
+    lbl_date: 'التاريخ',
+    lbl_time: 'وقت الانطلاق',
+    lbl_passengers: 'عدد الركاب',
+    lbl_vehicle: 'السيارة المفضلة',
+    lbl_flight: 'رقم الرحلة (اختياري)',
+    lbl_hours: 'المدة (بالساعات)',
+    lbl_destination: 'اختر الوجهة',
+    btn_get_quote: 'احصل على عرض سعر عبر واتساب',
+    btn_get_quote_whatsapp: 'احصل على عرض سعر عبر واتساب',
+    btn_calculating: 'جاري إعداد خط السير...',
+    booking_no_payment: 'لا يلزم الدفع المسبق. احصل على عرض سعر مخصص عبر واتساب مباشرة.',
+    view_360_card: 'انقر لفتح صالة العرض الافتراضية 360° ومواصفات السيارة',
+    explore_viewer: 'استكشف صالة العرض 360°',
+    view_details: 'عرض المواصفات وتقنية 360°',
+
+    // Trust Bar
+    trust_chauffeurs_title: 'سائقون معتمدون في فيينا',
+    trust_chauffeurs_sub: 'خبرة واحترافية عالية',
+    trust_fleet_title: 'أسطول مرسيدس-بنز متميز',
+    trust_fleet_sub: 'فخامة وراحة استثنائية',
+    trust_pricing_title: 'أسعار ثابتة شاملة',
+    trust_pricing_sub: 'بدون أي رسوم خفية',
+    trust_support_title: 'متابعة الطيران وتنسيق 24/7',
+    trust_support_sub: 'دائماً في خدمتكم',
+
+    // Services Section
+    services_eyebrow: 'خبرتنا واحترافيتنا',
+    services_title_1: 'فن',
+    services_title_2: 'السفر الاستثنائي',
+    services_desc: 'من توصيلات المطار إلى الرحلات النهارية المصممة خصيصاً، نقدم خدمات سائق محترفة تركز على راحتك وخصوصيتك وراحة بالك.',
+    srv_airport_title: 'توصيل المطار',
+    srv_airport_desc: 'توصيل مريح وخالٍ من التوتر من وإلى مطار فيينا مع سائقين محترفين وتتبع دقيق للرحلات ومساعدة في الأمتعة.',
+    srv_hourly_title: 'سائق بالساعة',
+    srv_hourly_desc: 'استمتع بسائق محترف وسيارة مرسيدس فاخرة لاجتماعات العمل والتسوق والمناسبات الخاصة.',
+    srv_daytrips_title: 'رحلات يومية خاصة',
+    srv_daytrips_desc: 'اكتشف أجمل الوجهات الأوروبية من خلال جولات سياحية خاصة ووسائل نقل فاخرة ومريحة.',
+    srv_secure_title: 'نقل أمني وكبار الشخصيات',
+    srv_secure_desc: 'نقل يتسم بالسرية التامة والراحة الاحترافية لكبار الشخصيات والوفود والعملاء المميزين.',
+
+    // Fleet Page
+    fleet_hero_title: 'أسطولنا الفاخر',
+    fleet_hero_desc: 'سافر براحة لا تضاهى مع سيارات مرسيدس-بنز الفاخرة. استمتع بالهندسة الدقيقة والفخامة الهادئة في كل مسار.',
+    fleet_hl_1: 'أسطول مرسيدس-بنز الفاخر',
+    fleet_hl_2: 'سائقون محترفون',
+    fleet_hl_3: 'لكل أنواع الرحلات',
+    fleet_explore_heading: 'استكشف أسطولنا بالكامل',
+    fleet_explore_sub: 'من سيارات السيدان الفاخرة إلى الفانات الواسعة، لدينا السيارة المثالية لكل رحلة.',
+    fleet_on_request: 'عند الطلب',
+    fleet_request_btn: 'اطلب هذه السيارة',
+    fleet_view_features_btn: 'عرض جميع الميزات',
+    fleet_custom_cta_title: 'هل تحتاج إلى ترتيبات أسطول مخصصة؟',
+    fleet_custom_cta_desc: 'من الفعاليات الخاصة إلى متطلبات النقل الفريدة، اتصل بفريقنا للحصول على ترتيب سفر مخصص.',
+    fleet_contact_team: 'تواصل مع فريقنا ←',
+    fleet_faq_title: 'الأسئلة الشائعة',
+    fleet_faq_sub: 'كل ما تحتاج لمعرفته حول أسطول سيارات مرسيدس-بنز وسياسات الحجز لدينا.',
+    specs_passengers: 'الركاب',
+    specs_luggage: 'الأمتعة',
+    specs_transmission: 'نظام التعليق',
+
+    // Google Reviews
+    reviews_heading: 'ضيوفنا، أفضل توصية لدينا',
+    reviews_desc: 'اكتشف ما يقوله ضيوفنا عن تجاربهم مع السائق الخاص.',
+    reviews_rating_badge: 'تقييم 5.0 / 5.0 (أكثر من 150 تقييماً موثقاً على جوجل)',
+    reviews_read_all: 'قراءة جميع تقييمات جوجل',
+    reviews_write: 'اكتب تقييماً',
+    reviews_verified: 'تقييم موثق من جوجل',
+
+    // Footer
+    footer_quick_links: 'روابط سريعة',
+    footer_services: 'خدماتنا',
+    footer_contact: 'الاتصال والتشغيل',
+    footer_247: '24 ساعة / 7 أيام في الأسبوع',
+    footer_read_reviews: 'قراءة تقييمات جوجل ↗',
+    footer_rights: 'جميع الحقوق محفوظة © 2026 Vienna Day Trip. ترخيص تجاري GISA: 9110025257769. عضو غرفة التجارة النمساوية (WKO).',
+
+    // Blog
+    blog_hero_eyebrow: 'مجلة فيينا داي تريب',
+    blog_hero_title_1: 'قصص تستحق',
+    blog_hero_title_2: 'السفر لأجلها.',
+    blog_hero_desc: 'اكتشف فيينا وأجمل وجهات النمسا وتجارب السائق الفاخرة وأدلة السفر الخبيرة لرحلات لا تُنسى.',
+    blog_search_placeholder: 'ابحث في الأدلة والوجهات ونصائح السفر...',
+    blog_all_articles: 'جميع المقالات',
+    blog_featured_story: 'قصة مميزة',
+    blog_read_article: 'اقرأ المقال',
+    blog_recommended_stories: 'قصص موصى بها',
+    blog_editors_picks: 'اختيارات المحرر',
+    blog_explore_title: 'استكشف مجلة السفر لدينا',
+    blog_explore_sub: 'إلهام سفر منتقى وأدلة وجهات سياحية وتجارب لا تُنسى عبر النمسا وخارجها.',
+    blog_showing: 'عرض',
+    blog_articles_count: 'مقالات',
+    blog_article_count: 'مقال',
+    blog_in_category: 'في',
+    blog_matching: 'تطابق',
+    blog_page_indicator: 'صفحة',
+    blog_of: 'من',
+    blog_prev: 'السابق',
+    blog_next: 'التالي',
+    blog_no_found_title: 'لم يتم العثور على مقالات',
+    blog_no_found_desc: 'لم نتمكن من العثور على أي مقالات تطابق معايير البحث الخاصة بك. جرب مصطلح بحث مختلف أو أعد تعيين تصفية الفئة.',
+    blog_reset_filters: 'إعادة ضبط التصفية',
+    blog_guide_badge: 'دليل',
+    blog_min_read: 'دقيقة قراءة',
+    blog_cat_our_blog: 'مدونتنا',
+    blog_cat_chauffeur: 'سائق خاص',
+    blog_cat_car_rent: 'تأجير سيارات',
+    blog_cat_services: 'خدمات',
+    blog_cat_general: 'عام',
+    blog_cat_uncategorized: 'نصائح السفر',
   }
 };
 
@@ -731,6 +894,17 @@ export function LanguageProvider({ children }) {
     }
     return 'en';
   });
+
+  useEffect(() => {
+    document.documentElement.lang = language;
+    if (language === 'ar') {
+      document.documentElement.dir = 'rtl';
+      document.body.classList.add('rtl-layout');
+    } else {
+      document.documentElement.dir = 'ltr';
+      document.body.classList.remove('rtl-layout');
+    }
+  }, [language]);
 
   const setLanguage = (langCode) => {
     if (translations[langCode]) {

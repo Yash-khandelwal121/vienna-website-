@@ -9,7 +9,8 @@ const LANGUAGES = [
   { code: 'fr', name: 'French (Français)', flag: '🇫🇷', completeness: 90, status: 'PUBLISHED' },
   { code: 'it', name: 'Italian (Italiano)', flag: '🇮🇹', completeness: 90, status: 'PUBLISHED' },
   { code: 'es', name: 'Spanish (Español)', flag: '🇪🇸', completeness: 90, status: 'PUBLISHED' },
-  { code: 'zh', name: 'Chinese (简体中文)', flag: '🇨🇳', completeness: 85, status: 'PUBLISHED' }
+  { code: 'zh', name: 'Chinese (简体中文)', flag: '🇨🇳', completeness: 85, status: 'PUBLISHED' },
+  { code: 'ar', name: 'Arabic (العربية)', flag: '🇦🇪', completeness: 95, status: 'PUBLISHED' }
 ];
 
 export default function TranslationsManager() {
@@ -44,9 +45,9 @@ export default function TranslationsManager() {
     <AdminLayout title="Multilingual CMS">
       <div className="vdt-page-header">
         <div>
-          <h1 className="vdt-page-title">Multilingual Translations (6 Languages)</h1>
+          <h1 className="vdt-page-title">Multilingual Translations (7 Languages)</h1>
           <p className="vdt-page-sub">
-            Manage navigation, buttons, service descriptions, and localized content across all 6 supported languages.
+            Manage navigation, buttons, service descriptions, and localized content across all 7 supported languages.
           </p>
         </div>
       </div>
