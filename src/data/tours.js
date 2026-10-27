@@ -810,6 +810,18 @@ export const toursData = {
       "Seamless cross-border travel with all vignettes, tolls, and permits handled",
       "Dedicated multi-day chauffeur availability and luggage coordination"
     ],
+    included: [
+      "Private transfer in a luxury Mercedes-Benz vehicle",
+      "Dedicated professional chauffeur (English and German speaking)",
+      "100% customizable route, flexible duration, and scenic photo stops",
+      "All highway tolls, fuel, parking fees, and road taxes included",
+      "Complimentary bottled mineral water and onboard high-speed Wi-Fi"
+    ],
+    notIncluded: [
+      "Attraction and museum entry tickets (arranged upon request)",
+      "Meals, wine tastings, and personal dining expenses",
+      "Chauffeur overnight accommodation (applicable only for multi-day tours)"
+    ],
     serviceDetails: [
       { item: "Service Hours", value: "24/7, 365 days a year" },
       { item: "Service Type", value: "Custom Private Transfers & Multi-Day Tours" },

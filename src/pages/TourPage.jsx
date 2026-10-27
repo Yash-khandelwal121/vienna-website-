@@ -14,7 +14,17 @@ export default function TourPage({ tourKey }) {
   const params = useParams();
   // Get tour key either from props or path parameter
   const key = tourKey || params.slug || 'hallstatt-day-trip-from-vienna';
-  const tour = toursData[key] || toursData['hallstatt-day-trip-from-vienna'];
+  const tour = toursData[key] || toursData['hallstatt-day-trip-from-vienna'] || {};
+
+  const stats = Array.isArray(tour?.stats) ? tour.stats : [];
+  const overview = Array.isArray(tour?.overview) ? tour.overview : [];
+  const highlights = Array.isArray(tour?.highlights) ? tour.highlights : [];
+  const itinerary = Array.isArray(tour?.itinerary) ? tour.itinerary : [];
+  const serviceDetails = Array.isArray(tour?.serviceDetails) ? tour.serviceDetails : [];
+  const visualHighlights = Array.isArray(tour?.visualHighlights) ? tour.visualHighlights : [];
+  const included = Array.isArray(tour?.included) ? tour.included : [];
+  const notIncluded = Array.isArray(tour?.notIncluded) ? tour.notIncluded : [];
+  const faqs = Array.isArray(tour?.faqs) ? tour.faqs : [];
 
   const scrollToBooking = () => {
     const el = document.getElementById('tour-booking-section');
@@ -22,9 +32,9 @@ export default function TourPage({ tourKey }) {
   };
 
   // Other related tours
-  const relatedTours = signatureDestinations.filter(
-    (d) => !d.slug.includes(tour.slug)
-  ).slice(0, 3);
+  const relatedTours = Array.isArray(signatureDestinations)
+    ? signatureDestinations.filter((d) => d && d.slug && !d.slug.includes(tour?.slug || '')).slice(0, 3)
+    : [];
 
   return (
     <div style={{ position: 'relative' }}>
@@ -58,12 +68,14 @@ export default function TourPage({ tourKey }) {
                 {tour.title}
               </h1>
 
-              <p style={{ color: 'var(--text-secondary)', fontSize: '1.12rem', lineHeight: '1.7', marginBottom: '2rem' }}>
-                {tour.overview[0]}
-              </p>
+              {overview.length > 0 && (
+                <p style={{ color: 'var(--text-secondary)', fontSize: '1.12rem', lineHeight: '1.7', marginBottom: '2rem' }}>
+                  {overview[0]}
+                </p>
+              )}
 
               {/* Quick Metrics Bar */}
-              {tour.stats && (
+              {stats.length > 0 && (
                 <div
                   style={{
                     display: 'flex',
@@ -78,7 +90,7 @@ export default function TourPage({ tourKey }) {
                     marginBottom: '2.5rem'
                   }}
                 >
-                  {tour.stats.map((st) => (
+                  {stats.map((st) => (
                     <div key={st.label} style={{ marginRight: '1rem' }}>
                       <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700 }}>
                         {st.label}
@@ -154,26 +166,26 @@ export default function TourPage({ tourKey }) {
                 JOURNEY IN UNCOMPROMISED COMFORT.
               </h2>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', color: 'var(--text-secondary)', fontSize: '1.02rem', lineHeight: '1.8' }}>
-                {tour.overview.map((paragraph, i) => (
+                {overview.map((paragraph, i) => (
                   <p key={i}>{paragraph}</p>
                 ))}
               </div>
 
               {/* Service Details Table (if applicable) */}
-              {tour.serviceDetails && (
+              {serviceDetails.length > 0 && (
                 <div style={{ marginTop: '2.5rem' }}>
                   <h4 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.25rem', marginBottom: '1rem', color: 'var(--text-primary)' }}>
                     SERVICE SPECIFICATIONS
                   </h4>
                   <div style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}>
-                    {tour.serviceDetails.map((item, idx) => (
+                    {serviceDetails.map((item, idx) => (
                       <div
                         key={idx}
                         style={{
                           display: 'flex',
                           justifyContent: 'space-between',
                           padding: '1rem 1.5rem',
-                          borderBottom: idx < tour.serviceDetails.length - 1 ? '1px solid var(--border-subtle)' : 'none',
+                          borderBottom: idx < serviceDetails.length - 1 ? '1px solid var(--border-subtle)' : 'none',
                           fontSize: '0.92rem'
                         }}
                       >
@@ -201,7 +213,7 @@ export default function TourPage({ tourKey }) {
                   WHAT MAKES THIS JOURNEY SPECIAL
                 </h3>
                 <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                  {tour.highlights.map((h, i) => (
+                  {highlights.map((h, i) => (
                     <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.85rem' }}>
                       <span
                         style={{
@@ -219,7 +231,7 @@ export default function TourPage({ tourKey }) {
                       >
                         <Check size={14} />
                       </span>
-                      <span style={{ color: 'var(--text-primary)', fontSize: '0.98rem', lineHeight: '1.5' }}>
+                      <span style={{ color: 'var(--text-primary)', fontSize: '0.96rem', lineHeight: '1.5' }}>
                         {h}
                       </span>
                     </li>
@@ -234,7 +246,7 @@ export default function TourPage({ tourKey }) {
       {/* =========================================================================
           DETAILED STEP-BY-STEP ITINERARY (If Available)
           ========================================================================= */}
-      {tour.itinerary && (
+      {itinerary.length > 0 && (
         <section className="section section-secondary">
           <div className="container">
             <div style={{ textAlign: 'center', maxWidth: '780px', margin: '0 auto 3.5rem' }}>
@@ -246,7 +258,7 @@ export default function TourPage({ tourKey }) {
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', position: 'relative' }}>
-              {tour.itinerary.map((step, idx) => (
+              {itinerary.map((step, idx) => (
                 <div
                   key={idx}
                   className="itinerary-item tour-itinerary-card"
@@ -285,7 +297,7 @@ export default function TourPage({ tourKey }) {
       {/* =========================================================================
           VISUAL HIGHLIGHTS / GALLERY CARDS
           ========================================================================= */}
-      {tour.visualHighlights && tour.visualHighlights.length > 0 && (
+      {visualHighlights.length > 0 && (
         <section className="section section-dark">
           <div className="container-wide">
             <div style={{ textAlign: 'center', maxWidth: '780px', margin: '0 auto 3.5rem' }}>
@@ -300,7 +312,7 @@ export default function TourPage({ tourKey }) {
                 gap: '2rem'
               }}
             >
-              {tour.visualHighlights.map((vh, i) => (
+              {visualHighlights.map((vh, i) => (
                 <div
                   key={i}
                   style={{
@@ -338,73 +350,79 @@ export default function TourPage({ tourKey }) {
       {/* =========================================================================
           INCLUDED / NOT INCLUDED
           ========================================================================= */}
-      <section className="section section-secondary">
-        <div className="container">
-          <div style={{ textAlign: 'center', maxWidth: '780px', margin: '0 auto 3.5rem' }}>
-            <div className="eyebrow" style={{ justifyContent: 'center' }}>TRANSPARENCY & CLARITY</div>
-            <h2 className="heading-xl">WHAT IS INCLUDED IN YOUR BOOKING.</h2>
-          </div>
-
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))',
-              gap: '2rem'
-            }}
-          >
-            {/* Included */}
-            <div
-              style={{
-                backgroundColor: 'var(--bg-card)',
-                border: '1px solid var(--border)',
-                borderRadius: 'var(--radius-xl)',
-                padding: '2.5rem'
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--accent)', fontFamily: 'var(--font-heading)', fontSize: '1.35rem', fontWeight: 800, marginBottom: '1.5rem' }}>
-                <Check size={22} />
-                <span>WHAT IS INCLUDED</span>
-              </div>
-              <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
-                {tour.included.map((inc, i) => (
-                  <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', color: 'var(--text-primary)', fontSize: '0.95rem' }}>
-                    <span style={{ color: 'var(--accent)', marginTop: '2px' }}>✓</span>
-                    <span>{inc}</span>
-                  </li>
-                ))}
-              </ul>
+      {(included.length > 0 || notIncluded.length > 0) && (
+        <section className="section section-secondary">
+          <div className="container">
+            <div style={{ textAlign: 'center', maxWidth: '780px', margin: '0 auto 3.5rem' }}>
+              <div className="eyebrow" style={{ justifyContent: 'center' }}>TRANSPARENCY & CLARITY</div>
+              <h2 className="heading-xl">WHAT IS INCLUDED IN YOUR BOOKING.</h2>
             </div>
 
-            {/* Not Included */}
             <div
               style={{
-                backgroundColor: 'var(--bg-card)',
-                border: '1px solid var(--border)',
-                borderRadius: 'var(--radius-xl)',
-                padding: '2.5rem'
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))',
+                gap: '2rem'
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-muted)', fontFamily: 'var(--font-heading)', fontSize: '1.35rem', fontWeight: 800, marginBottom: '1.5rem' }}>
-                <X size={22} />
-                <span>NOT INCLUDED / OPTIONAL</span>
-              </div>
-              <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
-                {tour.notIncluded.map((not, i) => (
-                  <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
-                    <span style={{ color: 'var(--text-muted)', marginTop: '2px' }}>✕</span>
-                    <span>{not}</span>
-                  </li>
-                ))}
-              </ul>
+              {/* Included */}
+              {included.length > 0 && (
+                <div
+                  style={{
+                    backgroundColor: 'var(--bg-card)',
+                    border: '1px solid var(--border)',
+                    borderRadius: 'var(--radius-xl)',
+                    padding: '2.5rem'
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--accent)', fontFamily: 'var(--font-heading)', fontSize: '1.35rem', fontWeight: 800, marginBottom: '1.5rem' }}>
+                    <Check size={22} />
+                    <span>WHAT IS INCLUDED</span>
+                  </div>
+                  <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
+                    {included.map((inc, i) => (
+                      <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', color: 'var(--text-primary)', fontSize: '0.95rem' }}>
+                        <span style={{ color: 'var(--accent)', marginTop: '2px' }}>✓</span>
+                        <span>{inc}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* Not Included */}
+              {notIncluded.length > 0 && (
+                <div
+                  style={{
+                    backgroundColor: 'var(--bg-card)',
+                    border: '1px solid var(--border)',
+                    borderRadius: 'var(--radius-xl)',
+                    padding: '2.5rem'
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-muted)', fontFamily: 'var(--font-heading)', fontSize: '1.35rem', fontWeight: 800, marginBottom: '1.5rem' }}>
+                    <X size={22} />
+                    <span>NOT INCLUDED / OPTIONAL</span>
+                  </div>
+                  <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
+                    {notIncluded.map((not, i) => (
+                      <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
+                        <span style={{ color: 'var(--text-muted)', marginTop: '2px' }}>✕</span>
+                        <span>{not}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* =========================================================================
           FAQS ACCORDION
           ========================================================================= */}
-      {tour.faqs && tour.faqs.length > 0 && (
+      {faqs.length > 0 && (
         <section className="section section-dark">
           <div className="container-narrow">
             <div style={{ textAlign: 'center', marginBottom: '3.5rem' }}>
@@ -412,7 +430,7 @@ export default function TourPage({ tourKey }) {
               <h2 className="heading-xl">ANSWERS FOR YOUR JOURNEY.</h2>
             </div>
 
-            <FaqAccordion faqs={tour.faqs} />
+            <FaqAccordion faqs={faqs} />
           </div>
         </section>
       )}

@@ -143,8 +143,6 @@ export default function App() {
         {/* 13. Customized Day Trips */}
         <Route path="customized-day-trips/" element={<TourPage tourKey="customized-day-trips" />} />
         <Route path="customized-day-trips" element={<TourPage tourKey="customized-day-trips" />} />
-        <Route path="day-trips/" element={<TourPage tourKey="customized-day-trips" />} />
-        <Route path="day-trips" element={<TourPage tourKey="customized-day-trips" />} />
 
         {/* 14. Secure Transportation */}
         <Route path="secure-transportation/" element={<TourPage tourKey="secure-transportation" />} />
@@ -162,11 +160,13 @@ export default function App() {
         <Route path="b2b-solutions/" element={<B2B />} />
         <Route path="b2b-solutions" element={<B2B />} />
 
-        {/* 17. Tours & Pricing / Private Day Trips */}
-        <Route path="tour-pricing/" element={<Pricing />} />
-        <Route path="tour-pricing" element={<Pricing />} />
+        {/* 17. Private Day Trips / Tours & Pricing (Primary route and canonical aliases) */}
+        <Route path="day-trips/" element={<Pricing />} />
+        <Route path="day-trips" element={<Pricing />} />
         <Route path="private-day-trips/" element={<Pricing />} />
         <Route path="private-day-trips" element={<Pricing />} />
+        <Route path="tour-pricing/" element={<Pricing />} />
+        <Route path="tour-pricing" element={<Pricing />} />
 
         {/* 18. Blog Listing */}
         <Route path="blog" element={<Blog />} />

@@ -72,10 +72,8 @@ export default function Navbar() {
     const cleanCurrent = location.pathname.replace(/\/$/, '') || '/';
     const cleanTarget = href.replace(/\/$/, '') || '/';
     if (cleanTarget === '/') return cleanCurrent === '/';
-    if (
-      (cleanTarget === '/tour-pricing' || cleanTarget === '/private-day-trips') &&
-      (cleanCurrent === '/tour-pricing' || cleanCurrent === '/private-day-trips')
-    ) {
+    const dayTripAliases = ['/tour-pricing', '/private-day-trips', '/day-trips'];
+    if (dayTripAliases.includes(cleanTarget) && dayTripAliases.includes(cleanCurrent)) {
       return true;
     }
     return cleanCurrent === cleanTarget || cleanCurrent.startsWith(`${cleanTarget}/`);

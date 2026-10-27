@@ -7,13 +7,19 @@ import { useLanguage } from '../context/LanguageContext';
 
 export default function Pricing() {
   const { t } = useLanguage();
-  const signatureTours = pricingData.tours.filter(
-    (t) => !t.slug.includes('airport') && !t.slug.includes('hourly') && !t.slug.includes('secure')
+
+  React.useEffect(() => {
+    document.title = 'Private Day Trips from Vienna with a Personal Chauffeur | Vienna Day Trip';
+  }, []);
+
+  const toursList = Array.isArray(pricingData?.tours) ? pricingData.tours : [];
+  const signatureTours = toursList.filter(
+    (t) => t && t.slug && !t.slug.includes('airport') && !t.slug.includes('hourly') && !t.slug.includes('secure')
   );
 
-  const eyebrow = t('pricing_eyebrow') || pricingData.eyebrow;
-  const title = t('pricing_title') || pricingData.title;
-  const lead = t('pricing_lead') || pricingData.lead;
+  const eyebrow = t('pricing_eyebrow') || pricingData?.eyebrow || 'PRIVATE CHAUFFEUR EXPERIENCES';
+  const title = t('pricing_title') || pricingData?.title || 'Private Day Trips from Vienna with a Personal Chauffeur';
+  const lead = t('pricing_lead') || pricingData?.lead || 'Explore Austria with private day trips from Vienna in a luxury Mercedes. Enjoy door-to-door pickup, flexible itineraries and fixed per-vehicle pricing. Visit Hallstatt, Salzburg, the Wachau Valley or Bratislava with your personal chauffeur.';
 
   return (
     <div style={{ position: 'relative' }}>
