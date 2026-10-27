@@ -362,7 +362,7 @@ export default function Navbar() {
           </nav>
 
           {/* Right Header Controls (RIGHT): 🌐 EN ▾ | BOOK NOW */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', flexShrink: 0 }}>
+          <div className="header-controls" style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', flexShrink: 0 }}>
             {/* PART 3: SIX-LANGUAGE DROPDOWN */}
             <div ref={langRef} style={{ position: 'relative' }} className="lang-selector-wrapper">
               <button
@@ -822,6 +822,9 @@ export default function Navbar() {
           }
         }
         @media (max-width: 440px) {
+          .header-controls {
+            gap: 0.5rem !important;
+          }
           .brand-logo-text-sub {
             display: none !important;
           }
@@ -829,8 +832,8 @@ export default function Navbar() {
             font-size: 1.05rem !important;
           }
           .header-book-btn {
-            padding: 0.45rem 0.75rem !important;
-            font-size: 0.74rem !important;
+            padding: 0.45rem 0.65rem !important;
+            font-size: 0.72rem !important;
           }
         }
         @media (max-width: 360px) {

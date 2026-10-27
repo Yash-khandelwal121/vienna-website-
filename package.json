@@ -25,6 +25,7 @@
     "@prisma/client": "5.22.0",
     "@sanity/client": "^8.11.0",
     "@sanity/image-url": "^2.1.1",
+    "@sanity/table": "^2.0.1",
     "@sanity/vision": "^3.68.0",
     "bcryptjs": "^3.0.3",
     "cookie-parser": "^1.4.7",

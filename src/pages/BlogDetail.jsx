@@ -1,10 +1,314 @@
 import React, { useEffect, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Calendar, User, Clock, Tag, Share2, Sparkles, ArrowRight, ShieldCheck, CheckCircle2, MessageSquare } from 'lucide-react';
+import { PortableText } from '@portabletext/react';
 import { getBlogPostBySlug, getRelatedBlogPosts } from '../data/blogs';
 import { siteConfig } from '../data/site';
 import { useLanguage } from '../context/LanguageContext';
 import { fetchPublicBlogBySlug } from '../services/api';
+import { urlForImage } from '../sanity/client';
+
+/**
+ * Custom Portable Text rendering components matching Vienna Day Trip luxury aesthetics
+ */
+const portableTextComponents = {
+  types: {
+    image: ({ value }) => {
+      const imgUrl = urlForImage(value);
+      if (!imgUrl) return null;
+      return (
+        <figure style={{ margin: '2.5rem 0', textAlign: 'center' }}>
+          <img
+            src={imgUrl}
+            alt={value.alt || ''}
+            title={value.title || undefined}
+            loading="lazy"
+            style={{
+              maxWidth: '100%',
+              height: 'auto',
+              borderRadius: '14px',
+              border: '1px solid #E6D8C3',
+              boxShadow: '0 8px 24px rgba(23, 25, 28, 0.06)',
+              display: 'block',
+              margin: '0 auto',
+            }}
+          />
+          {value.caption && (
+            <figcaption
+              style={{
+                fontFamily: 'Lora, Georgia, serif',
+                fontSize: '0.88rem',
+                color: '#62666D',
+                fontStyle: 'italic',
+                marginTop: '0.75rem',
+                padding: '0 1rem',
+              }}
+            >
+              {value.caption}
+            </figcaption>
+          )}
+        </figure>
+      );
+    },
+    table: ({ value }) => {
+      const rows = value?.rows || [];
+      if (!rows || rows.length === 0) return null;
+      const [headerRow, ...bodyRows] = rows;
+      return (
+        <div
+          style={{
+            overflowX: 'auto',
+            WebkitOverflowScrolling: 'touch',
+            margin: '2.25rem 0',
+            borderRadius: '12px',
+            border: '1px solid #E6D8C3',
+            boxShadow: '0 4px 18px rgba(23, 25, 28, 0.04)',
+            backgroundColor: '#FFFFFF',
+          }}
+        >
+          <table
+            style={{
+              width: '100%',
+              borderCollapse: 'collapse',
+              textAlign: 'left',
+              fontFamily: 'Lora, Georgia, serif',
+              fontSize: '0.96rem',
+            }}
+          >
+            {headerRow?.cells?.length > 0 && (
+              <thead>
+                <tr style={{ backgroundColor: '#FAF8F4', borderBottom: '2px solid #E6D8C3' }}>
+                  {headerRow.cells.map((cell, idx) => (
+                    <th
+                      key={idx}
+                      style={{
+                        padding: '0.9rem 1.15rem',
+                        fontFamily: 'Playfair Display, Georgia, serif',
+                        fontWeight: 700,
+                        color: '#17191C',
+                        fontSize: '0.98rem',
+                        borderRight: idx < headerRow.cells.length - 1 ? '1px solid #E6D8C3' : 'none',
+                      }}
+                    >
+                      {cell}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+            )}
+            <tbody>
+              {bodyRows.map((row, rIdx) => (
+                <tr
+                  key={row._key || rIdx}
+                  style={{
+                    borderBottom: rIdx < bodyRows.length - 1 ? '1px solid #E6D8C3' : 'none',
+                    backgroundColor: rIdx % 2 === 1 ? '#FDFAF5' : '#FFFFFF',
+                  }}
+                >
+                  {row.cells?.map((cell, cIdx) => (
+                    <td
+                      key={cIdx}
+                      style={{
+                        padding: '0.85rem 1.15rem',
+                        color: '#2B2F36',
+                        borderRight: cIdx < row.cells.length - 1 ? '1px solid #E6D8C3' : 'none',
+                      }}
+                    >
+                      {cell}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      );
+    },
+  },
+  block: {
+    h2: ({ children }) => (
+      <h2
+        style={{
+          fontFamily: 'Playfair Display, Georgia, serif',
+          fontSize: 'clamp(1.5rem, 2.6vw, 1.95rem)',
+          fontWeight: 800,
+          color: '#17191C',
+          letterSpacing: '-0.01em',
+          margin: '2.75rem 0 1.1rem',
+          lineHeight: 1.3,
+        }}
+      >
+        {children}
+      </h2>
+    ),
+    h3: ({ children }) => (
+      <h3
+        style={{
+          fontFamily: 'Playfair Display, Georgia, serif',
+          fontSize: 'clamp(1.25rem, 2.1vw, 1.55rem)',
+          fontWeight: 700,
+          color: '#17191C',
+          margin: '2.25rem 0 0.9rem',
+          lineHeight: 1.35,
+        }}
+      >
+        {children}
+      </h3>
+    ),
+    h4: ({ children }) => (
+      <h4
+        style={{
+          fontFamily: 'Playfair Display, Georgia, serif',
+          fontSize: '1.2rem',
+          fontWeight: 700,
+          color: '#C69C50',
+          margin: '1.85rem 0 0.75rem',
+          lineHeight: 1.4,
+        }}
+      >
+        {children}
+      </h4>
+    ),
+    blockquote: ({ children }) => (
+      <blockquote
+        style={{
+          borderLeft: '3px solid #C69C50',
+          padding: '1.35rem 1.85rem',
+          backgroundColor: '#FFFFFF',
+          borderRadius: '0 12px 12px 0',
+          fontStyle: 'italic',
+          margin: '2.25rem 0',
+          boxShadow: '0 6px 20px rgba(0, 0, 0, 0.03)',
+          color: '#17191C',
+          lineHeight: 1.8,
+        }}
+      >
+        {children}
+      </blockquote>
+    ),
+    normal: ({ children }) => (
+      <p style={{ marginBottom: '1.6rem', lineHeight: 1.85, color: '#2B2F36' }}>
+        {children}
+      </p>
+    ),
+  },
+  list: {
+    bullet: ({ children }) => (
+      <ul
+        style={{
+          paddingLeft: '1.75rem',
+          marginBottom: '1.75rem',
+          listStyleType: 'disc',
+          color: '#2B2F36',
+          lineHeight: 1.85,
+        }}
+      >
+        {children}
+      </ul>
+    ),
+    number: ({ children }) => (
+      <ol
+        style={{
+          paddingLeft: '1.75rem',
+          marginBottom: '1.75rem',
+          listStyleType: 'decimal',
+          color: '#2B2F36',
+          lineHeight: 1.85,
+        }}
+      >
+        {children}
+      </ol>
+    ),
+  },
+  listItem: {
+    bullet: ({ children }) => <li style={{ marginBottom: '0.55rem' }}>{children}</li>,
+    number: ({ children }) => <li style={{ marginBottom: '0.55rem' }}>{children}</li>,
+  },
+  marks: {
+    strong: ({ children }) => <strong style={{ fontWeight: 700, color: '#17191C' }}>{children}</strong>,
+    em: ({ children }) => <em style={{ fontStyle: 'italic' }}>{children}</em>,
+    link: ({ value, children }) => {
+      const href = value?.href || '#';
+      const isExternal = href.startsWith('http');
+      return (
+        <a
+          href={href}
+          target={isExternal ? '_blank' : undefined}
+          rel={isExternal ? 'noopener noreferrer' : undefined}
+          style={{
+            color: '#C69C50',
+            textDecoration: 'underline',
+            fontWeight: 500,
+            textUnderlineOffset: '3px',
+          }}
+        >
+          {children}
+        </a>
+      );
+    },
+    internalLink: ({ value, children }) => {
+      const slug = value?.reference?.slug?.current || value?.slug;
+      const to = slug ? `/blog/${slug}/` : '#';
+      return (
+        <Link
+          to={to}
+          style={{
+            color: '#C69C50',
+            textDecoration: 'underline',
+            fontWeight: 500,
+            textUnderlineOffset: '3px',
+          }}
+        >
+          {children}
+        </Link>
+      );
+    },
+  },
+};
+
+/**
+ * Safely parse and inject custom approved scripts (JSON-LD or validated domains)
+ */
+function injectApprovedScript(scriptContent, elementId) {
+  if (!scriptContent || typeof scriptContent !== 'string') return null;
+  const trimmed = scriptContent.trim();
+  if (!trimmed) return null;
+
+  // Controlled verification 1: JSON-LD snippet
+  const jsonLdMatch = trimmed.match(/<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/i);
+  if (jsonLdMatch) {
+    try {
+      JSON.parse(jsonLdMatch[1]); // Ensure valid JSON
+      const script = document.createElement('script');
+      script.id = elementId;
+      script.type = 'application/ld+json';
+      script.text = jsonLdMatch[1];
+      document.head.appendChild(script);
+      return script;
+    } catch {
+      console.warn(`[Security] Custom script rejected: Invalid JSON-LD`);
+      return null;
+    }
+  }
+
+  // Controlled verification 2: Approved whitelist script URL (Google Analytics / GTM)
+  const srcMatch = trimmed.match(/<script[^>]*src=["']([^"']+)["'][^>]*>/i);
+  if (srcMatch) {
+    const src = srcMatch[1];
+    const isApprovedHost = /^(https:\/\/www\.googletagmanager\.com|https:\/\/www\.google-analytics\.com)/i.test(src);
+    if (isApprovedHost) {
+      const script = document.createElement('script');
+      script.id = elementId;
+      script.src = src;
+      script.async = true;
+      document.head.appendChild(script);
+      return script;
+    }
+  }
+
+  console.warn(`[Security] Custom script rejected: Unapproved script signature.`);
+  return null;
+}
 
 export default function BlogDetail() {
   const { slug } = useParams();
@@ -60,6 +364,18 @@ export default function BlogDetail() {
     }
     metaDesc.content = post.seo?.description || post.excerpt;
 
+    // Meta Keywords
+    let metaKeywords = document.querySelector('meta[name="keywords"]');
+    const keywordsVal = post.seo?.keywords || post.keywords;
+    if (keywordsVal && (Array.isArray(keywordsVal) ? keywordsVal.length > 0 : keywordsVal)) {
+      if (!metaKeywords) {
+        metaKeywords = document.createElement('meta');
+        metaKeywords.name = 'keywords';
+        document.head.appendChild(metaKeywords);
+      }
+      metaKeywords.content = Array.isArray(keywordsVal) ? keywordsVal.join(', ') : keywordsVal;
+    }
+
     // Canonical link
     let canonical = document.querySelector('link[rel="canonical"]');
     if (!canonical) {
@@ -78,35 +394,46 @@ export default function BlogDetail() {
       document.head.appendChild(schemaScript);
     }
 
+    const featuredImgUrl = post.featuredImage || '';
+    const absoluteImgUrl = featuredImgUrl.startsWith('http')
+      ? featuredImgUrl
+      : `https://viennadaytrip.com${featuredImgUrl}`;
+
     const schemaData = post.seo?.schema || {
       '@context': 'https://schema.org',
       '@type': 'BlogPosting',
       headline: post.title,
-      image: post.featuredImage.startsWith('http') ? post.featuredImage : `https://viennadaytrip.com${post.featuredImage}`,
+      image: absoluteImgUrl,
       datePublished: post.rawDate,
       dateModified: post.modified || post.rawDate,
       author: {
         '@type': 'Person',
-        name: post.author
+        name: post.author || 'Vienna Day Trip Editorial Team',
       },
       publisher: {
         '@type': 'Organization',
         name: 'Vienna Day Trip',
         logo: {
           '@type': 'ImageObject',
-          url: 'https://viennadaytrip.com/images/logo2.png'
-        }
+          url: 'https://viennadaytrip.com/images/logo2.png',
+        },
       },
-      description: post.excerpt
+      description: post.excerpt,
     };
     schemaScript.text = JSON.stringify(schemaData);
+
+    // Controlled Custom Head Script Injection
+    const headScriptNode = injectApprovedScript(post.seo?.headScript, 'custom-head-script');
+    const bodyScriptNode = injectApprovedScript(post.seo?.bodyScript, 'custom-body-script');
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
     return () => {
-      // Cleanup custom schema on unmount if needed
+      // Cleanup custom schema and scripts on unmount
       const el = document.getElementById('blog-post-schema');
       if (el) el.remove();
+      if (headScriptNode) headScriptNode.remove();
+      if (bodyScriptNode) bodyScriptNode.remove();
     };
   }, [post]);
 
@@ -304,6 +631,7 @@ export default function BlogDetail() {
               <img
                 src={post.featuredImage}
                 alt={post.featuredImageAlt || post.title}
+                title={post.featuredImageTitle || undefined}
                 style={{
                   width: '100%',
                   maxHeight: '520px',
@@ -329,17 +657,31 @@ export default function BlogDetail() {
             </div>
           )}
 
-          {/* Article HTML Content with refined typography styling */}
-          <div
-            className="blog-article-content"
-            dangerouslySetInnerHTML={{ __html: post.content }}
-            style={{
-              fontFamily: 'Lora, Georgia, serif',
-              fontSize: '1.12rem',
-              lineHeight: '1.85',
-              color: '#2B2F36'
-            }}
-          />
+          {/* Dual-Mode Article Content Rendering: Portable Text Visual Editor vs Legacy HTML */}
+          {Array.isArray(post.body) && post.body.length > 0 ? (
+            <div
+              className="blog-article-content blog-portable-text"
+              style={{
+                fontFamily: 'Lora, Georgia, serif',
+                fontSize: '1.12rem',
+                lineHeight: '1.85',
+                color: '#2B2F36'
+              }}
+            >
+              <PortableText value={post.body} components={portableTextComponents} />
+            </div>
+          ) : (
+            <div
+              className="blog-article-content blog-legacy-html"
+              dangerouslySetInnerHTML={{ __html: post.content }}
+              style={{
+                fontFamily: 'Lora, Georgia, serif',
+                fontSize: '1.12rem',
+                lineHeight: '1.85',
+                color: '#2B2F36'
+              }}
+            />
+          )}
 
           {/* Categories & Tags Footer */}
           {post.categories && post.categories.length > 0 && (

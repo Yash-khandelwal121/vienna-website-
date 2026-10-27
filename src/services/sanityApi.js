@@ -30,15 +30,22 @@ export function formatSanityBlogPost(post) {
         })
       : 'October 2026',
     rawDate: post.publishedAt,
+    modified: post.modifiedAt || post.publishedAt,
     readTime: post.readTime || '5 min read',
     featuredImage: imageUrl,
+    featuredImageAlt: imageSource?.alt || post.title,
+    featuredImageTitle: imageSource?.title || '',
     content: post.content || '',
     body: post.body,
+    keywords: post.keywords || post.seo?.keywords || [],
     isPublished: post.isPublished !== false,
     seo: {
       title: post.seo?.metaTitle || post.title,
       description: post.seo?.metaDescription || post.excerpt,
-      keywords: post.seo?.keywords || [],
+      keywords: post.seo?.keywords || post.keywords || [],
+      canonical: post.seo?.canonicalUrl || '',
+      headScript: post.seo?.headScript || '',
+      bodyScript: post.seo?.bodyScript || '',
     },
     _source: 'sanity',
   };
@@ -119,7 +126,9 @@ export async function fetchSanityBlogBySlug(slug) {
         "category": category->title,
         author,
         publishedAt,
+        modifiedAt,
         readTime,
+        keywords,
         isPublished,
         coverImage,
         seo

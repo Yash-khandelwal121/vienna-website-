@@ -3,11 +3,17 @@ import { Link } from 'react-router-dom';
 import { Clock, Users, ArrowRight, Sparkles } from 'lucide-react';
 import { pricingData } from '../data/pages';
 import BookingWidget from '../components/BookingWidget';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function Pricing() {
+  const { t } = useLanguage();
   const signatureTours = pricingData.tours.filter(
     (t) => !t.slug.includes('airport') && !t.slug.includes('hourly') && !t.slug.includes('secure')
   );
+
+  const eyebrow = t('pricing_eyebrow') || pricingData.eyebrow;
+  const title = t('pricing_title') || pricingData.title;
+  const lead = t('pricing_lead') || pricingData.lead;
 
   return (
     <div style={{ position: 'relative' }}>
@@ -15,18 +21,34 @@ export default function Pricing() {
       <section
         style={{
           position: 'relative',
-          paddingTop: '8rem',
-          paddingBottom: '3.5rem',
+          paddingTop: 'clamp(7.5rem, 11vw, 9rem)',
+          paddingBottom: 'clamp(2.5rem, 4vw, 3.5rem)',
           backgroundColor: 'var(--bg-main)'
         }}
       >
         <div className="container-wide" style={{ position: 'relative', zIndex: 10 }}>
-          <div className="eyebrow">{pricingData.eyebrow}</div>
-          <h1 className="heading-xl" style={{ marginBottom: '1.25rem', color: 'var(--text-primary)' }}>
-            {pricingData.title}
+          <div className="eyebrow">{eyebrow}</div>
+          <h1
+            className="heading-xl"
+            style={{
+              marginBottom: '1.25rem',
+              color: 'var(--text-primary)',
+              maxWidth: '920px',
+              fontSize: 'clamp(2.2rem, 4vw, 3.5rem)',
+              lineHeight: 1.15
+            }}
+          >
+            {title}
           </h1>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '1.15rem', maxWidth: '720px', lineHeight: '1.65' }}>
-            {pricingData.lead}
+          <p
+            style={{
+              color: 'var(--text-secondary)',
+              fontSize: 'clamp(1.05rem, 1.3vw, 1.2rem)',
+              maxWidth: '780px',
+              lineHeight: 1.7
+            }}
+          >
+            {lead}
           </p>
         </div>
       </section>

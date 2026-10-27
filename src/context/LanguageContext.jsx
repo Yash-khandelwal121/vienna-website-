@@ -35,6 +35,9 @@ const translations = {
     dt_bratislava: 'Bratislava Day Trip',
     dt_wachau: 'Wachau Valley Trip',
     dt_custom: 'Customized Day Trips',
+    pricing_eyebrow: 'PRIVATE CHAUFFEUR EXPERIENCES',
+    pricing_title: 'Private Day Trips from Vienna with a Personal Chauffeur',
+    pricing_lead: 'Explore Austria with private day trips from Vienna in a luxury Mercedes. Enjoy door-to-door pickup, flexible itineraries and fixed per-vehicle pricing. Visit Hallstatt, Salzburg, the Wachau Valley or Bratislava with your personal chauffeur.',
 
     // Hero & Booking (Task 3 Content)
     hero_eyebrow: 'VIENNA DAY TRIP — PRIVATE CHAUFFEUR SERVICE',
@@ -194,6 +197,9 @@ const translations = {
     dt_bratislava: 'Bratislava Tagesausflug',
     dt_wachau: 'Wachau Tagesausflug',
     dt_custom: 'Individuelle Tagesausflüge',
+    pricing_eyebrow: 'PRIVATE CHAUFFEUR-ERLEBNISSE',
+    pricing_title: 'Private Tagesausflüge ab Wien mit persönlichem Chauffeur',
+    pricing_lead: 'Entdecken Sie Österreich mit privaten Tagesausflügen ab Wien in einem luxuriösen Mercedes. Genießen Sie Abholung direkt vor Ort, flexible Routen und feste Preise pro Fahrzeug. Besuchen Sie Hallstatt, Salzburg, die Wachau oder Bratislava mit Ihrem persönlichen Chauffeur.',
 
     // Hero & Booking (Task 3 Content)
     hero_eyebrow: 'VIENNA DAY TRIP — PRIVATER CHAUFFEURSERVICE',
@@ -353,6 +359,9 @@ const translations = {
     dt_bratislava: 'Excursion à Bratislava',
     dt_wachau: 'Excursion Vallée de la Wachau',
     dt_custom: 'Excursions Sur Mesure',
+    pricing_eyebrow: 'EXPÉRIENCES AVEC CHAUFFEUR PRIVÉ',
+    pricing_title: 'Excursions Privées d’une Journée au Départ de Vienne avec Chauffeur Dédié',
+    pricing_lead: 'Explorez l’Autriche lors d’excursions privées au départ de Vienne en Mercedes de luxe. Profitez d’une prise en charge porte-à-porte, d’itinéraires flexibles et de tarifs fixes par véhicule. Visitez Hallstatt, Salzbourg, la vallée de la Wachau ou Bratislava avec votre chauffeur personnel.',
 
     // Hero & Booking
     hero_eyebrow: 'EXCELLENCE DU CHAUFFEUR PRIVÉ AUTRICHIEN',
@@ -444,6 +453,9 @@ const translations = {
     dt_bratislava: 'Tour di Bratislava',
     dt_wachau: 'Tour Valle di Wachau',
     dt_custom: 'Tour Personalizzati',
+    pricing_eyebrow: 'ESPERIENZE CON AUTISTA PRIVATO',
+    pricing_title: 'Tour Privati di un Giorno da Vienna con Autista Personale',
+    pricing_lead: 'Esplora l’Austria con gite private di un giorno da Vienna in una lussuosa Mercedes. Goditi il servizio porta a porta, itinerari flessibili e prezzi fissi per veicolo. Visita Hallstatt, Salisburgo, la valle della Wachau o Bratislava con il tuo autista personale.',
 
     // Hero & Booking
     hero_eyebrow: 'ECCELLENZA AUSTRIACA DI CHAUFFEUR E LIMOUSINE',
@@ -535,6 +547,9 @@ const translations = {
     dt_bratislava: 'Excursión a Bratislava',
     dt_wachau: 'Excursión al Valle de Wachau',
     dt_custom: 'Excursiones Personalizadas',
+    pricing_eyebrow: 'EXPERIENCIAS CON CHÓFER PRIVADO',
+    pricing_title: 'Excursiones Privadas de un Día desde Viena con Chófer Personal',
+    pricing_lead: 'Explore Austria con excursiones privadas de un día desde Viena en un Mercedes de lujo. Disfrute de recogida puerta a puerta, itinerarios flexibles y precios fijos por vehículo. Visite Hallstatt, Salzburgo, el valle de Wachau o Bratislava con su chófer personal.',
 
     // Hero & Booking
     hero_eyebrow: 'EXCELENCIA EN CHÓFER PRIVADO Y LIMUSINAS DE AUSTRIA',
@@ -626,6 +641,9 @@ const translations = {
     dt_bratislava: '布拉迪斯拉发一日游',
     dt_wachau: '瓦豪河谷一日游',
     dt_custom: '定制全景一日游',
+    pricing_eyebrow: '专属贵宾司导体验',
+    pricing_title: '维也纳专属司导私人一日游',
+    pricing_lead: '乘坐豪华梅赛德斯专属座驾，从维也纳出发畅游奥地利。享受门到门接送、灵活定制行程及按车计费的透明价格。与您的专属司导一同游览哈尔施塔特、萨尔茨堡、瓦豪河谷或布拉迪斯拉发。',
 
     // Hero & Booking
     hero_eyebrow: '奥地利皇室级专车与私人定制礼宾',

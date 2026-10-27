@@ -24,14 +24,29 @@ export default function Home() {
       <HeroBanner />
 
       {/* Animated Marquee Ticker */}
-      <div className="marquee-container reveal-on-scroll">
+      <div
+        className="marquee-container reveal-on-scroll"
+        role="region"
+        aria-label="Service Destinations Marquee"
+      >
         <div className="marquee-content">
-          {[...marqueeItems, ...marqueeItems].map((item, idx) => (
-            <span key={idx} className="marquee-item">
-              {item}
-              <span className="marquee-dot" />
-            </span>
-          ))}
+          {[...marqueeItems, ...marqueeItems].map((item, idx) => {
+            const label = typeof item === 'string' ? item : item.label;
+            const href = typeof item === 'string' ? '/our-services/' : item.href;
+            return (
+              <span key={idx} className="marquee-item-wrapper">
+                <Link
+                  to={href}
+                  className="marquee-item"
+                  title={`View ${label}`}
+                  aria-label={`View ${label}`}
+                >
+                  <span className="marquee-item-text">{label}</span>
+                </Link>
+                <span className="marquee-dot" aria-hidden="true" />
+              </span>
+            );
+          })}
         </div>
       </div>
 

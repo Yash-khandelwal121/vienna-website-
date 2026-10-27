@@ -144,149 +144,262 @@ export default function Fleet() {
       <section
         style={{
           position: 'relative',
-          paddingTop: 'clamp(7.5rem, 12vw, 9.5rem)',
-          paddingBottom: 'clamp(4rem, 6vw, 5.5rem)',
-          backgroundColor: '#17191C',
+          paddingTop: 'clamp(5.5rem, 8vw, 6.5rem)',
+          paddingBottom: 'clamp(2.5rem, 5vw, 4.5rem)',
+          backgroundColor: '#0E1216',
           color: '#FFFFFF',
           overflow: 'hidden',
-          borderBottom: '1px solid #E6D8C3'
+          borderBottom: '1px solid #E6D8C3',
+          minHeight: 'clamp(520px, 37.5vw, 700px)',
+          display: 'flex',
+          alignItems: 'center'
         }}
       >
-        {/* Background Architecture Overlay */}
+        {/* Background High-Resolution Panoramic Photography */}
         <div
           style={{
             position: 'absolute',
             inset: 0,
-            backgroundImage:
-              'url("https://images.unsplash.com/photo-1516550893923-42d28e5677af?auto=format&fit=crop&w=2000&q=80")',
+            zIndex: 1,
+            backgroundImage: "url('/images/luxury-fleet-banner-premium.webp')",
             backgroundSize: 'cover',
-            backgroundPosition: 'center 40%',
-            opacity: 0.22,
-            mixBlendMode: 'luminosity'
-          }}
-        />
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            background:
-              'linear-gradient(to right, rgba(23, 25, 28, 0.96) 20%, rgba(23, 25, 28, 0.85) 60%, rgba(23, 25, 28, 0.7) 100%)'
+            backgroundPosition: 'right center',
+            backgroundRepeat: 'no-repeat'
           }}
         />
 
-        <div className="container-wide" style={{ position: 'relative', zIndex: 10 }}>
-          <div className="fleet-hero-grid">
-            {/* Left Content */}
-            <div style={{ maxWidth: '640px' }}>
-              <div
+        {/* Ambient Dark Gradient on Left for Razor-Sharp Text Readability */}
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            zIndex: 2,
+            background:
+              'linear-gradient(to right, rgba(14, 18, 22, 0.96) 0%, rgba(14, 18, 22, 0.90) 36%, rgba(14, 18, 22, 0.6) 52%, rgba(14, 18, 22, 0) 72%)',
+            pointerEvents: 'none'
+          }}
+        />
+
+        {/* Mobile / Tablet Extra Contrast Vignette */}
+        <div
+          className="fleet-mobile-vignette"
+          style={{
+            position: 'absolute',
+            inset: 0,
+            zIndex: 3,
+            pointerEvents: 'none'
+          }}
+        />
+
+        {/* Top Left Golden Curved Flourish Accent */}
+        <svg
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '280px',
+            height: '280px',
+            pointerEvents: 'none',
+            zIndex: 4,
+            opacity: 0.6
+          }}
+          viewBox="0 0 280 280"
+          fill="none"
+          aria-hidden="true"
+        >
+          <path
+            d="M -40 220 C 70 190, 180 120, 240 -40"
+            stroke="#C69C50"
+            strokeWidth="1.2"
+            strokeOpacity="0.5"
+          />
+          <path
+            d="M -50 260 C 80 220, 200 140, 270 -40"
+            stroke="#C69C50"
+            strokeWidth="0.8"
+            strokeOpacity="0.3"
+          />
+        </svg>
+
+        {/* Content Container */}
+        <div className="container-wide" style={{ position: 'relative', zIndex: 10, width: '100%' }}>
+          <div style={{ maxWidth: '600px' }}>
+            {/* Small Eyebrow Heading */}
+            <div
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.65rem',
+                fontSize: '0.78rem',
+                fontWeight: 700,
+                letterSpacing: '0.16em',
+                color: '#C69C50',
+                textTransform: 'uppercase',
+                marginBottom: '1rem'
+              }}
+            >
+              <span>AUSTRIAN CHAUFFEUR EXCELLENCE</span>
+              <span style={{ width: '36px', height: '1px', backgroundColor: '#C69C50' }} />
+            </div>
+
+            {/* Main Heading */}
+            <h1
+              style={{
+                fontFamily: "'Playfair Display', Georgia, serif",
+                fontSize: 'clamp(2.4rem, 4.4vw, 3.8rem)',
+                fontWeight: 600,
+                lineHeight: 1.15,
+                marginBottom: '1.25rem',
+                color: '#FFFFFF'
+              }}
+            >
+              Our Luxury{' '}
+              <span
                 style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0.5rem',
-                  fontSize: '0.78rem',
-                  fontWeight: 700,
-                  letterSpacing: '0.15em',
                   color: '#C69C50',
-                  textTransform: 'uppercase',
-                  marginBottom: '1rem'
+                  fontStyle: 'italic',
+                  fontFamily: "'Playfair Display', Georgia, serif"
                 }}
               >
-                <span>AUSTRIAN CHAUFFEUR EXCELLENCE</span>
-                <span style={{ width: '32px', height: '1px', backgroundColor: '#C69C50' }} />
+                Fleet
+              </span>
+            </h1>
+
+            {/* Description */}
+            <p
+              style={{
+                color: '#E0DFDC',
+                fontSize: 'clamp(1rem, 1.3vw, 1.15rem)',
+                lineHeight: 1.7,
+                marginBottom: '2rem',
+                maxWidth: '540px'
+              }}
+            >
+              {t('fleet_hero_desc')}
+            </p>
+
+            {/* 3 Styled Feature Badges */}
+            <div
+              className="fleet-hero-badges"
+              style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                alignItems: 'center',
+                gap: '1.25rem',
+                marginBottom: '2rem'
+              }}
+            >
+              {/* Badge 1: Diamond */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                <svg
+                  width="22"
+                  height="22"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#C69C50"
+                  strokeWidth="1.6"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M6 3h12l4 6-10 12L2 9z" />
+                  <path d="M2 9h20" />
+                  <path d="M10 3l-2 6 4 12 4-12-2-6" />
+                </svg>
+                <span style={{ fontSize: '0.88rem', color: '#FAF8F4', fontWeight: 600, lineHeight: 1.3 }}>
+                  {t('fleet_hl_1')}
+                </span>
               </div>
 
-              <h1
-                style={{
-                  fontFamily: "'Playfair Display', Georgia, serif",
-                  fontSize: 'clamp(2.4rem, 4.5vw, 3.8rem)',
-                  fontWeight: 600,
-                  lineHeight: 1.15,
-                  marginBottom: '1.25rem',
-                  color: '#FFFFFF'
-                }}
-              >
-                {t('fleet_hero_title')}
-              </h1>
+              {/* Badge 2: Chauffeur Hat / Professional Chauffeurs */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                <svg
+                  width="22"
+                  height="22"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#C69C50"
+                  strokeWidth="1.6"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M3 13h18" />
+                  <path d="M5 13V9a7 7 0 0 1 14 0v4" />
+                  <path d="M2 13c1 2 4 3 10 3s9-1 10-3" />
+                  <circle cx="12" cy="19" r="2" />
+                  <path d="M9 19h6" />
+                </svg>
+                <span style={{ fontSize: '0.88rem', color: '#FAF8F4', fontWeight: 600, lineHeight: 1.3 }}>
+                  {t('fleet_hl_2')}
+                </span>
+              </div>
 
-              <p
-                style={{
-                  color: '#E0DFDC',
-                  fontSize: 'clamp(1.05rem, 1.4vw, 1.2rem)',
-                  lineHeight: 1.7,
-                  marginBottom: '2rem'
-                }}
-              >
-                {t('fleet_hero_desc')}
-              </p>
-
-              {/* 3 Compact Highlights */}
-              <div
-                style={{
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  gap: '1.25rem',
-                  borderTop: '1px solid rgba(230, 216, 195, 0.25)',
-                  paddingTop: '1.5rem'
-                }}
-              >
-                {[
-                  { text: t('fleet_hl_1') },
-                  { text: t('fleet_hl_2') },
-                  { text: t('fleet_hl_3') }
-                ].map((hl, i) => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
-                    <span style={{ color: '#C69C50', fontSize: '1rem' }}>✦</span>
-                    <span style={{ fontSize: '0.9rem', color: '#FAF8F4', fontWeight: 600 }}>
-                      {hl.text}
-                    </span>
-                  </div>
-                ))}
+              {/* Badge 3: Shield Check / For Every Journey */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                <svg
+                  width="22"
+                  height="22"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#C69C50"
+                  strokeWidth="1.6"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                  <path d="M9 12l2 2 4-4" />
+                </svg>
+                <span style={{ fontSize: '0.88rem', color: '#FAF8F4', fontWeight: 600, lineHeight: 1.3 }}>
+                  {t('fleet_hl_3')}
+                </span>
               </div>
             </div>
 
-            {/* Right: Mercedes-Benz S-Class Flagship Image */}
-            <div style={{ position: 'relative', display: 'flex', justifyContent: 'center' }}>
-              <div
+            {/* Clickable CTA Button */}
+            <div>
+              <button
+                id="fleet-hero-s-class-cta"
+                type="button"
+                onClick={() => scrollToShowroom(sClassIndex)}
+                aria-label="Explore Mercedes-Benz S-Class Flagship in Showroom"
                 style={{
-                  position: 'relative',
-                  width: '100%',
-                  maxWidth: '560px'
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.75rem',
+                  padding: '0.72rem 1.65rem',
+                  borderRadius: '9999px',
+                  backgroundColor: 'rgba(14, 18, 22, 0.55)',
+                  backdropFilter: 'blur(8px)',
+                  WebkitBackdropFilter: 'blur(8px)',
+                  border: '1.5px solid #C69C50',
+                  color: '#C69C50',
+                  fontFamily: 'var(--font-heading)',
+                  fontSize: '0.82rem',
+                  fontWeight: 700,
+                  letterSpacing: '0.12em',
+                  textTransform: 'uppercase',
+                  cursor: 'pointer',
+                  transition: 'all 0.28s ease',
+                  boxShadow: '0 4px 18px rgba(0, 0, 0, 0.4)'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#C69C50';
+                  e.currentTarget.style.color = '#17191C';
+                  e.currentTarget.style.boxShadow = '0 0 24px rgba(198, 156, 80, 0.55)';
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'rgba(14, 18, 22, 0.55)';
+                  e.currentTarget.style.color = '#C69C50';
+                  e.currentTarget.style.boxShadow = '0 4px 18px rgba(0, 0, 0, 0.4)';
+                  e.currentTarget.style.transform = 'translateY(0)';
                 }}
               >
-                <img
-                  src="/cars/s-class.webp"
-                  onError={(e) => {
-                    e.currentTarget.src = '/cars/s-class.png';
-                  }}
-                  alt="Mercedes-Benz S-Class Flagship"
-                  style={{
-                    width: '100%',
-                    height: 'auto',
-                    objectFit: 'contain',
-                    filter: 'drop-shadow(0 20px 30px rgba(0, 0, 0, 0.5))'
-                  }}
-                />
-                <div
-                  style={{
-                    position: 'absolute',
-                    bottom: '-10px',
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    backgroundColor: 'rgba(23, 25, 28, 0.85)',
-                    border: '1px solid #C69C50',
-                    borderRadius: '20px',
-                    padding: '0.4rem 1.15rem',
-                    color: '#C69C50',
-                    fontSize: '0.78rem',
-                    fontWeight: 700,
-                    letterSpacing: '0.08em',
-                    textTransform: 'uppercase',
-                    whiteSpace: 'nowrap'
-                  }}
-                >
-                  Mercedes-Benz S-Class Flagship
-                </div>
-              </div>
+                <span>Mercedes-Benz S-Class Flagship</span>
+                <ArrowRight size={16} />
+              </button>
             </div>
           </div>
         </div>
@@ -1246,6 +1359,23 @@ export default function Fleet() {
           grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
           gap: clamp(1.5rem, 3vw, 3rem);
           align-items: center;
+        }
+
+        @media (max-width: 900px) {
+          .fleet-mobile-vignette {
+            background: linear-gradient(to right, rgba(14, 18, 22, 0.95) 0%, rgba(14, 18, 22, 0.88) 70%, rgba(14, 18, 22, 0.6) 100%);
+          }
+        }
+        @media (max-width: 600px) {
+          .fleet-mobile-vignette {
+            background: rgba(14, 18, 22, 0.82);
+          }
+          .fleet-hero-badges {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 0.85rem !important;
+            margin-bottom: 1.5rem !important;
+          }
         }
 
         .fleet-tabs-grid {

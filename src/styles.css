@@ -427,6 +427,15 @@ select.input-strada option {
   align-items: center;
   animation: marquee 32s linear infinite;
 }
+/* Pause scrolling on desktop hover and keyboard focus */
+.marquee-container:hover .marquee-content,
+.marquee-container:focus-within .marquee-content {
+  animation-play-state: paused;
+}
+.marquee-item-wrapper {
+  display: inline-flex;
+  align-items: center;
+}
 .marquee-item {
   display: inline-flex;
   align-items: center;
@@ -436,7 +445,45 @@ select.input-strada option {
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--text-primary);
-  padding: 0 2.2rem;
+  text-decoration: none;
+  padding: 0.4rem 1.6rem;
+  cursor: pointer;
+  position: relative;
+  transition: color 0.25s ease;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.marquee-item-text {
+  position: relative;
+  display: inline-block;
+  padding-bottom: 3px;
+}
+.marquee-item-text::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1.5px;
+  background-color: var(--accent);
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform 0.28s cubic-bezier(0.25, 1, 0.5, 1);
+}
+.marquee-item:hover {
+  color: var(--accent);
+}
+.marquee-item:hover .marquee-item-text::after {
+  transform: scaleX(1);
+}
+.marquee-item:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+  border-radius: 4px;
+  color: var(--accent);
+}
+.marquee-item:focus-visible .marquee-item-text::after {
+  transform: scaleX(1);
 }
 .marquee-dot {
   width: 5px;
@@ -444,11 +491,19 @@ select.input-strada option {
   background-color: var(--accent);
   border-radius: 50%;
   box-shadow: 0 0 6px var(--accent);
-  margin-left: 2.2rem;
+  margin-left: 0.6rem;
+  margin-right: 0.6rem;
+  flex-shrink: 0;
 }
 @keyframes marquee {
   0% { transform: translateX(0%); }
   100% { transform: translateX(-50%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .marquee-content {
+    animation: none;
+    overflow-x: auto;
+  }
 }
 
 /* Grids */

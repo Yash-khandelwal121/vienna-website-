@@ -217,9 +217,9 @@ export const b2bData = {
 };
 
 export const pricingData = {
-  title: "Tours & Transparent Pricing",
-  eyebrow: "ALL TOURS & CHAUFFEUR PACKAGES",
-  lead: "Browse our complete collection of private day trips and chauffeur services. Transparent upfront pricing, luxury Mercedes-Benz vehicles, and free cancellation included.",
+  title: "Private Day Trips from Vienna with a Personal Chauffeur",
+  eyebrow: "PRIVATE CHAUFFEUR EXPERIENCES",
+  lead: "Explore Austria with private day trips from Vienna in a luxury Mercedes. Enjoy door-to-door pickup, flexible itineraries and fixed per-vehicle pricing. Visit Hallstatt, Salzburg, the Wachau Valley or Bratislava with your personal chauffeur.",
   tours: [
     {
       title: "Vienna Airport Pick & Drop-off",

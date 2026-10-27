@@ -114,11 +114,11 @@ export const reviews = [
 ];
 
 export const marqueeItems = [
-  "MERCEDES-BENZ FLEET",
-  "VIENNA AIRPORT TRANSFERS",
-  "BESPOKE EUROPEAN DAY TRIPS",
-  "HOURLY CHAUFFEUR HIRE",
-  "DIPLOMATIC & EMBASSY SECURITY",
-  "HALLSTATT • SALZBURG • BUDAPEST • PRAGUE",
-  "24/7 CONCIERGE DISPATCH"
+  { label: "MERCEDES-BENZ FLEET", href: "/our-fleet/" },
+  { label: "VIENNA AIRPORT TRANSFERS", href: "/airport-transfer-vienna/" },
+  { label: "BESPOKE EUROPEAN DAY TRIPS", href: "/private-day-trips/" },
+  { label: "HOURLY CHAUFFEUR HIRE", href: "/hourly-chauffeur-service/" },
+  { label: "DIPLOMATIC & EMBASSY SERVICES", href: "/secure-transportation/" },
+  { label: "HALLSTATT • SALZBURG • BUDAPEST • PRAGUE", href: "/private-day-trips/" },
+  { label: "24/7 CONCIERGE DISPATCH", href: "/contact-us-i/" }
 ];

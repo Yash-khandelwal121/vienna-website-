@@ -32,9 +32,12 @@ const HERO_VEHICLES = [
     image: '/cars/hero-s-class-car.webp',
     fallback: '/cars/hero-s-class-car.png',
     alt: 'Mercedes-Benz S-Class luxury sedan with professional chauffeur in Vienna',
-    scale: 1.0,
+    scale: 1.05,
     offsetY: '0px',
-    offsetX: '0px',
+    offsetX: '15px',
+    chauffeurHeight: '74%',
+    chauffeurRight: '27.5%',
+    chauffeurBottom: '0px',
     shadowWidth: '92%',
     shadowLeft: '4%',
     passengers: '3 Guests',
@@ -57,9 +60,12 @@ const HERO_VEHICLES = [
     image: '/cars/hero-e-class-car.webp',
     fallback: '/cars/hero-e-class-car.png',
     alt: 'Mercedes-Benz E-Class executive sedan with professional chauffeur in Vienna',
-    scale: 1.0,
+    scale: 1.05,
     offsetY: '0px',
-    offsetX: '0px',
+    offsetX: '15px',
+    chauffeurHeight: '72%',
+    chauffeurRight: '29.5%',
+    chauffeurBottom: '0px',
     shadowWidth: '92%',
     shadowLeft: '4%',
     passengers: '3 Guests',
@@ -82,9 +88,12 @@ const HERO_VEHICLES = [
     image: '/cars/hero-v-class-car.webp',
     fallback: '/cars/hero-v-class-car.png',
     alt: 'Mercedes-Benz V-Class VIP luxury van with professional chauffeur in Vienna',
-    scale: 1.0,
+    scale: 1.02,
     offsetY: '0px',
-    offsetX: '0px',
+    offsetX: '10px',
+    chauffeurHeight: '66%',
+    chauffeurRight: '27.5%',
+    chauffeurBottom: '0px',
     shadowWidth: '92%',
     shadowLeft: '4%',
     passengers: '7 Guests',
@@ -109,7 +118,10 @@ const HERO_VEHICLES = [
     alt: 'Mercedes-Benz Sprinter VIP luxury minibus with professional chauffeur in Vienna',
     scale: 1.0,
     offsetY: '0px',
-    offsetX: '0px',
+    offsetX: '5px',
+    chauffeurHeight: '57.5%',
+    chauffeurRight: '24.5%',
+    chauffeurBottom: '0px',
     shadowWidth: '92%',
     shadowLeft: '4%',
     passengers: '8-16 Guests',
@@ -129,7 +141,19 @@ export default function HeroBanner() {
   const { t } = useLanguage();
 
   // Carousel State
-  const [currentCarIdx, setCurrentCarIdx] = useState(0);
+  const [currentCarIdx, setCurrentCarIdx] = useState(() => {
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      const carParam = urlParams.get('car') || urlParams.get('vehicle');
+      if (carParam) {
+        const matchIdx = HERO_VEHICLES.findIndex(
+          (v) => v.id === carParam || v.fleetId === carParam || v.bookingValue.toLowerCase().includes(carParam.toLowerCase()) || v.name.toLowerCase().includes(carParam.toLowerCase())
+        );
+        if (matchIdx !== -1) return matchIdx;
+      }
+    } catch (e) {}
+    return 0;
+  });
   const [prevCarIdx, setPrevCarIdx] = useState(null);
   const [slideDirection, setSlideDirection] = useState('next'); // 'next' | 'prev'
   const [isHovered, setIsHovered] = useState(false);
@@ -161,9 +185,21 @@ export default function HeroBanner() {
     });
   }, []);
 
-  // Listen for preselected vehicle requests from other pages (e.g. Fleet page "Request This Vehicle")
+  // Listen for preselected vehicle requests from URL or other pages
   useEffect(() => {
     try {
+      const urlParams = new URLSearchParams(window.location.search);
+      const carParam = urlParams.get('car') || urlParams.get('vehicle');
+      if (carParam) {
+        const matchIdx = HERO_VEHICLES.findIndex(
+          (v) => v.id === carParam || v.fleetId === carParam || v.bookingValue.toLowerCase().includes(carParam.toLowerCase()) || v.name.toLowerCase().includes(carParam.toLowerCase())
+        );
+        if (matchIdx !== -1) {
+          setCurrentCarIdx(matchIdx);
+          setFormData((prev) => ({ ...prev, vehicle: HERO_VEHICLES[matchIdx].bookingValue }));
+        }
+      }
+
       const preselected = sessionStorage.getItem('vdt_selected_vehicle');
       if (preselected) {
         setFormData((prev) => ({ ...prev, vehicle: preselected }));
@@ -456,7 +492,10 @@ export default function HeroBanner() {
                   style={{
                     '--car-scale': vehicle.scale || 1.0,
                     '--car-offset-y': vehicle.offsetY || '0px',
-                    '--car-offset-x': vehicle.offsetX || '0px'
+                    '--car-offset-x': vehicle.offsetX || '0px',
+                    '--chauffeur-h': vehicle.chauffeurHeight || '74%',
+                    '--chauffeur-r': vehicle.chauffeurRight || '27.5%',
+                    '--chauffeur-b': vehicle.chauffeurBottom || '0px'
                   }}
                 >
                   {/* Standalone Mercedes Vehicle Presentation */}
@@ -470,22 +509,25 @@ export default function HeroBanner() {
                       decoding="async"
                     />
                   </picture>
+
+                  {/* Professional Vienna Chauffeur Layer positioned beside this vehicle */}
+                  <div className="hero-chauffeur-wrapper">
+                    <picture className="hero-chauffeur-picture">
+                      <source srcSet="/images/hero-chauffeur-cutout.webp" type="image/webp" />
+                      <img
+                        src="/images/hero-chauffeur-cutout.png"
+                        alt="Professional Vienna Chauffeur"
+                        className="hero-chauffeur-img"
+                        loading="eager"
+                        decoding="async"
+                      />
+                    </picture>
+                    <div className="hero-chauffeur-shadow" />
+                  </div>
                 </div>
               );
             })}
           </div>
-
-          {/* Professional Vienna Chauffeur Layer */}
-          <picture>
-            <source srcSet="/images/hero-chauffeur-cutout.webp" type="image/webp" />
-            <img
-              src="/images/hero-chauffeur-cutout.png"
-              alt="Professional Vienna Chauffeur"
-              className="hero-chauffeur"
-              loading="eager"
-              decoding="async"
-            />
-          </picture>
         </div>
       </div>
 
@@ -963,10 +1005,10 @@ export default function HeroBanner() {
         */
         .hero-vehicle-carousel-stage {
           position: absolute;
-          right: clamp(10px, 2.5vw, 40px);
-          bottom: 0px;
-          width: clamp(520px, 48vw, 760px);
-          height: clamp(260px, 26vw, 380px);
+          right: clamp(10px, 2vw, 35px);
+          bottom: clamp(38px, 3.8vw, 54px);
+          width: clamp(580px, 51vw, 860px);
+          height: clamp(290px, 25.5vw, 430px);
           z-index: 10;
           pointer-events: auto;
           display: flex;
@@ -1037,17 +1079,55 @@ export default function HeroBanner() {
           z-index: 1;
         }
 
-        /* CHAUFFEUR IMAGE SIZE FIX */
-        .hero-chauffeur {
+        /* Calibrated Luxury Chauffeur Layer */
+        .hero-chauffeur-wrapper {
           position: absolute;
-          height: 100%;
+          right: var(--chauffeur-r, 27.5%);
+          bottom: var(--chauffeur-b, 0px);
+          height: var(--chauffeur-h, 74%);
           width: auto;
-          right: 12%;
-          bottom: 0;
-          object-fit: contain;
-          object-position: bottom;
+          aspect-ratio: 373 / 1241;
           z-index: 3;
           pointer-events: none;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: flex-end;
+        }
+
+        .hero-chauffeur-picture {
+          height: 100%;
+          width: 100%;
+          display: block;
+        }
+
+        .hero-chauffeur-img {
+          width: 100%;
+          height: 100%;
+          object-fit: contain;
+          object-position: bottom center;
+          display: block;
+          filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.22));
+        }
+
+        /* Authentic ground contact shadow beneath chauffeur shoes */
+        .hero-chauffeur-shadow {
+          position: absolute;
+          bottom: -2px;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 88%;
+          height: 10px;
+          background: radial-gradient(
+            ellipse 55% 45% at 50% 50%,
+            rgba(18, 18, 24, 0.65) 0%,
+            rgba(18, 18, 24, 0.30) 45%,
+            rgba(18, 18, 24, 0.08) 75%,
+            transparent 100%
+          );
+          filter: blur(2px);
+          pointer-events: none;
+          z-index: -1;
         }
 
         /* 
@@ -1317,9 +1397,10 @@ export default function HeroBanner() {
             font-size: 38px;
           }
           .hero-vehicle-carousel-stage {
-            width: clamp(480px, 46vw, 620px);
-            height: clamp(260px, 26vw, 320px);
-            bottom: 2px;
+            width: clamp(520px, 50vw, 720px);
+            height: clamp(270px, 25vw, 360px);
+            bottom: clamp(36px, 3.5vw, 48px);
+            right: clamp(10px, 1.8vw, 25px);
           }
           .hero-booking-panel-container {
             padding: 0 24px;
@@ -1357,9 +1438,9 @@ export default function HeroBanner() {
             right: auto;
             bottom: auto;
             width: 100%;
-            max-width: 580px;
-            height: clamp(230px, 30vw, 300px);
-            margin: 10px auto 0 auto;
+            max-width: 620px;
+            height: clamp(260px, 32vw, 330px);
+            margin: 12px auto 0 auto;
             align-items: center;
           }
           .hero-car-picture {
