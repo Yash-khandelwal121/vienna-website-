@@ -25,6 +25,7 @@ app.use(async (req, res, next) => {
 
 // Explicitly approved production domains
 const defaultProductionOrigins = [
+  'https://vienna-website-mbtdl2jng-yashdev15.vercel.app',
   'https://vienna-website-seven.vercel.app',
   'https://viennadaytrip.com',
   'https://www.viennadaytrip.com'
@@ -73,40 +74,43 @@ const developmentAllowedOrigins = new Set([
   ...customAllowedOrigins
 ]);
 
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      // Allow requests with no origin (like mobile apps, curl, server-to-server, or same-origin)
-      if (!origin) {
+const corsOptions = {
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps, curl, server-to-server, or same-origin)
+    if (!origin) {
+      return callback(null, true);
+    }
+
+    const normalized = normalizeOrigin(origin);
+    const isProduction = process.env.NODE_ENV === 'production';
+
+    if (isProduction) {
+      // PRODUCTION: strictly allow only explicitly configured production origins
+      if (productionAllowedOrigins.has(normalized)) {
         return callback(null, true);
       }
-
-      const normalized = normalizeOrigin(origin);
-      const isProduction = process.env.NODE_ENV === 'production';
-
-      if (isProduction) {
-        // PRODUCTION: strictly allow only explicitly configured production origins
-        if (productionAllowedOrigins.has(normalized)) {
-          return callback(null, true);
-        }
-        return callback(
-          new Error(`CORS policy does not allow access from origin: ${origin}`)
-        );
-      } else {
-        // DEVELOPMENT: allow localhost / loopback interfaces and configured development origins
-        if (
-          developmentAllowedOrigins.has(normalized) ||
-          isLocalhostOrigin(normalized)
-        ) {
-          return callback(null, true);
-        }
-        // In development, permit other local network origins gracefully
+      return callback(
+        new Error(`CORS policy does not allow access from origin: ${origin}`)
+      );
+    } else {
+      // DEVELOPMENT: allow localhost / loopback interfaces and configured development origins
+      if (
+        developmentAllowedOrigins.has(normalized) ||
+        isLocalhostOrigin(normalized)
+      ) {
         return callback(null, true);
       }
-    },
-    credentials: true
-  })
-);
+      // In development, permit other local network origins gracefully
+      return callback(null, true);
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
+  optionsSuccessStatus: 204
+};
+
+app.use(cors(corsOptions));
 
 app.use(express.json({ limit: '20mb' }));
 app.use(express.urlencoded({ extended: true, limit: '20mb' }));
