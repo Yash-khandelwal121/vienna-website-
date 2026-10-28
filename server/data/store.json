@@ -15,6 +15,51 @@
   "sessions": [],
   "auditLogs": [
     {
+      "id": "aud_1793104533114",
+      "userId": "28d898b5-2d25-481c-a6e2-ad062e6585ef",
+      "action": "ADMIN_LOGIN_SUCCESS",
+      "entity": "AdminUser",
+      "entityId": "28d898b5-2d25-481c-a6e2-ad062e6585ef",
+      "ipAddress": "::1",
+      "createdAt": "2026-10-27T12:35:33.114Z"
+    },
+    {
+      "id": "aud_1793104510075",
+      "userId": "28d898b5-2d25-481c-a6e2-ad062e6585ef",
+      "action": "ADMIN_LOGIN_SUCCESS",
+      "entity": "AdminUser",
+      "entityId": "28d898b5-2d25-481c-a6e2-ad062e6585ef",
+      "ipAddress": "::1",
+      "createdAt": "2026-10-27T12:35:10.077Z"
+    },
+    {
+      "id": "aud_1793104117943",
+      "userId": "28d898b5-2d25-481c-a6e2-ad062e6585ef",
+      "action": "ADMIN_LOGIN_SUCCESS",
+      "entity": "AdminUser",
+      "entityId": "28d898b5-2d25-481c-a6e2-ad062e6585ef",
+      "ipAddress": "::1",
+      "createdAt": "2026-10-27T12:28:37.943Z"
+    },
+    {
+      "id": "aud_1793103283997",
+      "userId": "28d898b5-2d25-481c-a6e2-ad062e6585ef",
+      "action": "ADMIN_LOGIN_SUCCESS",
+      "entity": "AdminUser",
+      "entityId": "28d898b5-2d25-481c-a6e2-ad062e6585ef",
+      "ipAddress": "::1",
+      "createdAt": "2026-10-27T12:14:43.997Z"
+    },
+    {
+      "id": "aud_1793103130670",
+      "userId": "28d898b5-2d25-481c-a6e2-ad062e6585ef",
+      "action": "ADMIN_LOGIN_SUCCESS",
+      "entity": "AdminUser",
+      "entityId": "28d898b5-2d25-481c-a6e2-ad062e6585ef",
+      "ipAddress": "::1",
+      "createdAt": "2026-10-27T12:12:10.671Z"
+    },
+    {
       "id": "aud_1792840525333",
       "userId": "28d898b5-2d25-481c-a6e2-ad062e6585ef",
       "action": "ADMIN_LOGIN_SUCCESS",
@@ -407,88 +452,7 @@
       "updatedAt": "2026-10-24T07:46:37.830Z"
     }
   ],
-  "services": [
-    {
-      "id": "srv_airport",
-      "slug": "airport-transfers",
-      "name": "Airport Transfers",
-      "shortDesc": "Vienna International Airport (VIE) & Bratislava Airport (BTS) meet & greet service with 60 minutes complimentary waiting time.",
-      "fullDesc": "Flight-tracked meet & greet chauffeur service from Vienna Schwechat or Bratislava Airport directly to your residence, hotel, or office.",
-      "features": [
-        "Flight tracking included",
-        "60 mins complimentary wait",
-        "Meet & Greet with nameboard",
-        "Fixed all-inclusive rates"
-      ],
-      "image": "/images/vienna-palace-backdrop.webp",
-      "ctaLabel": "Book Airport Transfer",
-      "ctaUrl": "/airport-transfer-vienna/",
-      "displayOrder": 1,
-      "isPublished": true,
-      "createdAt": "2026-10-24T07:46:37.830Z",
-      "updatedAt": "2026-10-24T07:46:37.830Z"
-    },
-    {
-      "id": "srv_hourly",
-      "slug": "hourly-chauffeur",
-      "name": "Hourly Chauffeur Service",
-      "shortDesc": "Flexible by-the-hour private Mercedes chauffeur at your complete disposal for business meetings, shopping, or dinners.",
-      "fullDesc": "Your dedicated chauffeur remains on standby wherever your schedule takes you throughout Vienna and Lower Austria.",
-      "features": [
-        "Continuous chauffeur standby",
-        "Unlimited stops within itinerary",
-        "Complimentary bottled water & Wi-Fi",
-        "Minimum 2 hours hire"
-      ],
-      "image": "/images/about-vclass-chauffeur.webp",
-      "ctaLabel": "Hire Hourly Chauffeur",
-      "ctaUrl": "/hourly-chauffeur-service/",
-      "displayOrder": 2,
-      "isPublished": true,
-      "createdAt": "2026-10-24T07:46:37.830Z",
-      "updatedAt": "2026-10-24T07:46:37.830Z"
-    },
-    {
-      "id": "srv_daytrips",
-      "slug": "private-day-trips",
-      "name": "Private Day Trips",
-      "shortDesc": "Custom day tours to Hallstatt, Salzburg, Budapest, Prague, Bratislava, and Wachau Valley in luxury Mercedes vehicles.",
-      "fullDesc": "Experience Central Europe at your own relaxed pace with door-to-door hotel pickup and scenic scenic routes.",
-      "features": [
-        "Door-to-door hotel pickup",
-        "Flexible departure times",
-        "Panoramic scenic stops",
-        "Multi-country experienced drivers"
-      ],
-      "image": "/images/vienna-palace-backdrop.webp",
-      "ctaLabel": "Explore Destinations",
-      "ctaUrl": "/customized-day-trips/",
-      "displayOrder": 3,
-      "isPublished": true,
-      "createdAt": "2026-10-24T07:46:37.830Z",
-      "updatedAt": "2026-10-24T07:46:37.830Z"
-    },
-    {
-      "id": "srv_secure",
-      "slug": "secure-transportation",
-      "name": "Secure & Diplomatic Transportation",
-      "shortDesc": "Discreet, high-security transfers and multi-vehicle convoys for government delegations, VIPs, and corporate executives.",
-      "fullDesc": "Specialized close-protection transport, route reconnaissance, and discrete armored vehicle logistics in Vienna.",
-      "features": [
-        "Background-checked close protection drivers",
-        "Armored vehicle availability (VR6/VR7)",
-        "Advance route security reconnaissance",
-        "Strict non-disclosure agreements"
-      ],
-      "image": "/images/secure-transportation.webp",
-      "ctaLabel": "Request Security Protocol",
-      "ctaUrl": "/secure-transportation/",
-      "displayOrder": 4,
-      "isPublished": true,
-      "createdAt": "2026-10-24T07:46:37.830Z",
-      "updatedAt": "2026-10-24T07:46:37.830Z"
-    }
-  ],
+  "services": [],
   "dayTrips": [
     {
       "id": "tour_hallstatt",

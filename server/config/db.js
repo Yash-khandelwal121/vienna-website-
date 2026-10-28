@@ -817,7 +817,14 @@ export const db = {
   services: {
     async findMany({ where } = {}) {
       if (isPostgresConnected) {
-        try { return await prisma.service.findMany({ where }); } catch (e) {}
+        try {
+          return await prisma.service.findMany({
+            where,
+            orderBy: { displayOrder: 'asc' }
+          });
+        } catch (e) {
+          console.warn('[DB] Prisma findMany services note:', e.message);
+        }
       }
       let list = [...memoryStore.services];
       if (where?.isPublished !== undefined) list = list.filter((s) => s.isPublished === where.isPublished);
@@ -826,42 +833,76 @@ export const db = {
     },
     async findUnique({ where }) {
       if (isPostgresConnected) {
-        try { return await prisma.service.findUnique({ where }); } catch (e) {}
+        try {
+          return await prisma.service.findUnique({ where });
+        } catch (e) {
+          console.warn('[DB] Prisma findUnique service note:', e.message);
+        }
       }
-      return memoryStore.services.find((s) => s.id === where.id || s.slug === where.slug) || null;
+      return memoryStore.services.find((s) => (where.id && s.id === where.id) || (where.slug && s.slug === where.slug)) || null;
     },
     async create({ data }) {
+      let created = null;
       if (isPostgresConnected) {
-        try { return await prisma.service.create({ data }); } catch (e) {}
+        try {
+          created = await prisma.service.create({ data });
+        } catch (e) {
+          console.error('[DB Error] Prisma create service failed:', e.message);
+          throw e;
+        }
       }
-      const item = {
-        id: `srv_${Date.now()}`,
-        isPublished: true,
-        ...data,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      };
-      memoryStore.services.push(item);
+      if (!created) {
+        created = {
+          id: `srv_${Date.now()}`,
+          isPublished: true,
+          ...data,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        };
+      }
+      // Ensure memoryStore and store.json are kept in sync
+      memoryStore.services = memoryStore.services.filter((s) => s.id !== created.id && s.slug !== created.slug);
+      memoryStore.services.push(created);
       persistStore();
-      return item;
+      return created;
     },
     async update({ where, data }) {
+      let updated = null;
       if (isPostgresConnected) {
-        try { return await prisma.service.update({ where, data }); } catch (e) {}
+        try {
+          updated = await prisma.service.update({ where, data });
+        } catch (e) {
+          console.error('[DB Error] Prisma update service failed:', e.message);
+          throw e;
+        }
       }
-      const idx = memoryStore.services.findIndex((s) => s.id === where.id || s.slug === where.slug);
-      if (idx !== -1) {
-        memoryStore.services[idx] = { ...memoryStore.services[idx], ...data, updatedAt: new Date().toISOString() };
-        persistStore();
-        return memoryStore.services[idx];
+      if (!updated) {
+        const idx = memoryStore.services.findIndex((s) => (where.id && s.id === where.id) || (where.slug && s.slug === where.slug));
+        if (idx !== -1) {
+          memoryStore.services[idx] = { ...memoryStore.services[idx], ...data, updatedAt: new Date().toISOString() };
+          updated = memoryStore.services[idx];
+        }
+      } else {
+        const idx = memoryStore.services.findIndex((s) => s.id === updated.id);
+        if (idx !== -1) {
+          memoryStore.services[idx] = updated;
+        } else {
+          memoryStore.services.push(updated);
+        }
       }
-      return null;
+      persistStore();
+      return updated;
     },
     async delete({ where }) {
       if (isPostgresConnected) {
-        try { return await prisma.service.delete({ where }); } catch (e) {}
+        try {
+          await prisma.service.delete({ where });
+        } catch (e) {
+          console.error('[DB Error] Prisma delete service failed:', e.message);
+          throw e;
+        }
       }
-      memoryStore.services = memoryStore.services.filter((s) => s.id !== where.id && s.slug !== where.slug);
+      memoryStore.services = memoryStore.services.filter((s) => (where.id && s.id !== where.id) && (where.slug && s.slug !== where.slug));
       persistStore();
       return { success: true };
     }

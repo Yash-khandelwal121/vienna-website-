@@ -1,13 +1,67 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, ArrowUpRight, Check, ShieldCheck, Clock, Plane, Compass } from 'lucide-react';
 import { servicesData } from '../data/pages';
+import { fetchPublicServices } from '../services/api';
 import FaqAccordion from '../components/FaqAccordion';
 import BookingWidget from '../components/BookingWidget';
 
 import ServicesCinematicHero from '../components/ServicesCinematicHero';
 
 export default function Services() {
+  const [pillars, setPillars] = useState(servicesData.pillars);
+
+  useEffect(() => {
+    let isMounted = true;
+    async function loadLiveServices() {
+      try {
+        const liveServices = await fetchPublicServices();
+        if (isMounted && Array.isArray(liveServices) && liveServices.length > 0) {
+          const formatted = liveServices.map((s, idx) => {
+            let bullets = [];
+            if (Array.isArray(s.features)) {
+              bullets = s.features;
+            } else if (typeof s.features === 'string') {
+              try {
+                bullets = JSON.parse(s.features);
+              } catch {
+                bullets = s.features.split('\n').map((b) => b.trim()).filter(Boolean);
+              }
+            }
+
+            const title = s.name || s.title || 'Executive Service';
+            let tag = s.tag;
+            if (!tag) {
+              const lower = title.toLowerCase();
+              if (lower.includes('airport')) tag = 'Airport Transportation';
+              else if (lower.includes('hourly')) tag = 'Flexible Chauffeur Hire';
+              else if (lower.includes('day trip')) tag = 'Luxury European Tours';
+              else if (lower.includes('secure')) tag = 'Close Protection & Tactical';
+              else tag = 'Executive Chauffeur';
+            }
+
+            return {
+              id: s.id || `srv_${idx}`,
+              title,
+              tag,
+              desc: s.shortDesc || s.fullDesc || s.desc || '',
+              bullets: bullets && bullets.length > 0 ? bullets : (s.shortDesc ? [s.shortDesc] : []),
+              link: s.ctaUrl || (s.slug ? `/${s.slug}/` : '/contact/'),
+              image: s.image || '/images/vienna-palace-backdrop.webp'
+            };
+          });
+          setPillars(formatted);
+        }
+      } catch (err) {
+        console.warn('[Services] Could not load live services:', err);
+      }
+    }
+    loadLiveServices();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   return (
     <div style={{ position: 'relative' }}>
       {/* Services Hero */}
@@ -32,7 +86,7 @@ export default function Services() {
       <section className="section section-dark">
         <div className="container-wide">
           <div style={{ display: 'flex', flexDirection: 'column', gap: '5rem', marginBottom: '5rem' }}>
-            {servicesData.pillars.map((pillar, idx) => {
+            {pillars.map((pillar, idx) => {
               const isEven = idx % 2 === 1;
               return (
                 <div

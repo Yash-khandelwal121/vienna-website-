@@ -83,6 +83,7 @@ router.delete('/vehicles/:id', requireRole('SUPER_ADMIN', 'CONTENT_EDITOR'), del
 router.get('/services', getAdminServices);
 router.post('/services', requireRole('SUPER_ADMIN', 'CONTENT_EDITOR'), createService);
 router.patch('/services/:id', requireRole('SUPER_ADMIN', 'CONTENT_EDITOR'), updateService);
+router.put('/services/:id', requireRole('SUPER_ADMIN', 'CONTENT_EDITOR'), updateService);
 router.delete('/services/:id', requireRole('SUPER_ADMIN', 'CONTENT_EDITOR'), deleteService);
 
 // Day Trips Management

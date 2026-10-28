@@ -1,6 +1,7 @@
 import { fleetData } from '../data/fleet';
 import { allBlogPosts } from '../data/blogs';
 import { toursData } from '../data/tours';
+import { servicesData } from '../data/pages';
 import {
   fetchSanityBlogs,
   fetchSanityBlogBySlug,
@@ -52,6 +53,61 @@ export async function fetchPublicVehicles() {
 
   // 3. Fallback to bundled dataset
   return fleetData;
+}
+
+/**
+ * Fetch published services from Node.js Backend API (PostgreSQL) -> Sanity CMS -> Static Fallback
+ */
+export async function fetchPublicServices() {
+  // 1. Try Node.js Backend API (PostgreSQL Neon store)
+  try {
+    const res = await fetch('/api/v1/public/services');
+    if (res.ok) {
+      const data = await res.json();
+      if (data.success && Array.isArray(data.services) && data.services.length > 0) {
+        return data.services;
+      }
+    }
+  } catch (err) {
+    // Graceful offline fallback
+  }
+
+  // 2. Try Sanity CMS
+  try {
+    const sanityServices = await fetchSanityServices();
+    if (sanityServices && sanityServices.length > 0) {
+      return sanityServices.map((s) => ({
+        id: s.id,
+        slug: s.slug,
+        name: s.title,
+        shortDesc: s.description || s.subtitle || '',
+        fullDesc: s.fullDescription || '',
+        features: s.highlights || [],
+        image: s.heroImage || '/images/vienna-palace-backdrop.webp',
+        ctaLabel: 'Book Service',
+        ctaUrl: `/${s.slug}/`,
+        displayOrder: 1,
+        isPublished: true,
+      }));
+    }
+  } catch (err) {
+    // Graceful fallback
+  }
+
+  // 3. Fallback to bundled static dataset
+  return (servicesData.pillars || []).map((p, idx) => ({
+    id: `srv_${p.id}`,
+    slug: p.link?.replace(/^\/|\/$/g, '') || p.id,
+    name: p.title,
+    shortDesc: p.desc,
+    fullDesc: p.desc,
+    features: p.bullets || [],
+    image: p.image,
+    ctaLabel: 'LEARN MORE & BOOK',
+    ctaUrl: p.link,
+    displayOrder: idx + 1,
+    isPublished: true,
+  }));
 }
 
 /**
