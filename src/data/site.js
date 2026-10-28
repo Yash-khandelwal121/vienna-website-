@@ -46,7 +46,7 @@ export const navLinks = [
   },
   {
     label: "Day Trips",
-    href: "/tour-pricing/",
+    href: "/day-trips/",
     tKey: "nav_daytrips",
     dropdown: [
       { label: "Hallstatt Day Trip", href: "/hallstatt-day-trip-from-vienna/", tKey: "dt_hallstatt" },

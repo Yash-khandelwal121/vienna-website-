@@ -160,13 +160,13 @@ export default function App() {
         <Route path="b2b-solutions/" element={<B2B />} />
         <Route path="b2b-solutions" element={<B2B />} />
 
-        {/* 17. Private Day Trips / Tours & Pricing (Primary route and canonical aliases) */}
+        {/* 17. Private Day Trips / Tours & Pricing (Primary canonical route: /day-trips/) */}
         <Route path="day-trips/" element={<Pricing />} />
         <Route path="day-trips" element={<Pricing />} />
-        <Route path="private-day-trips/" element={<Pricing />} />
-        <Route path="private-day-trips" element={<Pricing />} />
-        <Route path="tour-pricing/" element={<Pricing />} />
-        <Route path="tour-pricing" element={<Pricing />} />
+        <Route path="tour-pricing/" element={<Navigate to="/day-trips/" replace />} />
+        <Route path="tour-pricing" element={<Navigate to="/day-trips/" replace />} />
+        <Route path="private-day-trips/" element={<Navigate to="/day-trips/" replace />} />
+        <Route path="private-day-trips" element={<Navigate to="/day-trips/" replace />} />
 
         {/* 18. Blog Listing */}
         <Route path="blog" element={<Blog />} />

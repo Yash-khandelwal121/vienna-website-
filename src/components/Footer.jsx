@@ -226,7 +226,7 @@ export default function Footer() {
                 { label: t('nav_home'), href: '/' },
                 { label: t('nav_about'), href: '/about-vienna-day-trip/' },
                 { label: t('nav_fleet'), href: '/our-fleet/' },
-                { label: t('footer_private_day_trips') || 'Private Day Trips', href: '/tour-pricing/' },
+                { label: t('footer_private_day_trips') || 'Private Day Trips', href: '/day-trips/' },
                 { label: t('nav_blog'), href: '/blog/' }
               ].map((link) => (
                 <li key={link.href}>
@@ -273,7 +273,7 @@ export default function Footer() {
                 { label: t('nav_hourly_chauffeur'), href: '/hourly-chauffeur-service/' },
                 { label: t('nav_private_transfers'), href: '/our-services/' },
                 { label: t('nav_b2b_solutions'), href: '/b2b-solutions/' },
-                { label: t('nav_daytrips'), href: '/tour-pricing/' }
+                { label: t('nav_daytrips'), href: '/day-trips/' }
               ].map((link) => (
                 <li key={link.href}>
                   <Link

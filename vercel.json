@@ -9,6 +9,28 @@
       "maxDuration": 15
     }
   },
+  "redirects": [
+    {
+      "source": "/tour-pricing",
+      "destination": "/day-trips/",
+      "permanent": true
+    },
+    {
+      "source": "/tour-pricing/",
+      "destination": "/day-trips/",
+      "permanent": true
+    },
+    {
+      "source": "/private-day-trips",
+      "destination": "/day-trips/",
+      "permanent": true
+    },
+    {
+      "source": "/private-day-trips/",
+      "destination": "/day-trips/",
+      "permanent": true
+    }
+  ],
   "rewrites": [
     {
       "source": "/api/(.*)",

@@ -10,6 +10,13 @@ export default function Pricing() {
 
   React.useEffect(() => {
     document.title = 'Private Day Trips from Vienna with a Personal Chauffeur | Vienna Day Trip';
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (!canonical) {
+      canonical = document.createElement('link');
+      canonical.rel = 'canonical';
+      document.head.appendChild(canonical);
+    }
+    canonical.href = 'https://viennadaytrip.com/day-trips/';
   }, []);
 
   const toursList = Array.isArray(pricingData?.tours) ? pricingData.tours : [];

@@ -1,0 +1,883 @@
+/* =========================================================================
+   VIENNA DAY TRIP — LUXURY EDITORIAL ARTICLE PAGE STYLES (BlogDetail.css)
+   Dedicated to /blog/:slug individual articles.
+   DOES NOT modify or conflict with the public /blog listing page.
+   Palette:
+     Warm Ivory:      #FAF8F4 / #F8F5EF
+     Champagne Gold:  #C69C50 / #B88E3E / #D4AF37
+     Charcoal Black:  #17191C / #0E1013
+     Charcoal Soft:   #2B2F36
+     Muted Gray:      #62666D / #8E929B
+     Warm Border:     #E6D8C3 / #EDE4D3
+     Pure White:      #FFFFFF
+   ========================================================================= */
+
+.vdt-article-page {
+  background-color: #FAF8F4;
+  color: #17191C;
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* =========================================================================
+   1. ARTICLE HEADER / MAGAZINE COVER
+   ========================================================================= */
+.vdt-article-header {
+  padding-top: clamp(6.5rem, 10vw, 8.5rem);
+  padding-bottom: clamp(2.5rem, 4vw, 3.5rem);
+  background: linear-gradient(180deg, #FAF8F4 0%, #F5F0E6 100%);
+  border-bottom: 1px solid #E6D8C3;
+  position: relative;
+}
+
+.vdt-article-header-container {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.vdt-article-nav-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.vdt-article-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #C69C50;
+  text-decoration: none;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.vdt-article-back-link:hover {
+  transform: translateX(-4px);
+  color: #B88E3E;
+}
+
+.vdt-article-share-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background-color: #FFFFFF;
+  border: 1px solid #E6D8C3;
+  border-radius: 9999px;
+  padding: 0.45rem 1rem;
+  font-family: 'Lora', Georgia, serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #62666D;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(23, 25, 28, 0.04);
+}
+
+.vdt-article-share-btn:hover {
+  border-color: #C69C50;
+  color: #C69C50;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(198, 156, 80, 0.15);
+}
+
+.vdt-article-category-badge {
+  display: inline-block;
+  background-color: rgba(198, 156, 80, 0.1);
+  border: 1px solid rgba(198, 156, 80, 0.4);
+  color: #C69C50;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 0.4rem 1.1rem;
+  border-radius: 9999px;
+  margin-bottom: 1.35rem;
+}
+
+.vdt-article-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(2.15rem, 4.4vw, 3.35rem);
+  font-weight: 800;
+  line-height: 1.18;
+  color: #17191C;
+  letter-spacing: -0.015em;
+  margin-bottom: 1.5rem;
+  text-wrap: balance;
+}
+
+.vdt-article-excerpt-lead {
+  font-family: 'Lora', Georgia, serif;
+  font-size: clamp(1.08rem, 1.4vw, 1.25rem);
+  line-height: 1.75;
+  color: #62666D;
+  margin-bottom: 2rem;
+  font-style: italic;
+  border-left: 2px solid #C69C50;
+  padding-left: 1.25rem;
+}
+
+.vdt-article-meta-strip {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  padding-top: 1.35rem;
+  border-top: 1px solid #E6D8C3;
+  color: #62666D;
+  font-size: 0.92rem;
+  font-family: 'Lora', Georgia, serif;
+}
+
+.vdt-article-meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.vdt-article-meta-icon {
+  color: #C69C50;
+}
+
+.vdt-article-meta-dot {
+  color: #D6CCA8;
+  user-select: none;
+}
+
+/* =========================================================================
+   2. MAIN LAYOUT (Wide Container + Comfortable 760-850px Reading Column + Sidebar)
+   ========================================================================= */
+.vdt-article-main-wrap {
+  padding: 3.5rem 0 6rem;
+}
+
+.vdt-article-layout-grid {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 3.5rem;
+  align-items: start;
+}
+
+@media (min-width: 1024px) {
+  .vdt-article-layout-grid {
+    grid-template-columns: minmax(0, 850px) 340px;
+    gap: 3.5rem;
+  }
+}
+
+.vdt-article-reading-col {
+  width: 100%;
+  max-width: 850px;
+}
+
+/* =========================================================================
+   3. FEATURED IMAGE (Uncropped Preservation for Text-Embedded Images)
+   ========================================================================= */
+.vdt-article-featured-frame {
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid #E6D8C3;
+  background-color: #0E1013;
+  margin-bottom: 3rem;
+  box-shadow: 0 16px 40px rgba(23, 25, 28, 0.07);
+  position: relative;
+}
+
+.vdt-article-featured-img {
+  width: 100%;
+  height: auto;
+  max-height: 640px;
+  object-fit: contain;
+  background-color: #0E1013;
+  display: block;
+  margin: 0 auto;
+}
+
+.vdt-article-featured-caption {
+  padding: 0.85rem 1.35rem;
+  background-color: #FFFFFF;
+  border-top: 1px solid #E6D8C3;
+  font-family: 'Lora', Georgia, serif;
+  font-size: 0.86rem;
+  color: #62666D;
+  font-style: italic;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* =========================================================================
+   4. INLINE TOC FOR MOBILE / TABLET (<1024px)
+   ========================================================================= */
+.vdt-article-mobile-toc {
+  background-color: #FFFFFF;
+  border: 1px solid #E6D8C3;
+  border-radius: 14px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 2.75rem;
+  box-shadow: 0 4px 18px rgba(23, 25, 28, 0.04);
+}
+
+@media (min-width: 1024px) {
+  .vdt-article-mobile-toc {
+    display: none;
+  }
+}
+
+.vdt-article-mobile-toc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  user-select: none;
+}
+
+.vdt-article-mobile-toc-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.02rem;
+  font-weight: 700;
+  color: #17191C;
+  letter-spacing: 0.04em;
+}
+
+/* =========================================================================
+   5. ARTICLE CONTENT TYPOGRAPHY (Comfortable 760-850px reading column)
+   ========================================================================= */
+.vdt-article-body {
+  font-family: 'Lora', Georgia, serif;
+  font-size: 1.125rem;
+  line-height: 1.88;
+  color: #2B2F36;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+}
+
+.vdt-article-body p {
+  margin-bottom: 1.75rem;
+  line-height: 1.88;
+  color: #2B2F36;
+}
+
+.vdt-article-body h2 {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(1.6rem, 2.6vw, 2.15rem);
+  font-weight: 800;
+  color: #17191C;
+  letter-spacing: -0.015em;
+  margin: 3.25rem 0 1.25rem;
+  line-height: 1.28;
+  padding-bottom: 0.65rem;
+  border-bottom: 1px solid #EFE6D8;
+  scroll-margin-top: 110px;
+}
+
+.vdt-article-body h3 {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(1.3rem, 2vw, 1.6rem);
+  font-weight: 700;
+  color: #17191C;
+  letter-spacing: -0.01em;
+  margin: 2.5rem 0 1rem;
+  line-height: 1.35;
+  scroll-margin-top: 110px;
+}
+
+.vdt-article-body h4 {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #C69C50;
+  margin: 2rem 0 0.85rem;
+  line-height: 1.4;
+  scroll-margin-top: 110px;
+}
+
+.vdt-article-body blockquote {
+  border-left: 3.5px solid #C69C50;
+  padding: 1.65rem 2rem;
+  background-color: #FFFFFF;
+  border-radius: 0 14px 14px 0;
+  font-style: italic;
+  margin: 2.75rem 0;
+  box-shadow: 0 8px 25px rgba(23, 25, 28, 0.04);
+  color: #17191C;
+  font-size: 1.15rem;
+  line-height: 1.8;
+  position: relative;
+}
+
+.vdt-article-body ul {
+  padding-left: 1.75rem;
+  margin-bottom: 2rem;
+  list-style-type: disc;
+}
+
+.vdt-article-body ol {
+  padding-left: 1.75rem;
+  margin-bottom: 2rem;
+  list-style-type: decimal;
+}
+
+.vdt-article-body li {
+  margin-bottom: 0.65rem;
+  line-height: 1.82;
+  color: #2B2F36;
+}
+
+.vdt-article-body a {
+  color: #C69C50;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+
+.vdt-article-body a:hover {
+  color: #9E7934;
+}
+
+.vdt-article-body strong {
+  font-weight: 700;
+  color: #17191C;
+}
+
+.vdt-article-body em {
+  font-style: italic;
+}
+
+.vdt-article-body img {
+  max-width: 100% !important;
+  height: auto !important;
+  border-radius: 14px;
+  margin: 2.25rem 0;
+  border: 1px solid #E6D8C3;
+  box-shadow: 0 8px 24px rgba(23, 25, 28, 0.05);
+  display: block;
+}
+
+.vdt-article-body figure {
+  max-width: 100% !important;
+  margin: 2.25rem 0;
+  text-align: center;
+}
+
+.vdt-article-body figcaption {
+  font-family: 'Lora', Georgia, serif;
+  font-size: 0.88rem;
+  color: #62666D;
+  font-style: italic;
+  margin-top: 0.75rem;
+  padding: 0 1rem;
+}
+
+/* Responsive Luxury Tables */
+.vdt-article-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 2.5rem 0;
+  background: #FFFFFF;
+  border: 1px solid #E6D8C3;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 6px 20px rgba(23, 25, 28, 0.04);
+  font-family: 'Lora', Georgia, serif;
+  font-size: 0.98rem;
+}
+
+.vdt-article-table-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin: 2.5rem 0;
+  border-radius: 12px;
+  border: 1px solid #E6D8C3;
+  background: #FFFFFF;
+}
+
+.vdt-article-body th,
+.vdt-article-body td {
+  padding: 0.95rem 1.25rem;
+  border: 1px solid #E6D8C3;
+  text-align: left;
+}
+
+.vdt-article-body th {
+  background-color: #FAF8F4;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-weight: 700;
+  color: #17191C;
+  font-size: 1.02rem;
+}
+
+.vdt-article-body tr:nth-child(even) td {
+  background-color: #FDFAF5;
+}
+
+/* =========================================================================
+   6. ARTICLE FOOTER STRIP (Tags, Author Signature & Back Link)
+   ========================================================================= */
+.vdt-article-footer-strip {
+  margin-top: 4rem;
+  padding-top: 2.5rem;
+  border-top: 1px solid #E6D8C3;
+}
+
+.vdt-article-topics-wrap {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin-bottom: 2.5rem;
+}
+
+.vdt-article-topic-pill {
+  background-color: #FFFFFF;
+  border: 1px solid #E6D8C3;
+  padding: 0.4rem 0.95rem;
+  border-radius: 9999px;
+  font-size: 0.82rem;
+  font-family: 'Lora', Georgia, serif;
+  color: #62666D;
+  transition: all 0.2s ease;
+}
+
+.vdt-article-topic-pill:hover {
+  border-color: #C69C50;
+  color: #C69C50;
+}
+
+/* Author Signature Card */
+.vdt-article-author-card {
+  background-color: #FFFFFF;
+  border: 1px solid #E6D8C3;
+  border-radius: 16px;
+  padding: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1.75rem;
+  margin-bottom: 2.5rem;
+  box-shadow: 0 6px 22px rgba(23, 25, 28, 0.04);
+}
+
+@media (max-width: 640px) {
+  .vdt-article-author-card {
+    flex-direction: column;
+    text-align: center;
+    gap: 1.25rem;
+  }
+}
+
+.vdt-article-author-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #17191C 0%, #2A2E34 100%);
+  border: 2px solid #C69C50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #C69C50;
+  flex-shrink: 0;
+  box-shadow: 0 4px 15px rgba(198, 156, 80, 0.2);
+}
+
+.vdt-article-author-name {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #17191C;
+  margin-bottom: 0.35rem;
+}
+
+.vdt-article-author-bio {
+  font-family: 'Lora', Georgia, serif;
+  font-size: 0.92rem;
+  color: #62666D;
+  line-height: 1.6;
+}
+
+/* =========================================================================
+   7. STICKY SIDEBAR (Desktop >= 1024px)
+   ========================================================================= */
+.vdt-article-sidebar {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .vdt-article-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    position: sticky;
+    top: 96px;
+  }
+}
+
+.vdt-sidebar-card {
+  background-color: #FFFFFF;
+  border: 1px solid #E6D8C3;
+  border-radius: 16px;
+  padding: 1.75rem;
+  box-shadow: 0 6px 24px rgba(23, 25, 28, 0.04);
+}
+
+.vdt-sidebar-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding-bottom: 0.85rem;
+  margin-bottom: 1.2rem;
+  border-bottom: 1px solid #F0ECE4;
+}
+
+.vdt-sidebar-card-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 0.98rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #17191C;
+}
+
+/* Table of Contents in Sidebar */
+.vdt-sidebar-toc-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  max-height: 380px;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+}
+
+.vdt-sidebar-toc-item {
+  display: block;
+}
+
+.vdt-sidebar-toc-link {
+  font-family: 'Lora', Georgia, serif;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  color: #62666D;
+  text-decoration: none;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.4rem 0.65rem;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  border-left: 2px solid transparent;
+}
+
+.vdt-sidebar-toc-link:hover {
+  color: #C69C50;
+  background-color: #FAF8F4;
+  border-left-color: #C69C50;
+}
+
+.vdt-sidebar-toc-link.active {
+  color: #C69C50;
+  font-weight: 700;
+  background-color: rgba(198, 156, 80, 0.08);
+  border-left-color: #C69C50;
+}
+
+.vdt-sidebar-toc-num {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #C69C50;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* VIP Chauffeur Booking Card */
+.vdt-sidebar-cta-card {
+  background: linear-gradient(135deg, #0E1013 0%, #17191C 100%);
+  border: 1px solid rgba(198, 156, 80, 0.5);
+  color: #FAF8F4;
+  border-radius: 16px;
+  padding: 2rem 1.75rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+  text-align: center;
+}
+
+.vdt-sidebar-cta-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #C69C50;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-weight: 700;
+  margin-bottom: 0.85rem;
+}
+
+.vdt-sidebar-cta-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #FAF8F4;
+  line-height: 1.35;
+  margin-bottom: 0.75rem;
+}
+
+.vdt-sidebar-cta-desc {
+  font-family: 'Lora', Georgia, serif;
+  font-size: 0.88rem;
+  color: #B5BAC2;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+
+/* Sidebar Related Stories */
+.vdt-sidebar-story-item {
+  display: flex;
+  gap: 0.85rem;
+  align-items: center;
+  text-decoration: none;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid #F0ECE4;
+  transition: transform 0.2s ease;
+}
+
+.vdt-sidebar-story-item:last-child {
+  border-bottom: none;
+}
+
+.vdt-sidebar-story-item:hover {
+  transform: translateX(3px);
+}
+
+.vdt-sidebar-story-thumb {
+  width: 64px;
+  height: 64px;
+  border-radius: 10px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background-color: #0E1013;
+  border: 1px solid #E6D8C3;
+}
+
+.vdt-sidebar-story-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.vdt-sidebar-story-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 0.88rem;
+  font-weight: 700;
+  line-height: 1.35;
+  color: #17191C;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* =========================================================================
+   8. GRAND CONCLUSION CTA SECTION (Black / Champagne Gold Luxury)
+   ========================================================================= */
+.vdt-article-conclusion-cta {
+  background: linear-gradient(135deg, #0E1013 0%, #15181C 50%, #0E1013 100%);
+  color: #FAF8F4;
+  padding: clamp(4rem, 7vw, 6rem) 0;
+  position: relative;
+  overflow: hidden;
+  border-top: 1px solid #C69C50;
+  border-bottom: 1px solid #C69C50;
+}
+
+.vdt-article-conclusion-container {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  text-align: center;
+  position: relative;
+  z-index: 2;
+}
+
+.vdt-article-conclusion-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #C69C50;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 0.82rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-weight: 700;
+  margin-bottom: 1.25rem;
+}
+
+.vdt-article-conclusion-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(2.1rem, 4.2vw, 3.1rem);
+  font-weight: 800;
+  color: #FAF8F4;
+  line-height: 1.22;
+  margin-bottom: 1.25rem;
+}
+
+.vdt-article-conclusion-desc {
+  font-family: 'Lora', Georgia, serif;
+  font-size: 1.12rem;
+  line-height: 1.8;
+  color: #B5BAC2;
+  max-width: 680px;
+  margin: 0 auto 2.5rem;
+}
+
+.vdt-article-conclusion-actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  margin-bottom: 3rem;
+}
+
+.vdt-article-conclusion-trust {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 2.25rem;
+  padding-top: 2.5rem;
+  border-top: 1px solid rgba(198, 156, 80, 0.25);
+  color: #C69C50;
+  font-size: 0.88rem;
+  font-family: 'Lora', Georgia, serif;
+}
+
+/* =========================================================================
+   9. RELATED ARTICLES SECTION (Below Article)
+   ========================================================================= */
+.vdt-article-related-section {
+  padding: 5rem 0 6rem;
+  background-color: #FAF8F4;
+}
+
+.vdt-article-related-container {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.vdt-article-related-header {
+  text-align: center;
+  max-width: 650px;
+  margin: 0 auto 3.5rem;
+}
+
+.vdt-article-related-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(1.85rem, 3.2vw, 2.4rem);
+  font-weight: 800;
+  color: #17191C;
+  margin-top: 0.45rem;
+}
+
+.vdt-article-related-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+  gap: 2.25rem;
+}
+
+.vdt-article-related-card {
+  background-color: #FFFFFF;
+  border-radius: 16px;
+  border: 1px solid #E6D8C3;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 6px 25px rgba(23, 25, 28, 0.04);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  text-decoration: none;
+  color: inherit;
+}
+
+.vdt-article-related-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 16px 40px rgba(23, 25, 28, 0.08);
+  border-color: #C69C50;
+}
+
+.vdt-article-related-card-img-wrap {
+  height: 220px;
+  overflow: hidden;
+  background-color: #0E1013;
+  position: relative;
+}
+
+.vdt-article-related-card-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.4s ease;
+}
+
+.vdt-article-related-card:hover .vdt-article-related-card-img-wrap img {
+  transform: scale(1.05);
+}
+
+.vdt-article-related-card-body {
+  padding: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.vdt-article-related-card-cat {
+  color: #C69C50;
+  font-size: 0.75rem;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin-bottom: 0.5rem;
+}
+
+.vdt-article-related-card-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.22rem;
+  font-weight: 700;
+  line-height: 1.35;
+  color: #17191C;
+  margin-bottom: 1rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.vdt-article-related-card-footer {
+  margin-top: auto;
+  padding-top: 1rem;
+  border-top: 1px solid #F0ECE4;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: #C69C50;
+}

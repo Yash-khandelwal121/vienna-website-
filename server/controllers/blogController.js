@@ -126,11 +126,15 @@ export async function createBlog(req, res) {
         excerpt: data.excerpt || '',
         content: data.content,
         featuredImage: data.featuredImage || '/images/vienna-palace-backdrop.webp',
+        featuredImageAlt: data.featuredImageAlt || data.title,
+        featuredImageTitle: data.featuredImageTitle || '',
+        featuredImageCaption: data.featuredImageCaption || '',
         category: data.category || 'Travel Guides',
         categories: data.categories || [data.category || 'Travel Guides'],
         author: data.author || 'Vienna Day Trip Concierge',
         date: data.date || 'October 2026',
-        rawDate: new Date().toISOString(),
+        rawDate: data.rawDate || new Date().toISOString(),
+        modified: new Date().toISOString(),
         isPublished: data.isPublished !== false,
         seo: data.seo || { metaTitle: data.title, metaDescription: data.excerpt }
       }
@@ -155,9 +159,13 @@ export async function createBlog(req, res) {
  */
 export async function updateBlog(req, res) {
   try {
+    const updateData = {
+      ...req.body,
+      modified: new Date().toISOString()
+    };
     const updated = await db.blogs.update({
       where: { id: req.params.id },
-      data: req.body
+      data: updateData
     });
 
     if (!updated) {
