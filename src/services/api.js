@@ -112,49 +112,73 @@ export async function fetchPublicServices() {
 
 /**
  * Fetch published blog articles with pagination, category filter & search
- * Order: Sanity CMS -> Node.js Backend API -> Local Static Dataset
+ * Unified across Node.js Backend API (PostgreSQL / local store) and Sanity Cloud CMS
  */
 export async function fetchPublicBlogs({ page = 1, limit = 9, category = 'All', search = '' } = {}) {
-  // 1. Try Sanity CMS
-  try {
-    const sanityResult = await fetchSanityBlogs({ page, limit, category, search });
-    if (sanityResult && sanityResult.blogs?.length > 0) {
-      return sanityResult;
-    }
-  } catch (err) {
-    // continue to backend
-  }
+  let backendBlogs = [];
+  let sanityBlogs = [];
 
-  // 2. Try Node.js Backend API
+  // 1. Fetch from Node.js Backend API
   try {
-    const url = `/api/v1/public/blogs?page=${page}&limit=${limit}&category=${encodeURIComponent(category)}&search=${encodeURIComponent(search)}`;
+    const url = `/api/v1/public/blogs?limit=500&category=${encodeURIComponent(category)}&search=${encodeURIComponent(search)}`;
     const res = await fetch(url);
     if (res.ok) {
       const data = await res.json();
-      if (data.success && data.blogs?.length > 0) {
-        return data;
+      if (data.success && Array.isArray(data.blogs)) {
+        backendBlogs = data.blogs;
       }
     }
   } catch (err) {
-    // Graceful offline fallback
+    // Continue to Sanity
   }
 
-  // 3. Fallback to local blog dataset (All 129 articles)
-  let list = allBlogPosts;
+  // 2. Fetch from Sanity CMS
+  try {
+    const sanityResult = await fetchSanityBlogs({ limit: 500, category, search });
+    if (sanityResult && Array.isArray(sanityResult.blogs)) {
+      sanityBlogs = sanityResult.blogs;
+    }
+  } catch (err) {
+    // Continue to fallback
+  }
+
+  // 3. Fallback to local static dataset if both remote sources are empty
+  const baseList = (backendBlogs.length > 0 || sanityBlogs.length > 0)
+    ? []
+    : allBlogPosts;
+
+  // Unify and deduplicate by slug (Backend recent admin edits have priority)
+  const map = new Map();
+  // Static dataset
+  baseList.forEach((b) => map.set(b.slug, b));
+  // Sanity blogs
+  sanityBlogs.forEach((b) => map.set(b.slug, { ...map.get(b.slug), ...b }));
+  // Backend blogs
+  backendBlogs.forEach((b) => map.set(b.slug, { ...map.get(b.slug), ...b }));
+
+  let combined = Array.from(map.values()).filter((b) => b.isPublished !== false);
+
   if (category && category !== 'All') {
-    list = list.filter((b) => b.category?.toLowerCase() === category.toLowerCase());
+    combined = combined.filter((b) => b.category?.toLowerCase() === category.toLowerCase());
   }
-  if (search) {
-    const q = search.toLowerCase();
-    list = list.filter((b) => b.title?.toLowerCase().includes(q) || b.excerpt?.toLowerCase().includes(q));
+  if (search && search.trim()) {
+    const q = search.toLowerCase().trim();
+    combined = combined.filter((b) =>
+      b.title?.toLowerCase().includes(q) ||
+      b.excerpt?.toLowerCase().includes(q) ||
+      b.content?.toLowerCase().includes(q)
+    );
   }
-  const total = list.length;
+
+  // Sort by date (newest first)
+  combined.sort((a, b) => new Date(b.rawDate || b.publishedAt || b.createdAt || 0) - new Date(a.rawDate || a.publishedAt || a.createdAt || 0));
+
+  const total = combined.length;
   const startIndex = (page - 1) * limit;
-  const paginated = list.slice(startIndex, startIndex + limit);
+  const paginated = combined.slice(startIndex, startIndex + limit);
 
   return {
     success: true,
-    source: 'local',
     total,
     page,
     limit,
@@ -165,36 +189,40 @@ export async function fetchPublicBlogs({ page = 1, limit = 9, category = 'All', 
 
 /**
  * Fetch single blog article by slug
- * Order: Sanity CMS -> Node.js Backend API -> Local Static Dataset
+ * Resilient lookup: Backend API -> Sanity CMS -> Local Static Dataset
  */
 export async function fetchPublicBlogBySlug(slug) {
-  // 1. Try Sanity CMS
+  const clean = (slug || '').trim().replace(/\/+$/, '');
+  if (!clean) return { blog: null, source: 'none' };
+
+  // 1. Try Node.js Backend API first (instant availability for newly published admin articles)
   try {
-    const sanityArticle = await fetchSanityBlogBySlug(slug);
+    const res = await fetch(`/api/v1/public/blogs/${clean}`);
+    if (res.ok) {
+      const data = await res.json();
+      const blogData = data.blog || data.post;
+      if (data.success && blogData) {
+        return { blog: blogData, related: data.related || [], source: 'backend' };
+      }
+    }
+  } catch (err) {
+    // fallback to Sanity
+  }
+
+  // 2. Try Sanity CMS
+  try {
+    const sanityArticle = await fetchSanityBlogBySlug(clean);
     if (sanityArticle && sanityArticle.blog) {
       return sanityArticle;
     }
   } catch (err) {
-    // continue to backend
-  }
-
-  // 2. Try Node.js Backend API
-  try {
-    const res = await fetch(`/api/v1/public/blogs/${slug}`);
-    if (res.ok) {
-      const data = await res.json();
-      if (data.success && data.blog) {
-        return { blog: data.blog, related: data.related || [], source: 'backend' };
-      }
-    }
-  } catch (err) {
-    // fallback
+    // continue to local fallback
   }
 
   // 3. Fallback to local dataset
-  const blog = allBlogPosts.find((b) => b.slug === slug);
-  const related = allBlogPosts.filter((b) => b.slug !== slug && b.category === blog?.category).slice(0, 3);
-  return { blog, related, source: 'local' };
+  const blog = allBlogPosts.find((b) => b.slug === clean);
+  const related = allBlogPosts.filter((b) => b.slug !== clean && b.category === blog?.category).slice(0, 3);
+  return { blog: blog || null, related, source: 'local' };
 }
 
 /**

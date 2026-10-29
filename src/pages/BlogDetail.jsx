@@ -238,37 +238,50 @@ function injectApprovedScript(scriptContent, elementId) {
 export default function BlogDetail() {
   const { slug } = useParams();
   const { t } = useLanguage();
+  const cleanSlug = useMemo(() => (slug || '').trim().replace(/\/+$/, ''), [slug]);
+  const initialLocal = useMemo(() => getBlogPostBySlug(cleanSlug), [cleanSlug]);
 
-  const [post, setPost] = useState(() => getBlogPostBySlug(slug));
+  const [post, setPost] = useState(initialLocal || null);
+  const [isLoading, setIsLoading] = useState(!initialLocal);
   const [liveRelated, setLiveRelated] = useState([]);
   const [activeTocId, setActiveTocId] = useState('');
   const [mobileTocOpen, setMobileTocOpen] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
 
-  // Fetch article data (Sanity -> backend -> local static fallback)
+  // Fetch article data (backend API -> Sanity -> local static fallback)
   useEffect(() => {
-    const local = getBlogPostBySlug(slug);
-    if (local) setPost(local);
+    const local = getBlogPostBySlug(cleanSlug);
+    if (local) {
+      setPost(local);
+      setIsLoading(false);
+    } else {
+      setIsLoading(true);
+    }
 
     let isMounted = true;
-    fetchPublicBlogBySlug(slug).then((res) => {
-      if (isMounted && res?.blog) {
-        setPost((prev) => ({
-          ...(prev || {}),
-          ...res.blog,
-          primaryCategory: res.blog.category || prev?.primaryCategory || 'Luxury Travel',
-          categories: res.blog.categories || prev?.categories || [res.blog.category || 'Luxury Travel'],
-        }));
-        if (res.related?.length > 0) {
-          setLiveRelated(res.related);
+    fetchPublicBlogBySlug(cleanSlug).then((res) => {
+      if (isMounted) {
+        if (res?.blog) {
+          setPost((prev) => ({
+            ...(prev || {}),
+            ...res.blog,
+            primaryCategory: res.blog.category || prev?.primaryCategory || 'Luxury Travel',
+            categories: res.blog.categories || prev?.categories || [res.blog.category || 'Luxury Travel'],
+          }));
+          if (res.related?.length > 0) {
+            setLiveRelated(res.related);
+          }
         }
+        setIsLoading(false);
       }
+    }).catch(() => {
+      if (isMounted) setIsLoading(false);
     });
 
     return () => {
       isMounted = false;
     };
-  }, [slug]);
+  }, [cleanSlug]);
 
   // Related posts selection
   const relatedPosts = useMemo(() => {
@@ -470,6 +483,32 @@ export default function BlogDetail() {
       setMobileTocOpen(false);
     }
   };
+
+  // Loading state while fetching newly published or cloud articles
+  if (isLoading) {
+    return (
+      <div style={{ backgroundColor: '#FAF8F4', minHeight: '80vh', padding: '10rem 1.5rem', textAlign: 'center' }}>
+        <div style={{ maxWidth: '620px', margin: '0 auto' }}>
+          <div className="eyebrow" style={{ justifyContent: 'center' }}>VIENNA DAY TRIP JOURNAL</div>
+          <div
+            style={{
+              margin: '2rem auto',
+              width: '40px',
+              height: '40px',
+              border: '3px solid rgba(198,156,80,0.2)',
+              borderTop: '3px solid #C69C50',
+              borderRadius: '50%',
+              animation: 'vdtSpin 1s linear infinite'
+            }}
+          />
+          <p style={{ fontFamily: 'Lora, Georgia, serif', color: '#62666D', fontSize: '1.05rem', fontStyle: 'italic' }}>
+            Preparing your bespoke European travel journal...
+          </p>
+          <style>{`@keyframes vdtSpin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
+        </div>
+      </div>
+    );
+  }
 
   // If article not found
   if (!post) {

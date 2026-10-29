@@ -30,6 +30,14 @@ import AdminLayout from '../components/AdminLayout';
 import { useAdminAuth } from '../context/AdminAuthContext';
 import RichTextEditor from '../components/RichTextEditor';
 
+const STEPS = [
+  { id: 'basic', label: '1. Basic Information', icon: FileText },
+  { id: 'image', label: '2. Featured Image', icon: ImageIcon },
+  { id: 'content', label: '3. Rich Content Editor', icon: BookOpen },
+  { id: 'seo', label: '4. SEO Settings & SERP', icon: Globe },
+  { id: 'publish', label: '5. Publishing Workflow', icon: Sliders },
+];
+
 export default function BlogsManager() {
   const { token } = useAdminAuth();
   const [blogs, setBlogs] = useState([]);
@@ -45,7 +53,12 @@ export default function BlogsManager() {
   const [isEditing, setIsEditing] = useState(false);
   const [selectedBlog, setSelectedBlog] = useState(null);
   const [activeTab, setActiveTab] = useState('basic'); // 'basic' | 'image' | 'content' | 'seo' | 'publish'
+  const [articleStatus, setArticleStatus] = useState('NEW'); // 'NEW' | 'DRAFT' | 'PUBLISHED'
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState(null);
+  const [validationError, setValidationError] = useState(null);
+  const [modalNotice, setModalNotice] = useState(null);
+  const [isDirty, setIsDirty] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
   const [manualSlugEdit, setManualSlugEdit] = useState(false);
@@ -77,6 +90,8 @@ export default function BlogsManager() {
       schemaJson: ''
     }
   });
+
+  const currentStepIndex = STEPS.findIndex((s) => s.id === activeTab);
 
   const fetchBlogs = async () => {
     try {
@@ -110,6 +125,8 @@ export default function BlogsManager() {
 
   // Auto-generate slug from title (only for new articles or when unlocked)
   const handleTitleChange = (val) => {
+    setIsDirty(true);
+    setValidationError(null);
     const updated = { ...form, title: val };
     if (!selectedBlog && !manualSlugEdit) {
       const generatedSlug = val
@@ -121,6 +138,18 @@ export default function BlogsManager() {
       updated.slug = generatedSlug;
     }
     setForm(updated);
+  };
+
+  const updateForm = (patch) => {
+    setIsDirty(true);
+    setValidationError(null);
+    setForm((prev) => ({ ...prev, ...patch }));
+  };
+
+  const updateSeo = (patch) => {
+    setIsDirty(true);
+    setValidationError(null);
+    setForm((prev) => ({ ...prev, seo: { ...prev.seo, ...patch } }));
   };
 
   // Open Create Article Modal
@@ -159,6 +188,12 @@ export default function BlogsManager() {
     setSelectedBlog(null);
     setManualSlugEdit(false);
     setActiveTab('basic');
+    setArticleStatus('NEW'); // Problem 3: Never starts as published on new blank articles
+    setSaving(false);
+    setSaveError(null);
+    setValidationError(null);
+    setModalNotice(null);
+    setIsDirty(false);
     setIsEditing(true);
     setMessage({ type: '', text: '' });
   };
@@ -195,51 +230,118 @@ export default function BlogsManager() {
     setSelectedBlog(b);
     setManualSlugEdit(true); // Preserve existing URL slug!
     setActiveTab('basic');
+    setArticleStatus(b.isPublished !== false ? 'PUBLISHED' : 'DRAFT');
+    setSaving(false);
+    setSaveError(null);
+    setValidationError(null);
+    setModalNotice(null);
+    setIsDirty(false);
     setIsEditing(true);
     setMessage({ type: '', text: '' });
   };
 
+  // Safe modal close with unsaved changes verification
+  const handleCloseModal = () => {
+    if (isDirty) {
+      const confirmDiscard = window.confirm('You have unsaved changes in this article. Are you sure you want to discard them?');
+      if (!confirmDiscard) return;
+    }
+    setIsEditing(false);
+    setValidationError(null);
+    setModalNotice(null);
+    setIsDirty(false);
+  };
+
+  // Problem 2: Next Step Navigation with validation per step
+  const handleNextStep = () => {
+    setValidationError(null);
+    if (activeTab === 'basic') {
+      if (!form.title.trim()) {
+        setValidationError('Please enter a Blog Title in Step 1 before proceeding.');
+        return;
+      }
+      setActiveTab('image');
+    } else if (activeTab === 'image') {
+      setActiveTab('content');
+    } else if (activeTab === 'content') {
+      if (!form.content.trim()) {
+        setValidationError('Please enter Article Content in Step 3 before proceeding.');
+        return;
+      }
+      setActiveTab('seo');
+    } else if (activeTab === 'seo') {
+      if (form.seo.schemaJson?.trim()) {
+        try {
+          JSON.parse(form.seo.schemaJson);
+        } catch {
+          setValidationError('Custom Schema Markup is not valid JSON. Please correct it in Step 4.');
+          return;
+        }
+      }
+      setActiveTab('publish');
+    }
+  };
+
+  // Problem 2: Previous Step Navigation
+  const handlePrevStep = () => {
+    setValidationError(null);
+    if (currentStepIndex > 0) {
+      setActiveTab(STEPS[currentStepIndex - 1].id);
+    }
+  };
+
   // Save Article (handles both Draft and Published)
   const handleSave = async (publishStatus = null) => {
+    if (saving) return; // Prevent duplicate submissions
+    setValidationError(null);
+    setSaveError(null);
+
     if (!form.title.trim()) {
-      alert('Please enter an Article Title.');
+      setValidationError('Please enter an Article Title in Basic Information.');
       setActiveTab('basic');
       return;
     }
     if (!form.content.trim()) {
-      alert('Please enter Article Content.');
+      setValidationError('Please enter Article Content in Rich Content Editor.');
       setActiveTab('content');
       return;
     }
 
+    // Validate JSON-LD if provided
+    let parsedSchema = null;
+    if (form.seo.schemaJson?.trim()) {
+      try {
+        parsedSchema = JSON.parse(form.seo.schemaJson);
+      } catch {
+        setValidationError('The Schema Markup JSON-LD is not valid JSON. Please correct it in SEO Settings.');
+        setActiveTab('seo');
+        return;
+      }
+    }
+
+    const isPub = publishStatus !== null ? publishStatus : form.isPublished;
+
     try {
       setSaving(true);
-      const isPub = publishStatus !== null ? publishStatus : form.isPublished;
 
-      // Validate JSON-LD if provided
-      let parsedSchema = null;
-      if (form.seo.schemaJson?.trim()) {
-        try {
-          parsedSchema = JSON.parse(form.seo.schemaJson);
-        } catch {
-          alert('Warning: The Schema Markup JSON-LD is not valid JSON. Please correct it in the SEO Settings tab.');
-          setActiveTab('seo');
-          setSaving(false);
-          return;
-        }
-      }
+      const cleanSlug = (form.slug || form.title)
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
 
       const payload = {
-        title: form.title,
-        slug: form.slug,
-        excerpt: form.excerpt,
+        title: form.title.trim(),
+        slug: cleanSlug,
+        excerpt: form.excerpt || '',
         content: form.content,
-        featuredImage: form.featuredImage,
-        featuredImageAlt: form.featuredImageAlt,
-        featuredImageTitle: form.featuredImageTitle,
-        featuredImageCaption: form.featuredImageCaption,
-        category: form.category,
-        author: form.author,
+        featuredImage: form.featuredImage || '/images/vienna-palace-backdrop.webp',
+        featuredImageAlt: form.featuredImageAlt || form.title.trim(),
+        featuredImageTitle: form.featuredImageTitle || '',
+        featuredImageCaption: form.featuredImageCaption || '',
+        category: form.category || 'Travel Guides',
+        categories: [form.category || 'Travel Guides'],
+        author: form.author || 'Vienna Day Trip Concierge',
         date: form.date,
         isPublished: isPub,
         seo: {
@@ -247,10 +349,10 @@ export default function BlogsManager() {
           metaTitle: form.seo.metaTitle || form.title,
           description: form.seo.metaDescription || form.excerpt,
           metaDescription: form.seo.metaDescription || form.excerpt,
-          focusKeyword: form.seo.focusKeyword,
-          keywords: form.seo.keywords ? form.seo.keywords.split(',').map((k) => k.trim()) : [],
-          canonical: form.seo.canonicalUrl || `https://viennadaytrip.com/blog/${form.slug}/`,
-          canonicalUrl: form.seo.canonicalUrl || `https://viennadaytrip.com/blog/${form.slug}/`,
+          focusKeyword: form.seo.focusKeyword || '',
+          keywords: form.seo.keywords ? form.seo.keywords.split(',').map((k) => k.trim()).filter(Boolean) : [],
+          canonical: form.seo.canonicalUrl || `https://viennadaytrip.com/blog/${cleanSlug}/`,
+          canonicalUrl: form.seo.canonicalUrl || `https://viennadaytrip.com/blog/${cleanSlug}/`,
           ogTitle: form.seo.ogTitle || form.title,
           ogDescription: form.seo.ogDescription || form.excerpt,
           ogImage: form.seo.ogImage || form.featuredImage,
@@ -270,23 +372,86 @@ export default function BlogsManager() {
         body: JSON.stringify(payload)
       });
       const data = await res.json();
-      if (data.success) {
+      if (data.success && data.blog) {
+        setArticleStatus(isPub ? 'PUBLISHED' : 'DRAFT');
+        setSelectedBlog(data.blog);
+        setForm((prev) => ({
+          ...prev,
+          id: data.blog.id,
+          slug: data.blog.slug,
+          isPublished: isPub
+        }));
+        setIsDirty(false);
+        setModalNotice({
+          type: 'success',
+          text: isPub ? 'Article successfully published!' : 'Article successfully saved as draft!'
+        });
         setMessage({
           type: 'success',
           text: selectedBlog
             ? `Article updated successfully (${isPub ? 'Published' : 'Saved as Draft'}).`
             : `New article created successfully (${isPub ? 'Published' : 'Saved as Draft'}).`
         });
-        setIsEditing(false);
         fetchBlogs();
       } else {
-        setMessage({ type: 'error', text: data.error || 'Failed to save article.' });
+        if (data.draftSaved && data.blog) {
+          setSelectedBlog(data.blog);
+          setForm((prev) => ({
+            ...prev,
+            id: data.blog.id,
+            slug: data.blog.slug,
+            isPublished: false
+          }));
+        }
+        setArticleStatus('ERROR');
+        setSaveError(data.error || 'Failed to save article.');
+        setModalNotice({ type: 'error', text: data.error || 'Failed to save article.' });
       }
     } catch (err) {
-      setMessage({ type: 'error', text: 'Error saving article.' });
+      setArticleStatus('ERROR');
+      setSaveError('Network error while saving article.');
+      setModalNotice({ type: 'error', text: 'Network error while saving article.' });
     } finally {
       setSaving(false);
     }
+  };
+
+  // Status Badge Helper matching Problem 3 requirements
+  const getStatusBadge = () => {
+    if (saving) {
+      return (
+        <span className="vdt-badge vdt-badge-saving" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
+          <RefreshCw size={12} className="vdt-spin" />
+          <span>STATUS: SAVING...</span>
+        </span>
+      );
+    }
+    if (saveError) {
+      return (
+        <span className="vdt-badge vdt-badge-error">
+          STATUS: ERROR
+        </span>
+      );
+    }
+    if (articleStatus === 'PUBLISHED') {
+      return (
+        <span className="vdt-badge vdt-badge-confirmed">
+          STATUS: PUBLISHED
+        </span>
+      );
+    }
+    if (articleStatus === 'DRAFT') {
+      return (
+        <span className="vdt-badge vdt-badge-contacted">
+          STATUS: DRAFT
+        </span>
+      );
+    }
+    return (
+      <span className="vdt-badge vdt-badge-unsaved">
+        STATUS: NEW / UNSAVED
+      </span>
+    );
   };
 
   // Upload Featured Image directly to Sanity CDN with persistent cloud storage
@@ -567,7 +732,7 @@ export default function BlogsManager() {
           UPGRADED PROFESSIONAL BLOG EDITOR MODAL (Tabs: Basic, Image, Content, SEO, Publish)
           ========================================================================= */}
       {isEditing && (
-        <div className="vdt-modal-overlay" onClick={() => setIsEditing(false)}>
+        <div className="vdt-modal-overlay" onClick={handleCloseModal}>
           <div
             className="vdt-modal-card"
             style={{ maxWidth: '1100px', width: '95%', maxHeight: '92vh', display: 'flex', flexDirection: 'column', padding: 0 }}
@@ -582,14 +747,67 @@ export default function BlogsManager() {
                 </h3>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                <span className={`vdt-badge ${form.isPublished ? 'vdt-badge-confirmed' : 'vdt-badge-contacted'}`}>
-                  {form.isPublished ? 'STATUS: PUBLISHED' : 'STATUS: DRAFT'}
-                </span>
-                <button type="button" className="vdt-modal-close" onClick={() => setIsEditing(false)}>
+                {getStatusBadge()}
+                <button type="button" className="vdt-modal-close" onClick={handleCloseModal} title="Close Editor">
                   <X size={20} />
                 </button>
               </div>
             </div>
+
+            {/* Validation & Notification Banners inside Modal */}
+            {validationError && (
+              <div
+                style={{
+                  margin: '1rem 1.75rem 0',
+                  padding: '0.75rem 1rem',
+                  borderRadius: '8px',
+                  backgroundColor: '#FEE2E2',
+                  border: '1px solid #FCA5A5',
+                  color: '#991B1B',
+                  fontSize: '0.88rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                }}
+              >
+                <AlertCircle size={16} />
+                <span>{validationError}</span>
+                <button
+                  type="button"
+                  onClick={() => setValidationError(null)}
+                  style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', color: '#991B1B' }}
+                >
+                  <X size={14} />
+                </button>
+              </div>
+            )}
+
+            {modalNotice && (
+              <div
+                style={{
+                  margin: '1rem 1.75rem 0',
+                  padding: '0.75rem 1rem',
+                  borderRadius: '8px',
+                  backgroundColor: modalNotice.type === 'error' ? '#FEE2E2' : '#ECFDF5',
+                  border: modalNotice.type === 'error' ? '1px solid #FCA5A5' : '1px solid #6EE7B7',
+                  color: modalNotice.type === 'error' ? '#991B1B' : '#065F46',
+                  fontSize: '0.88rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                }}
+              >
+                {modalNotice.type === 'error' ? <AlertCircle size={16} /> : <CheckCircle2 size={16} />}
+                <span>{modalNotice.text}</span>
+                <button
+                  type="button"
+                  onClick={() => setModalNotice(null)}
+                  style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', color: 'inherit' }}
+                >
+                  <X size={14} />
+                </button>
+              </div>
+            )}
 
             {/* Navigation Tabs Bar */}
             <div
@@ -675,7 +893,7 @@ export default function BlogsManager() {
                         <input
                           type="text"
                           value={form.slug}
-                          onChange={(e) => setForm({ ...form, slug: e.target.value })}
+                          onChange={(e) => updateForm({ slug: e.target.value })}
                           disabled={!manualSlugEdit && selectedBlog}
                           required
                           placeholder="wachau-valley-wine-tasting"
@@ -690,7 +908,7 @@ export default function BlogsManager() {
                       <input
                         type="text"
                         value={form.category}
-                        onChange={(e) => setForm({ ...form, category: e.target.value })}
+                        onChange={(e) => updateForm({ category: e.target.value })}
                         placeholder="Travel Guides, Day Trips, Concierge Insights"
                         className="vdt-input"
                       />
@@ -703,7 +921,7 @@ export default function BlogsManager() {
                       <input
                         type="text"
                         value={form.author}
-                        onChange={(e) => setForm({ ...form, author: e.target.value })}
+                        onChange={(e) => updateForm({ author: e.target.value })}
                         placeholder="Vienna Day Trip Concierge"
                         className="vdt-input"
                       />
@@ -713,7 +931,7 @@ export default function BlogsManager() {
                       <input
                         type="text"
                         value={form.date}
-                        onChange={(e) => setForm({ ...form, date: e.target.value })}
+                        onChange={(e) => updateForm({ date: e.target.value })}
                         placeholder="e.g. October 2026 or October 28, 2026"
                         className="vdt-input"
                       />
@@ -735,7 +953,7 @@ export default function BlogsManager() {
                     <textarea
                       rows="3"
                       value={form.excerpt}
-                      onChange={(e) => setForm({ ...form, excerpt: e.target.value })}
+                      onChange={(e) => updateForm({ excerpt: e.target.value })}
                       placeholder="Brief 2-3 sentence overview of this article..."
                       className="vdt-textarea"
                     />
@@ -803,7 +1021,7 @@ export default function BlogsManager() {
                         <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.65rem' }}>
                           <button
                             type="button"
-                            onClick={() => setForm({ ...form, featuredImage: '' })}
+                            onClick={() => updateForm({ featuredImage: '' })}
                             className="vdt-btn-secondary"
                             style={{ color: '#E53E3E', fontSize: '0.78rem', padding: '0.35rem 0.65rem' }}
                           >
@@ -820,7 +1038,7 @@ export default function BlogsManager() {
                         <input
                           type="text"
                           value={form.featuredImage}
-                          onChange={(e) => setForm({ ...form, featuredImage: e.target.value })}
+                          onChange={(e) => updateForm({ featuredImage: e.target.value })}
                           placeholder="https://cdn.sanity.io/... or /blog-images/image.png"
                           className="vdt-input"
                         />
@@ -831,7 +1049,7 @@ export default function BlogsManager() {
                         <input
                           type="text"
                           value={form.featuredImageAlt}
-                          onChange={(e) => setForm({ ...form, featuredImageAlt: e.target.value })}
+                          onChange={(e) => updateForm({ featuredImageAlt: e.target.value })}
                           placeholder="Descriptive explanation of what is shown in the image"
                           className="vdt-input"
                         />
@@ -842,7 +1060,7 @@ export default function BlogsManager() {
                         <input
                           type="text"
                           value={form.featuredImageTitle}
-                          onChange={(e) => setForm({ ...form, featuredImageTitle: e.target.value })}
+                          onChange={(e) => updateForm({ featuredImageTitle: e.target.value })}
                           placeholder="e.g. Hallstatt Lake Panorama View"
                           className="vdt-input"
                         />
@@ -853,7 +1071,7 @@ export default function BlogsManager() {
                         <input
                           type="text"
                           value={form.featuredImageCaption}
-                          onChange={(e) => setForm({ ...form, featuredImageCaption: e.target.value })}
+                          onChange={(e) => updateForm({ featuredImageCaption: e.target.value })}
                           placeholder="e.g. Photo courtesy of Vienna Day Trip Chauffeurs"
                           className="vdt-input"
                         />
@@ -876,7 +1094,7 @@ export default function BlogsManager() {
 
                   <RichTextEditor
                     value={form.content}
-                    onChange={(val) => setForm({ ...form, content: val })}
+                    onChange={(val) => updateForm({ content: val })}
                     token={token}
                   />
                 </div>
@@ -918,7 +1136,7 @@ export default function BlogsManager() {
                       <input
                         type="text"
                         value={form.seo.metaTitle}
-                        onChange={(e) => setForm({ ...form, seo: { ...form.seo, metaTitle: e.target.value } })}
+                        onChange={(e) => updateSeo({ metaTitle: e.target.value })}
                         placeholder={form.title || 'Page title for search engines'}
                         className="vdt-input"
                       />
@@ -930,7 +1148,7 @@ export default function BlogsManager() {
                       <input
                         type="text"
                         value={form.seo.focusKeyword}
-                        onChange={(e) => setForm({ ...form, seo: { ...form.seo, focusKeyword: e.target.value } })}
+                        onChange={(e) => updateSeo({ focusKeyword: e.target.value })}
                         placeholder="e.g. Wachau Valley day trip from Vienna"
                         className="vdt-input"
                       />
@@ -948,7 +1166,7 @@ export default function BlogsManager() {
                     <textarea
                       rows="2"
                       value={form.seo.metaDescription}
-                      onChange={(e) => setForm({ ...form, seo: { ...form.seo, metaDescription: e.target.value } })}
+                      onChange={(e) => updateSeo({ metaDescription: e.target.value })}
                       placeholder={form.excerpt || 'Engaging 140-160 character description for Google search snippets...'}
                       className="vdt-textarea"
                     />
@@ -961,7 +1179,7 @@ export default function BlogsManager() {
                       <input
                         type="text"
                         value={form.seo.keywords}
-                        onChange={(e) => setForm({ ...form, seo: { ...form.seo, keywords: e.target.value } })}
+                        onChange={(e) => updateSeo({ keywords: e.target.value })}
                         placeholder="Vienna Chauffeur, Wachau Wine Tour, Melk Abbey"
                         className="vdt-input"
                       />
@@ -971,7 +1189,7 @@ export default function BlogsManager() {
                       <input
                         type="text"
                         value={form.seo.canonicalUrl}
-                        onChange={(e) => setForm({ ...form, seo: { ...form.seo, canonicalUrl: e.target.value } })}
+                        onChange={(e) => updateSeo({ canonicalUrl: e.target.value })}
                         placeholder={`https://viennadaytrip.com/blog/${form.slug}/`}
                         className="vdt-input"
                       />
@@ -989,7 +1207,7 @@ export default function BlogsManager() {
                         <input
                           type="text"
                           value={form.seo.ogTitle}
-                          onChange={(e) => setForm({ ...form, seo: { ...form.seo, ogTitle: e.target.value } })}
+                          onChange={(e) => updateSeo({ ogTitle: e.target.value })}
                           placeholder={form.title}
                           className="vdt-input"
                         />
@@ -999,7 +1217,7 @@ export default function BlogsManager() {
                         <input
                           type="text"
                           value={form.seo.ogImage}
-                          onChange={(e) => setForm({ ...form, seo: { ...form.seo, ogImage: e.target.value } })}
+                          onChange={(e) => updateSeo({ ogImage: e.target.value })}
                           placeholder={form.featuredImage}
                           className="vdt-input"
                         />
@@ -1013,7 +1231,7 @@ export default function BlogsManager() {
                     <textarea
                       rows="4"
                       value={form.seo.schemaJson}
-                      onChange={(e) => setForm({ ...form, seo: { ...form.seo, schemaJson: e.target.value } })}
+                      onChange={(e) => updateSeo({ schemaJson: e.target.value })}
                       placeholder='{ "@context": "https://schema.org", "@type": "BlogPosting", ... }'
                       className="vdt-textarea"
                       style={{ fontFamily: 'monospace', fontSize: '0.82rem' }}
@@ -1039,7 +1257,7 @@ export default function BlogsManager() {
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
                       <button
                         type="button"
-                        onClick={() => setForm({ ...form, isPublished: true })}
+                        onClick={() => updateForm({ isPublished: true })}
                         style={{
                           padding: '0.75rem 1.5rem',
                           borderRadius: '10px',
@@ -1055,7 +1273,7 @@ export default function BlogsManager() {
 
                       <button
                         type="button"
-                        onClick={() => setForm({ ...form, isPublished: false })}
+                        onClick={() => updateForm({ isPublished: false })}
                         style={{
                           padding: '0.75rem 1.5rem',
                           borderRadius: '10px',
@@ -1091,26 +1309,64 @@ export default function BlogsManager() {
               )}
             </div>
 
-            {/* Modal Bottom Actions Bar */}
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                padding: '1.25rem 1.75rem',
-                borderTop: '1px solid #E6D8C3',
-                backgroundColor: '#FAF8F4',
-              }}
-            >
-              <button
-                type="button"
-                onClick={() => setIsEditing(false)}
-                className="vdt-btn-secondary"
-              >
-                Cancel
-              </button>
+            {/* Modal Bottom Actions Bar matching Problem 2 layout */}
+            <div className="vdt-editor-footer">
+              {/* LEFT: Cancel */}
+              <div className="vdt-footer-left">
+                <button
+                  type="button"
+                  onClick={handleCloseModal}
+                  className="vdt-btn-secondary"
+                >
+                  Cancel
+                </button>
+              </div>
 
-              <div style={{ display: 'flex', gap: '0.75rem' }}>
+              {/* CENTER: Step Navigation Controls */}
+              <div className="vdt-footer-center">
+                <button
+                  type="button"
+                  onClick={handlePrevStep}
+                  disabled={currentStepIndex === 0}
+                  className="vdt-btn-secondary"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.45rem',
+                    opacity: currentStepIndex === 0 ? 0.45 : 1,
+                    cursor: currentStepIndex === 0 ? 'not-allowed' : 'pointer'
+                  }}
+                  title={currentStepIndex === 0 ? 'Already on first step' : 'Go to previous tab'}
+                >
+                  <ChevronLeft size={16} />
+                  <span>Previous Step</span>
+                </button>
+
+                {currentStepIndex < STEPS.length - 1 ? (
+                  <button
+                    type="button"
+                    onClick={handleNextStep}
+                    className="vdt-btn-secondary"
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.45rem'
+                    }}
+                    title="Advance to next tab"
+                  >
+                    <span>Next Step</span>
+                    <ChevronRight size={16} />
+                  </button>
+                ) : (
+                  <div className="vdt-footer-final-step">
+                    <CheckCircle2 size={15} style={{ color: '#C69C50' }} />
+                    <span>Final Step — Ready to Publish</span>
+                  </div>
+                )}
+              </div>
+
+              {/* RIGHT: Save as Draft & Publish Article */}
+              <div className="vdt-footer-right">
                 <button
                   type="button"
                   onClick={() => handleSave(false)}
@@ -1119,7 +1375,7 @@ export default function BlogsManager() {
                   style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
                 >
                   <Save size={14} />
-                  <span>{saving ? 'Saving...' : 'Save as Draft'}</span>
+                  <span>{saving && articleStatus !== 'PUBLISHED' ? 'Saving Draft...' : 'Save as Draft'}</span>
                 </button>
 
                 <button

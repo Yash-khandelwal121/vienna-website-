@@ -1914,3 +1914,88 @@
     padding: 1.25rem 1rem;
   }
 }
+
+/* ---------------------------------------------------------------------
+   18. BLOG CMS ARTICLE EDITOR FOOTER & STEP CONTROLS
+   --------------------------------------------------------------------- */
+.vdt-editor-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.75rem;
+  border-top: 1px solid var(--vdt-border);
+  background-color: #FAF8F4;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.vdt-footer-left {
+  display: flex;
+  align-items: center;
+}
+
+.vdt-footer-center {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.vdt-footer-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.vdt-footer-final-step {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.55rem 1rem;
+  border-radius: 8px;
+  background-color: #FFFFFF;
+  border: 1px solid var(--vdt-border);
+  color: var(--vdt-gold);
+  font-size: 0.85rem;
+  font-weight: 700;
+  box-shadow: 0 1px 4px rgba(23, 25, 28, 0.04);
+}
+
+.vdt-badge-saving {
+  background-color: #FEF3C7;
+  color: #92400E;
+  border: 1px solid #FCD34D;
+}
+
+.vdt-badge-error {
+  background-color: #FEE2E2;
+  color: #991B1B;
+  border: 1px solid #F87171;
+}
+
+.vdt-badge-unsaved {
+  background-color: #F5F1E9;
+  color: #62666D;
+  border: 1px solid #E6D8C3;
+}
+
+@media (max-width: 860px) {
+  .vdt-editor-footer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.85rem;
+    padding: 1rem 1.25rem;
+  }
+
+  .vdt-footer-left,
+  .vdt-footer-center,
+  .vdt-footer-right {
+    justify-content: center;
+    width: 100%;
+  }
+
+  .vdt-footer-center button,
+  .vdt-footer-right button {
+    flex: 1;
+  }
+}
+

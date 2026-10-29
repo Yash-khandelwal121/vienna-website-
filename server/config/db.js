@@ -111,8 +111,17 @@ const isVercel = process.env.VERCEL === '1';
 // Save memory store to JSON file (with Vercel /tmp fallback)
 export function persistStore() {
   try {
-    const target = isVercel ? path.join('/tmp', 'store.json') : storeFile;
-    fs.writeFileSync(target, JSON.stringify(memoryStore, null, 2), 'utf8');
+    const payload = JSON.stringify(memoryStore, null, 2);
+    // Always persist to local storeFile if writeable
+    try {
+      fs.writeFileSync(storeFile, payload, 'utf8');
+    } catch {}
+    // Also write to /tmp/store.json if on Vercel
+    if (isVercel) {
+      try {
+        fs.writeFileSync(path.join('/tmp', 'store.json'), payload, 'utf8');
+      } catch {}
+    }
   } catch (err) {
     if (process.env.NODE_ENV !== 'production') {
       console.warn('[DB] Persistent store note:', err.message);
@@ -493,6 +502,119 @@ async function loadSeedData() {
   console.log('[DB] Store initialized and persisted to server/data/store.json.');
 }
 
+// Hydrate newly created and published articles from Sanity Cloud CMS
+export async function hydrateFromSanity() {
+  const sanityToken = process.env.SANITY_API_TOKEN;
+  const projectId = process.env.SANITY_PROJECT_ID || process.env.VITE_SANITY_PROJECT_ID || 'lwp5b4fm';
+  const dataset = process.env.SANITY_DATASET || process.env.VITE_SANITY_DATASET || 'production';
+
+  try {
+    const { createClient } = await import('@sanity/client');
+    const sanity = createClient({
+      projectId,
+      dataset,
+      apiVersion: '2024-01-01',
+      token: sanityToken || undefined,
+      useCdn: false
+    });
+
+    const sanityBlogs = await sanity.fetch(`*[_type == "blogPost"] {
+      _id,
+      title,
+      slug,
+      excerpt,
+      content,
+      categoryName,
+      author,
+      publishedAt,
+      modifiedAt,
+      isPublished,
+      coverImage,
+      seo
+    }`);
+
+    if (Array.isArray(sanityBlogs) && sanityBlogs.length > 0) {
+      let hydratedCount = 0;
+      for (const sb of sanityBlogs) {
+        const slug = typeof sb.slug === 'string' ? sb.slug : sb.slug?.current;
+        if (!slug) continue;
+        const formatted = {
+          id: sb._id,
+          slug,
+          title: sb.title || 'Untitled',
+          excerpt: sb.excerpt || '',
+          content: sb.content || '',
+          featuredImage: sb.coverImage?.imageUrl || '/images/vienna-palace-backdrop.webp',
+          featuredImageAlt: sb.coverImage?.alt || sb.title || '',
+          featuredImageTitle: sb.coverImage?.title || '',
+          featuredImageCaption: '',
+          category: sb.categoryName || 'Travel Guides',
+          categories: [sb.categoryName || 'Travel Guides'],
+          author: sb.author || 'Vienna Day Trip Concierge',
+          date: sb.publishedAt
+            ? new Date(sb.publishedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+            : 'October 2026',
+          rawDate: sb.publishedAt || new Date().toISOString(),
+          modified: sb.modifiedAt || new Date().toISOString(),
+          isPublished: sb.isPublished !== false,
+          seo: sb.seo || { metaTitle: sb.title, metaDescription: sb.excerpt },
+          createdAt: sb.publishedAt || new Date().toISOString(),
+          updatedAt: sb.modifiedAt || new Date().toISOString()
+        };
+
+        const existingIdx = memoryStore.blogs.findIndex((b) => b.slug === slug);
+        if (existingIdx !== -1) {
+          memoryStore.blogs[existingIdx] = { ...memoryStore.blogs[existingIdx], ...formatted };
+        } else {
+          memoryStore.blogs.unshift(formatted);
+          hydratedCount++;
+        }
+      }
+      if (hydratedCount > 0) {
+        console.log(`[Sanity CMS] Successfully hydrated ${hydratedCount} persistent article(s) into database store.`);
+        persistStore();
+      }
+    }
+  } catch (err) {
+    console.warn('[Sanity CMS] Hydration note:', err.message);
+  }
+}
+
+// Helper to resolve Neon database URL with fallback DNS when local ISP/router returns RCODE_REFUSED
+export async function getResilientDatabaseUrl(rawUrl) {
+  if (!rawUrl) return rawUrl;
+  try {
+    const parsed = new URL(rawUrl);
+    const host = parsed.hostname;
+    if (!host.includes('neon.tech')) return rawUrl;
+
+    const dns = await import('dns');
+    try {
+      await dns.promises.lookup(host);
+      return rawUrl; // Native lookup succeeds
+    } catch (e) {
+      // Local DNS failed (e.g. JioFiber / router RCODE_REFUSED)
+    }
+
+    const resolver = new dns.promises.Resolver();
+    resolver.setServers(['8.8.8.8', '1.1.1.1']);
+    const ips = await resolver.resolve4(host);
+    if (!ips || ips.length === 0) return rawUrl;
+
+    const resolvedIp = ips[0];
+    const endpointMatch = host.match(/^(ep-[a-z0-9-]+?)(-pooler)?\./);
+    const endpointId = endpointMatch ? endpointMatch[1] : '';
+
+    parsed.hostname = resolvedIp;
+    if (endpointId) {
+      parsed.searchParams.set('options', `endpoint=${endpointId}`);
+    }
+    return parsed.toString();
+  } catch {
+    return rawUrl;
+  }
+}
+
 // Check real PostgreSQL connection on startup
 export async function initDatabase() {
   if (prisma) {
@@ -501,11 +623,28 @@ export async function initDatabase() {
       isPostgresConnected = true;
       console.log(`✅ [PostgreSQL] Connected successfully via Prisma ORM (${maskDatabaseUrl(resolvedDatabaseUrl)}).`);
     } catch (err) {
-      isPostgresConnected = false;
-      console.warn(`⚠️ [PostgreSQL] Database not reachable at ${maskDatabaseUrl(resolvedDatabaseUrl)}. Running in resilient persistent storage mode.`);
+      // Try resilient DNS fallback for local environments where router DNS refuses Neon host
+      try {
+        const resilientUrl = await getResilientDatabaseUrl(resolvedDatabaseUrl);
+        if (resilientUrl && resilientUrl !== resolvedDatabaseUrl) {
+          prisma = new PrismaClient({
+            datasources: { db: { url: resilientUrl } },
+            log: process.env.NODE_ENV === 'development' ? ['warn', 'error'] : ['error']
+          });
+          await prisma.$connect();
+          isPostgresConnected = true;
+          console.log(`✅ [PostgreSQL] Connected successfully to Neon via resilient cloud DNS (${maskDatabaseUrl(resolvedDatabaseUrl)}).`);
+        } else {
+          throw err;
+        }
+      } catch (retryErr) {
+        isPostgresConnected = false;
+        console.warn(`⚠️ [PostgreSQL] Database not reachable at ${maskDatabaseUrl(resolvedDatabaseUrl)}. Running in resilient persistent storage mode.`);
+      }
     }
   }
   await loadSeedData();
+  await hydrateFromSanity();
 }
 
 let initPromise = null;
@@ -750,21 +889,29 @@ export const db = {
   blogs: {
     async findMany({ where, orderBy, take, skip } = {}) {
       if (isPostgresConnected) {
-        try { return await prisma.blogPost.findMany({ where, orderBy, take, skip }); } catch (e) {}
+        try {
+          const pgList = await prisma.blogPost.findMany({ where, orderBy, take, skip });
+          if (Array.isArray(pgList) && pgList.length > 0) return pgList;
+        } catch (e) {
+          console.warn('[DB] Prisma findMany blogs note:', e.message);
+        }
       }
       let list = [...memoryStore.blogs];
       if (where?.isPublished !== undefined) list = list.filter((b) => b.isPublished === where.isPublished);
       if (where?.category && where.category !== 'All') {
         list = list.filter((b) => b.category?.toLowerCase() === where.category.toLowerCase());
       }
-      list.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+      list.sort((a, b) => new Date(b.createdAt || b.rawDate || 0) - new Date(a.createdAt || a.rawDate || 0));
       if (skip) list = list.slice(skip);
       if (take) list = list.slice(0, take);
       return list;
     },
     async count({ where } = {}) {
       if (isPostgresConnected) {
-        try { return await prisma.blogPost.count({ where }); } catch (e) {}
+        try {
+          const c = await prisma.blogPost.count({ where });
+          if (c > 0) return c;
+        } catch (e) {}
       }
       let list = memoryStore.blogs;
       if (where?.isPublished !== undefined) list = list.filter((b) => b.isPublished === where.isPublished);
@@ -772,40 +919,83 @@ export const db = {
     },
     async findUnique({ where }) {
       if (isPostgresConnected) {
-        try { return await prisma.blogPost.findUnique({ where }); } catch (e) {}
+        try {
+          const item = await prisma.blogPost.findUnique({ where });
+          if (item) return item;
+        } catch (e) {}
       }
-      return memoryStore.blogs.find((b) => b.id === where.id || b.slug === where.slug) || null;
+      return memoryStore.blogs.find((b) => (where.id && b.id === where.id) || (where.slug && b.slug === where.slug)) || null;
     },
     async create({ data }) {
+      const isPub = data.isPublished !== false;
+      const cleanSlug = (data.slug || data.title).toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+      let created = null;
+
       if (isPostgresConnected) {
-        try { return await prisma.blogPost.create({ data }); } catch (e) {}
+        try {
+          const prismaSafeData = {
+            slug: cleanSlug,
+            title: data.title,
+            excerpt: data.excerpt || '',
+            content: data.content || '',
+            featuredImage: data.featuredImage || '/images/vienna-palace-backdrop.webp',
+            category: data.category || 'Travel Guides',
+            categories: data.categories || [data.category || 'Travel Guides'],
+            author: data.author || 'Vienna Day Trip Concierge',
+            date: data.date || 'October 2026',
+            rawDate: data.rawDate || new Date().toISOString(),
+            isPublished: isPub,
+            seo: data.seo || {}
+          };
+          created = await prisma.blogPost.create({ data: prismaSafeData });
+        } catch (e) {
+          console.error('[DB Error] Prisma create blogPost note:', e.message);
+        }
       }
+
       const item = {
-        id: `blog_${Date.now()}`,
-        isPublished: true,
+        id: created?.id || `blog_${Date.now()}`,
         ...data,
-        createdAt: new Date().toISOString(),
+        slug: cleanSlug,
+        isPublished: isPub,
+        createdAt: data.rawDate || new Date().toISOString(),
         updatedAt: new Date().toISOString()
       };
-      memoryStore.blogs.unshift(item);
+      // Prevent duplicates in memoryStore
+      const existingIdx = memoryStore.blogs.findIndex((b) => b.slug === cleanSlug);
+      if (existingIdx !== -1) {
+        memoryStore.blogs[existingIdx] = item;
+      } else {
+        memoryStore.blogs.unshift(item);
+      }
       persistStore();
-      return item;
+      return created || item;
     },
     async update({ where, data }) {
+      let updated = null;
       if (isPostgresConnected) {
-        try { return await prisma.blogPost.update({ where, data }); } catch (e) {}
+        try {
+          const prismaSafeData = { ...data };
+          delete prismaSafeData.featuredImageAlt;
+          delete prismaSafeData.featuredImageTitle;
+          delete prismaSafeData.featuredImageCaption;
+          delete prismaSafeData.modified;
+          updated = await prisma.blogPost.update({ where, data: prismaSafeData });
+        } catch (e) {
+          console.warn('[DB Error] Prisma update blogPost note:', e.message);
+        }
       }
-      const idx = memoryStore.blogs.findIndex((b) => b.id === where.id || b.slug === where.slug);
+      const idx = memoryStore.blogs.findIndex((b) => (where.id && b.id === where.id) || (where.slug && b.slug === where.slug));
       if (idx !== -1) {
         memoryStore.blogs[idx] = { ...memoryStore.blogs[idx], ...data, updatedAt: new Date().toISOString() };
         persistStore();
-        return memoryStore.blogs[idx];
+        return updated || memoryStore.blogs[idx];
       }
-      return null;
+      return updated;
     },
     async delete({ where }) {
       if (isPostgresConnected) {
-        try { return await prisma.blogPost.delete({ where }); } catch (e) {}
+        try { await prisma.blogPost.delete({ where }); } catch (e) {}
       }
       memoryStore.blogs = memoryStore.blogs.filter((b) => b.id !== where.id && b.slug !== where.slug);
       persistStore();
