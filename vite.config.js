@@ -15,6 +15,16 @@ export default defineConfig({
       '/uploads': {
         target: 'http://localhost:5000',
         changeOrigin: true
+      },
+      '/sanity-cdn': {
+        target: 'https://lwp5b4fm.apicdn.sanity.io',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/sanity-cdn/, '')
+      },
+      '/sanity-api': {
+        target: 'https://lwp5b4fm.api.sanity.io',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/sanity-api/, '')
       }
     }
   }

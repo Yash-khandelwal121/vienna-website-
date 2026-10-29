@@ -1,6 +1,7 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, ChevronLeft, ChevronRight, Compass } from 'lucide-react';
+import { fetchPublicDayTrips, CANONICAL_DAY_TRIP_IMAGES, sanitizeImageUrl } from '../services/api';
 
 export const signatureDestinations = [
   {
@@ -10,7 +11,7 @@ export const signatureDestinations = [
     tagline: "UNESCO World Heritage Alpine Postcard",
     driveTime: "3.0 Hours",
     slug: "/hallstatt-day-trip-from-vienna/",
-    image: "https://viennadaytrip.com/wp-content/uploads/2026/03/Fairytale-Village-of-Hallstatt.jpg",
+    image: "/images/Hallstatt.jpg",
     desc: "A sheer lakeside fairytale surrounded by Dachstein peaks, 16th-century wooden houses, and the breathtaking Hallstatt Skywalk."
   },
   {
@@ -77,6 +78,33 @@ export const signatureDestinations = [
 
 export default function DestinationCarousel() {
   const scrollRef = useRef(null);
+  const [destinations, setDestinations] = useState(signatureDestinations);
+
+  useEffect(() => {
+    let isMounted = true;
+    async function loadTrips() {
+      try {
+        const live = await fetchPublicDayTrips();
+        if (isMounted && Array.isArray(live) && live.length > 0) {
+          const formatted = live.map((t, idx) => ({
+            number: String(idx + 1).padStart(2, '0'),
+            title: t.name || t.title,
+            country: t.destination || 'Austria',
+            tagline: t.eyebrow || 'Signature Chauffeur Experience',
+            driveTime: t.duration || 'Full Day',
+            slug: `/${t.slug}/`,
+            image: sanitizeImageUrl(t.image, CANONICAL_DAY_TRIP_IMAGES[t.slug] || '/images/vienna-palace-backdrop.webp'),
+            desc: t.shortDesc || (typeof t.fullDesc === 'string' ? t.fullDesc.replace(/<[^>]*>?/gm, '').substring(0, 140) : '')
+          }));
+          setDestinations(formatted);
+        }
+      } catch (e) {
+        // fallback to signatureDestinations
+      }
+    }
+    loadTrips();
+    return () => { isMounted = false; };
+  }, []);
 
   const scroll = (direction) => {
     if (scrollRef.current) {
@@ -170,7 +198,7 @@ export default function DestinationCarousel() {
         }}
         className="hide-scrollbar"
       >
-        {signatureDestinations.map((dest) => (
+        {destinations.map((dest) => (
           <div
             key={dest.number}
             style={{

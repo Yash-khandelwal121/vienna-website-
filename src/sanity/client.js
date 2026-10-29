@@ -1,9 +1,11 @@
 import { createClient } from '@sanity/client';
-import imageUrlBuilder from '@sanity/image-url';
+import { createImageUrlBuilder } from '@sanity/image-url';
 
 export const projectId = import.meta.env.VITE_SANITY_PROJECT_ID || 'lwp5b4fm';
 export const dataset = import.meta.env.VITE_SANITY_DATASET || 'production';
 export const apiVersion = import.meta.env.VITE_SANITY_API_VERSION || '2024-01-01';
+
+const isDev = typeof window !== 'undefined' && import.meta.env.DEV;
 
 // Public frontend client with CDN enabled for ultra-fast cached responses
 export const sanityClient = createClient({
@@ -12,16 +14,24 @@ export const sanityClient = createClient({
   apiVersion,
   useCdn: true,
   perspective: 'published',
+  ...(isDev
+    ? {
+        apiHost: `${window.location.origin}/sanity-cdn`,
+        useProjectHostname: false,
+      }
+    : {}),
 });
 
-// Helper for generating responsive, optimized Sanity image URLs
-const builder = imageUrlBuilder(sanityClient);
+// Helper for generating responsive, optimized Sanity image URLs using supported named export
+const builder = createImageUrlBuilder({ projectId, dataset });
 
 export function urlForImage(source) {
   if (!source) return null;
   // If source is already a direct string URL (e.g. from static fallback)
   if (typeof source === 'string') return source;
-  if (source.imageUrl) return source.imageUrl;
+  if (source.imageUrl && typeof source.imageUrl === 'string' && source.imageUrl.trim() && !source.imageUrl.includes('drive.google.com')) {
+    return source.imageUrl.trim();
+  }
   if (source.asset) {
     try {
       return builder.image(source).auto('format').fit('max').url();

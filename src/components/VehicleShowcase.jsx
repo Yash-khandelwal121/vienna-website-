@@ -1,7 +1,62 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { fetchPublicVehicles } from '../services/api';
+
+const defaultVehicles = [
+  {
+    vehicleId: 's-class',
+    name: 'Mercedes-Benz S-Class',
+    category: 'FLAGSHIP LUXURY',
+    mainImage: '/images/mercedes-s-class.webp',
+    shortDescription: 'An exceptional luxury sedan offering elegance, comfort and a refined chauffeur experience.'
+  },
+  {
+    vehicleId: 'e-class',
+    name: 'Mercedes-Benz E-Class',
+    category: 'EXECUTIVE COMFORT',
+    mainImage: '/images/mercedes-e-class.webp',
+    shortDescription: 'Sophisticated executive transportation for airport transfers and business journeys.'
+  },
+  {
+    vehicleId: 'v-class',
+    name: 'Mercedes-Benz V-Class',
+    category: 'GROUP LUXURY',
+    mainImage: '/images/mercedes-v-class.webp',
+    shortDescription: 'Spacious premium transportation for families, small groups and private journeys.'
+  },
+  {
+    vehicleId: 'sprinter',
+    name: 'Mercedes-Benz Sprinter',
+    category: 'PREMIUM GROUP TRAVEL',
+    mainImage: '/images/mercedes-sprinter-transparent.webp',
+    shortDescription: 'Comfortable premium group transportation for corporate travel and private tours.'
+  }
+];
 
 export default function VehicleShowcase() {
+  const [vehicles, setVehicles] = useState(defaultVehicles);
+
+  useEffect(() => {
+    let isMounted = true;
+    async function load() {
+      try {
+        const live = await fetchPublicVehicles();
+        if (isMounted && Array.isArray(live) && live.length > 0) {
+          const formatted = live.map((v) => ({
+            vehicleId: v.vehicleId || v.id,
+            name: v.name,
+            category: (v.badge || v.category || 'LUXURY CHAUFFEUR').toUpperCase(),
+            mainImage: v.transparentImage || v.mainImage || '/images/mercedes-s-class.webp',
+            shortDescription: v.shortDescription || v.tagline || 'Experience first-class private transportation in Vienna.'
+          }));
+          setVehicles(formatted);
+        }
+      } catch (e) {}
+    }
+    load();
+    return () => { isMounted = false; };
+  }, []);
+
   return (
     <section className="vdt-section" id="luxury-fleet">
       <div className="vdt-container">
@@ -12,77 +67,23 @@ export default function VehicleShowcase() {
         </div>
 
         <div className="vdt-grid">
-          {/* S CLASS */}
-          <article className="vdt-card">
-            <div className="vdt-fleet-image">
-              <img src="/images/mercedes-s-class.webp" alt="Mercedes-Benz S-Class" loading="lazy" />
-            </div>
-            <div className="vdt-card-content">
-              <span className="vdt-category">FLAGSHIP LUXURY</span>
-              <h3>Mercedes-Benz S-Class</h3>
-              <p className="vdt-description">
-                An exceptional luxury sedan offering elegance,
-                comfort and a refined chauffeur experience.
-              </p>
-              <Link to="/luxury-fleet/" className="vdt-outline-btn">
-                EXPLORE VEHICLE →
-              </Link>
-            </div>
-          </article>
-
-          {/* E CLASS */}
-          <article className="vdt-card">
-            <div className="vdt-fleet-image">
-              <img src="/images/mercedes-e-class.webp" alt="Mercedes-Benz E-Class" loading="lazy" />
-            </div>
-            <div className="vdt-card-content">
-              <span className="vdt-category">EXECUTIVE COMFORT</span>
-              <h3>Mercedes-Benz E-Class</h3>
-              <p className="vdt-description">
-                Sophisticated executive transportation for
-                airport transfers and business journeys.
-              </p>
-              <Link to="/luxury-fleet/" className="vdt-outline-btn">
-                EXPLORE VEHICLE →
-              </Link>
-            </div>
-          </article>
-
-          {/* V CLASS */}
-          <article className="vdt-card">
-            <div className="vdt-fleet-image">
-              <img src="/images/mercedes-v-class.webp" alt="Mercedes-Benz V-Class" loading="lazy" />
-            </div>
-            <div className="vdt-card-content">
-              <span className="vdt-category">GROUP LUXURY</span>
-              <h3>Mercedes-Benz V-Class</h3>
-              <p className="vdt-description">
-                Spacious premium transportation for families,
-                small groups and private journeys.
-              </p>
-              <Link to="/luxury-fleet/" className="vdt-outline-btn">
-                EXPLORE VEHICLE →
-              </Link>
-            </div>
-          </article>
-
-          {/* SPRINTER */}
-          <article className="vdt-card">
-            <div className="vdt-fleet-image">
-              <img src="/images/mercedes-sprinter-transparent.webp" alt="Mercedes-Benz Sprinter" loading="lazy" />
-            </div>
-            <div className="vdt-card-content">
-              <span className="vdt-category">PREMIUM GROUP TRAVEL</span>
-              <h3>Mercedes-Benz Sprinter</h3>
-              <p className="vdt-description">
-                Comfortable premium group transportation
-                for corporate travel and private tours.
-              </p>
-              <Link to="/luxury-fleet/" className="vdt-outline-btn">
-                EXPLORE VEHICLE →
-              </Link>
-            </div>
-          </article>
+          {vehicles.map((v) => (
+            <article key={v.vehicleId} className="vdt-card">
+              <div className="vdt-fleet-image">
+                <img src={v.mainImage} alt={v.name} loading="lazy" />
+              </div>
+              <div className="vdt-card-content">
+                <span className="vdt-category">{v.category}</span>
+                <h3>{v.name}</h3>
+                <p className="vdt-description">
+                  {v.shortDescription}
+                </p>
+                <Link to="/luxury-fleet/" className="vdt-outline-btn">
+                  EXPLORE VEHICLE →
+                </Link>
+              </div>
+            </article>
+          ))}
         </div>
       </div>
     </section>

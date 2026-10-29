@@ -1,14 +1,23 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Clock, Users, ArrowRight, Sparkles } from 'lucide-react';
 import { pricingData } from '../data/pages';
 import BookingWidget from '../components/BookingWidget';
 import { useLanguage } from '../context/LanguageContext';
+import { fetchPublicDayTrips, CANONICAL_DAY_TRIP_IMAGES, sanitizeImageUrl } from '../services/api';
 
 export default function Pricing() {
   const { t } = useLanguage();
 
-  React.useEffect(() => {
+  const defaultTours = Array.isArray(pricingData?.tours)
+    ? pricingData.tours.filter(
+        (t) => t && t.slug && !t.slug.includes('airport') && !t.slug.includes('hourly') && !t.slug.includes('secure')
+      )
+    : [];
+
+  const [tours, setTours] = useState(defaultTours);
+
+  useEffect(() => {
     document.title = 'Private Day Trips from Vienna with a Personal Chauffeur | Vienna Day Trip';
     let canonical = document.querySelector('link[rel="canonical"]');
     if (!canonical) {
@@ -17,12 +26,29 @@ export default function Pricing() {
       document.head.appendChild(canonical);
     }
     canonical.href = 'https://viennadaytrip.com/day-trips/';
-  }, []);
 
-  const toursList = Array.isArray(pricingData?.tours) ? pricingData.tours : [];
-  const signatureTours = toursList.filter(
-    (t) => t && t.slug && !t.slug.includes('airport') && !t.slug.includes('hourly') && !t.slug.includes('secure')
-  );
+    let isMounted = true;
+    async function loadTrips() {
+      try {
+        const live = await fetchPublicDayTrips();
+        if (isMounted && Array.isArray(live) && live.length > 0) {
+          const formatted = live.map((t) => ({
+            slug: t.slug,
+            title: t.title || `${t.name} from Vienna`,
+            tag: t.eyebrow || 'Signature Tour',
+            desc: t.shortDesc || t.desc || (typeof t.fullDesc === 'string' ? t.fullDesc.replace(/<[^>]*>?/gm, '').substring(0, 160) : ''),
+            duration: t.duration || 'Full Day (10-12h)',
+            capacity: '1–7 Guests',
+            price: t.price || 'From €550',
+            image: sanitizeImageUrl(t.image, CANONICAL_DAY_TRIP_IMAGES[t.slug] || '/images/vienna-palace-backdrop.webp')
+          }));
+          setTours(formatted);
+        }
+      } catch (e) {}
+    }
+    loadTrips();
+    return () => { isMounted = false; };
+  }, []);
 
   const eyebrow = t('pricing_eyebrow') || pricingData?.eyebrow || 'PRIVATE CHAUFFEUR EXPERIENCES';
   const title = t('pricing_title') || pricingData?.title || 'Private Day Trips from Vienna with a Personal Chauffeur';
@@ -103,7 +129,7 @@ export default function Pricing() {
               marginBottom: '5rem'
             }}
           >
-            {signatureTours.map((tour) => (
+            {tours.map((tour) => (
               <div
                 key={tour.slug}
                 className="card-strada"

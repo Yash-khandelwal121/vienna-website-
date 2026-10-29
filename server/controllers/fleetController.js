@@ -6,7 +6,11 @@ import { db } from '../config/db.js';
  */
 export async function getPublicVehicles(req, res) {
   try {
-    const vehicles = await db.vehicles.findMany({ where: { isPublished: true } });
+    const raw = await db.vehicles.findMany({ where: { isPublished: true } });
+    const vehicles = raw.map((v) => ({
+      ...v,
+      image: v.transparentImage || v.mainImage || v.image
+    }));
     res.json({ success: true, count: vehicles.length, vehicles });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Failed to retrieve vehicles.' });
@@ -59,7 +63,9 @@ export async function createVehicle(req, res) {
         gallery: data.gallery || [],
         availability: data.availability || 'AVAILABLE',
         displayOrder: Number(data.displayOrder) || 0,
-        isPublished: data.isPublished !== false
+        isPublished: data.isPublished !== false,
+        seoTitle: data.seoTitle || null,
+        seoDescription: data.seoDescription || null
       }
     });
 
@@ -73,7 +79,7 @@ export async function createVehicle(req, res) {
 
     res.status(201).json({ success: true, message: 'Vehicle created successfully.', vehicle: created });
   } catch (error) {
-    res.status(500).json({ success: false, error: 'Failed to create vehicle.' });
+    res.status(500).json({ success: false, error: error.message || 'Failed to create vehicle.' });
   }
 }
 
@@ -82,9 +88,31 @@ export async function createVehicle(req, res) {
  */
 export async function updateVehicle(req, res) {
   try {
+    const { id } = req.params;
+    if (!id) {
+      return res.status(400).json({ success: false, error: 'Vehicle ID is required.' });
+    }
+
+    const { id: _id, createdAt: _ca, updatedAt: _ua, ...cleanData } = req.body || {};
+
+    if (cleanData.vehicleId) {
+      cleanData.vehicleId = cleanData.vehicleId.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-');
+      const existing = await db.vehicles.findUnique({ where: { vehicleId: cleanData.vehicleId } });
+      if (existing && existing.id !== id) {
+        return res.status(409).json({ success: false, error: `A vehicle with ID "${cleanData.vehicleId}" already exists.` });
+      }
+    }
+
+    if (cleanData.displayOrder !== undefined) {
+      cleanData.displayOrder = Number(cleanData.displayOrder) || 0;
+    }
+    if (cleanData.isPublished !== undefined) {
+      cleanData.isPublished = Boolean(cleanData.isPublished);
+    }
+
     const updated = await db.vehicles.update({
-      where: { id: req.params.id },
-      data: req.body
+      where: { id },
+      data: cleanData
     });
 
     if (!updated) {
@@ -101,7 +129,7 @@ export async function updateVehicle(req, res) {
 
     res.json({ success: true, message: 'Vehicle updated successfully.', vehicle: updated });
   } catch (error) {
-    res.status(500).json({ success: false, error: 'Failed to update vehicle.' });
+    res.status(500).json({ success: false, error: error.message || 'Failed to update vehicle.' });
   }
 }
 

@@ -409,7 +409,7 @@ async function loadSeedData() {
       shortDesc: 'Discover the fairytale Alpine village of Hallstatt, Lake Hallstatt, and Salzkammergut mountain panoramas.',
       fullDesc: 'Journey through the Salzkammergut Lake District to Austria’s most picturesque lakeside village. Enjoy a private boat ride, the ancient salt mine, and breathtaking views from the Skywalk.',
       duration: '11–12 Hours',
-      image: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80',
+      image: '/images/Hallstatt.jpg',
       price: 'From €650',
       isPublished: true,
       displayOrder: 1,
@@ -425,7 +425,7 @@ async function loadSeedData() {
       shortDesc: 'Explore Mozart’s birthplace, Mirabell Gardens, Hohensalzburg Fortress, and Sound of Music filming locations.',
       fullDesc: 'Travel through the Austrian countryside to the Baroque jewel of Salzburg. Walk through the Getreidegasse and visit the iconic fortress.',
       duration: '12 Hours',
-      image: 'https://images.unsplash.com/photo-1516550893923-42d28e5677af?auto=format&fit=crop&w=1200&q=80',
+      image: 'https://viennadaytrip.com/wp-content/uploads/2026/03/St.-Gilgen-–-Coffee-Stop-by-the-Lake.jpg',
       price: 'From €680',
       isPublished: true,
       displayOrder: 2,
@@ -441,7 +441,7 @@ async function loadSeedData() {
       shortDesc: 'Cross the border to Hungary’s majestic capital. Marvel at Buda Castle, the Parliament Building, and Fisherman’s Bastion.',
       fullDesc: 'Experience the grandeur of Budapest with private door-to-door transfer across Hungary.',
       duration: '11–12 Hours',
-      image: 'https://images.unsplash.com/photo-1549877452-9c387954fbc2?auto=format&fit=crop&w=1200&q=80',
+      image: '/images/gallery-budapest.webp',
       price: 'From €640',
       isPublished: true,
       displayOrder: 3,
@@ -457,7 +457,7 @@ async function loadSeedData() {
       shortDesc: 'Immerse yourself in historic Prague: Charles Bridge, Prague Castle, and the Astronomical Clock.',
       fullDesc: 'A comfortable full-day private journey from Vienna to the historic heart of Bohemia.',
       duration: '13–14 Hours',
-      image: 'https://images.unsplash.com/photo-1541849546-216549ae216d?auto=format&fit=crop&w=1200&q=80',
+      image: 'https://viennadaytrip.com/wp-content/uploads/2026/03/extra.webp',
       price: 'From €750',
       isPublished: true,
       displayOrder: 4,
@@ -473,7 +473,7 @@ async function loadSeedData() {
       shortDesc: 'A rapid 50-minute private transfer to Slovakia’s charming capital on the Danube.',
       fullDesc: 'Visit Bratislava Castle, the medieval Old Town, and St. Martin’s Cathedral in a relaxed half-day or full-day tour.',
       duration: '6–8 Hours',
-      image: 'https://images.unsplash.com/photo-1563805042-7684c019e1cb?auto=format&fit=crop&w=1200&q=80',
+      image: '/images/gallery-bratislava.webp',
       price: 'From €320',
       isPublished: true,
       displayOrder: 5,
@@ -489,7 +489,7 @@ async function loadSeedData() {
       shortDesc: 'Terraced vineyards, Dürnstein Castle ruins, and the breathtaking Baroque Melk Abbey.',
       fullDesc: 'Follow the scenic Danube River through Austria’s most celebrated wine-growing region with wine tasting opportunities.',
       duration: '8–9 Hours',
-      image: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80',
+      image: '/images/gallery-wachau.webp',
       price: 'From €490',
       isPublished: true,
       displayOrder: 6,
@@ -581,7 +581,7 @@ export async function hydrateFromSanity() {
 }
 
 // Helper to resolve Neon database URL with fallback DNS when local ISP/router returns RCODE_REFUSED
-export async function getResilientDatabaseUrl(rawUrl) {
+export async function getResilientDatabaseUrl(rawUrl, forceResolve = false) {
   if (!rawUrl) return rawUrl;
   try {
     const parsed = new URL(rawUrl);
@@ -589,11 +589,13 @@ export async function getResilientDatabaseUrl(rawUrl) {
     if (!host.includes('neon.tech')) return rawUrl;
 
     const dns = await import('dns');
-    try {
-      await dns.promises.lookup(host);
-      return rawUrl; // Native lookup succeeds
-    } catch (e) {
-      // Local DNS failed (e.g. JioFiber / router RCODE_REFUSED)
+    if (!forceResolve) {
+      try {
+        await dns.promises.lookup(host);
+        return rawUrl; // Native lookup succeeds
+      } catch (e) {
+        // Local DNS failed (e.g. JioFiber / router RCODE_REFUSED)
+      }
     }
 
     const resolver = new dns.promises.Resolver();
@@ -625,7 +627,7 @@ export async function initDatabase() {
     } catch (err) {
       // Try resilient DNS fallback for local environments where router DNS refuses Neon host
       try {
-        const resilientUrl = await getResilientDatabaseUrl(resolvedDatabaseUrl);
+        const resilientUrl = await getResilientDatabaseUrl(resolvedDatabaseUrl, true);
         if (resilientUrl && resilientUrl !== resolvedDatabaseUrl) {
           prisma = new PrismaClient({
             datasources: { db: { url: resilientUrl } },

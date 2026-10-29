@@ -18,8 +18,7 @@ export default function DestinationGallery() {
               alt="Hallstatt"
               loading="lazy"
               onError={(e) => {
-                e.currentTarget.src =
-                  'https://viennadaytrip.com/wp-content/uploads/2026/03/Fairytale-Village-of-Hallstatt.jpg';
+                e.currentTarget.src = '/images/Hallstatt.jpg';
               }}
             />
             <div className="vdt-gallery-card-content">

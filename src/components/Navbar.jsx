@@ -152,35 +152,22 @@ export default function Navbar() {
               />
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.12rem' }}>
-              <span
-                className="brand-logo-text-main"
-                style={{
-                  fontFamily: 'var(--font-heading)',
-                  fontSize: '1.2rem',
-                  fontWeight: 800,
-                  letterSpacing: '0.08em',
-                  color: '#17191C',
-                  textTransform: 'uppercase',
-                  lineHeight: 1
-                }}
-              >
-                VIENNA DAY TRIP
-              </span>
-              <span
-                className="brand-logo-text-sub"
-                style={{
-                  fontFamily: 'var(--font-heading)',
-                  fontSize: '0.64rem',
-                  letterSpacing: '0.18em',
-                  color: '#C69C50',
-                  textTransform: 'uppercase',
-                  fontWeight: 700
-                }}
-              >
-                PRIVATE CHAUFFEUR TOURS
-              </span>
-            </div>
+            <span
+              className="brand-logo-text-main"
+              style={{
+                fontFamily: 'var(--font-heading)',
+                fontSize: '1.25rem',
+                fontWeight: 800,
+                letterSpacing: '0.08em',
+                color: '#17191C',
+                textTransform: 'uppercase',
+                lineHeight: 1,
+                display: 'inline-flex',
+                alignItems: 'center'
+              }}
+            >
+              VIENNA DAY TRIP
+            </span>
           </Link>
 
           {/* Desktop Navigation Links (CENTER): LOGO | Home | Our Services ▾ | Day Trips ▾ | Luxury Fleet | About Us */}
@@ -474,10 +461,9 @@ export default function Navbar() {
               )}
             </div>
 
-            {/* Champagne Gold Book Now Button */}
-            <button
-              type="button"
-              onClick={scrollToHeroBooking}
+            {/* Champagne Gold Book Now Button (Navigates directly to /booking) */}
+            <Link
+              to="/booking"
               className="btn header-book-btn"
               style={{
                 display: 'inline-flex',
@@ -494,6 +480,7 @@ export default function Navbar() {
                 boxShadow: '0 4px 14px rgba(198, 156, 80, 0.28)',
                 cursor: 'pointer',
                 transition: 'all 0.25s ease',
+                textDecoration: 'none',
                 flexShrink: 0
               }}
               onMouseEnter={(e) => {
@@ -507,7 +494,7 @@ export default function Navbar() {
             >
               <Calendar size={14} />
               <span>{t('nav_book_now')}</span>
-            </button>
+            </Link>
 
             {/* Mobile Hamburger Button (44x44px recommended touch target) */}
             <button
@@ -727,18 +714,23 @@ export default function Navbar() {
           </div>
 
           <div style={{ marginTop: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-            <button
-              type="button"
-              onClick={() => {
-                setMobileOpen(false);
-                scrollToHeroBooking();
-              }}
+            <Link
+              to="/booking"
+              onClick={() => setMobileOpen(false)}
               className="btn btn-primary"
-              style={{ width: '100%', justifyContent: 'center', padding: '0.85rem' }}
+              style={{
+                width: '100%',
+                justifyContent: 'center',
+                padding: '0.85rem',
+                textDecoration: 'none',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem'
+              }}
             >
               <Calendar size={16} />
               <span>{t('nav_book_now')}</span>
-            </button>
+            </Link>
 
             <a
               href={`tel:${siteConfig.phone}`}

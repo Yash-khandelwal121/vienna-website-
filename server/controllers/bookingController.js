@@ -22,7 +22,15 @@ export async function createBooking(req, res) {
       specialRequests
     } = req.body;
 
-    if (!customerName || !email || !pickupLocation || !dropoffLocation || !pickupDate || !pickupTime) {
+    const resolvedDropoff =
+      (dropoffLocation && dropoffLocation.trim()) ||
+      (serviceType?.toLowerCase().includes('hourly')
+        ? 'Vienna (As Directed)'
+        : serviceType?.toLowerCase().includes('day trip')
+        ? 'Vienna Day Trip'
+        : '');
+
+    if (!customerName || !email || !pickupLocation || !resolvedDropoff || !pickupDate || !pickupTime) {
       return res.status(400).json({
         success: false,
         error: 'Please fill in all required journey fields (Name, Email, Pickup, Dropoff, Date, Time).'
@@ -39,7 +47,7 @@ export async function createBooking(req, res) {
         phone: sanitizeText(phone || ''),
         serviceType: sanitizeText(serviceType || 'Airport Transfer'),
         pickupLocation: sanitizeText(pickupLocation),
-        dropoffLocation: sanitizeText(dropoffLocation),
+        dropoffLocation: sanitizeText(resolvedDropoff),
         pickupDate: sanitizeText(pickupDate),
         pickupTime: sanitizeText(pickupTime),
         passengerCount: sanitizeText(passengerCount || '1-3'),

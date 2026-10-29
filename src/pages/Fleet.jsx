@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Users,
@@ -22,24 +22,76 @@ import { fleetData } from '../data/fleet';
 import { siteConfig } from '../data/site';
 import VehicleModal from '../components/VehicleModal';
 import { useLanguage } from '../context/LanguageContext';
+import { fetchPublicVehicles, sanitizeImageUrl } from '../services/api';
 
 export default function Fleet() {
   const { t } = useLanguage();
   const navigate = useNavigate();
 
-  // Active vehicle state: defaults to Mercedes-Benz S-Class (index 1 in fleetData or S-Class)
-  const sClassIndex = fleetData.findIndex((c) => c.id === 's-class');
+  const [fleetList, setFleetList] = useState(fleetData);
+
+  useEffect(() => {
+    let isMounted = true;
+    async function loadFleet() {
+      try {
+        const live = await fetchPublicVehicles();
+        if (isMounted && Array.isArray(live) && live.length > 0) {
+          const merged = live.map((v) => {
+            const staticMatch = fleetData.find((f) => f.id === v.vehicleId || f.id === v.id);
+            const image = sanitizeImageUrl(v.image || v.transparentImage, staticMatch?.image || '/cars/s-class.png');
+            const gallery = Array.isArray(v.gallery) && v.gallery.length > 0
+              ? v.gallery
+              : (Array.isArray(staticMatch?.gallery) && staticMatch.gallery.length > 0 ? staticMatch.gallery : [image]);
+            const features = Array.isArray(v.features) && v.features.length > 0
+              ? v.features
+              : (staticMatch?.features || []);
+
+            return {
+              ...staticMatch,
+              ...v,
+              id: v.vehicleId || v.id,
+              name: v.name,
+              category: v.category,
+              badge: v.badge || staticMatch?.badge || v.category,
+              tagline: v.tagline || staticMatch?.tagline || '',
+              description: v.shortDescription || staticMatch?.description || '',
+              fullDesc: v.fullDescription || staticMatch?.fullDesc || '',
+              passengers: v.passengers || staticMatch?.passengers || '3 Guests',
+              luggage: v.luggage || staticMatch?.luggage || '2 Large Bags',
+              ride: v.ride || staticMatch?.ride || 'AIRMATIC Suspension',
+              image,
+              gallery,
+              features,
+              angles: staticMatch?.angles || [v.transparentImage || v.mainImage || image],
+              specs: staticMatch?.specs || [
+                { label: 'Passenger Capacity', val: v.passengers || '3 Guests' },
+                { label: 'Luggage Capacity', val: v.luggage || '2 Large Bags' },
+                { label: 'Chassis & Ride', val: v.ride || 'AIRMATIC Suspension' },
+                { label: 'Availability', val: v.availability || '24/7 Monitored' }
+              ]
+            };
+          });
+          setFleetList(merged);
+        }
+      } catch (e) {}
+    }
+    loadFleet();
+    return () => { isMounted = false; };
+  }, []);
+
+  // Active vehicle state: defaults to Mercedes-Benz S-Class
+  const sClassIndex = fleetList.findIndex((c) => c.id === 's-class');
   const [selectedIdx, setSelectedIdx] = useState(sClassIndex !== -1 ? sClassIndex : 0);
   const [activeAngleIdx, setActiveAngleIdx] = useState(0);
 
-  // 360° Showroom modal state (reusing existing VehicleModal)
+  // 360° Showroom modal state
   const [modalOpen, setModalOpen] = useState(false);
 
   // Single-expand FAQ state
   const [openFaqIdx, setOpenFaqIdx] = useState(0);
 
   const showroomRef = useRef(null);
-  const car = fleetData[selectedIdx] || fleetData[0];
+  const car = fleetList[selectedIdx] || fleetList[0] || fleetData[0];
 
   const handleSelectVehicle = (idx) => {
     setSelectedIdx(idx);
@@ -47,12 +99,12 @@ export default function Fleet() {
   };
 
   const handleNextShowroomCar = () => {
-    setSelectedIdx((prev) => (prev + 1) % fleetData.length);
+    setSelectedIdx((prev) => (prev + 1) % fleetList.length);
     setActiveAngleIdx(0);
   };
 
   const handlePrevShowroomCar = () => {
-    setSelectedIdx((prev) => (prev - 1 + fleetData.length) % fleetData.length);
+    setSelectedIdx((prev) => (prev - 1 + fleetList.length) % fleetList.length);
     setActiveAngleIdx(0);
   };
 
@@ -417,7 +469,7 @@ export default function Fleet() {
       >
         <div className="container-wide">
           <div className="fleet-tabs-grid">
-            {fleetData.map((item, idx) => {
+            {fleetList.map((item, idx) => {
               const isActive = selectedIdx === idx;
               const isArmored = item.id === 'armored';
 
@@ -689,7 +741,7 @@ export default function Fleet() {
               </div>
 
               {/* Gallery Angle Thumbnails (front, side, interior) */}
-              {car.gallery && car.gallery.length > 1 && (
+              {Array.isArray(car?.gallery) && car.gallery.length > 1 && (
                 <div className="fleet-gallery-strip">
                   {car.gallery.map((imgUrl, angleIdx) => (
                     <button
@@ -807,7 +859,7 @@ export default function Fleet() {
                   Confirmed Luxury Specifications
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
-                  {car.features.map((feat, i) => (
+                  {(Array.isArray(car?.features) ? car.features : []).map((feat, i) => (
                     <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.65rem' }}>
                       <div
                         style={{
@@ -900,7 +952,7 @@ export default function Fleet() {
 
           {/* 5 Vehicle Cards Grid */}
           <div className="fleet-cards-grid">
-            {fleetData.map((item, idx) => {
+            {fleetList.map((item, idx) => {
               const isArmored = item.id === 'armored';
               const isSelected = selectedIdx === idx;
 
@@ -1343,7 +1395,7 @@ export default function Fleet() {
           isOpen={modalOpen}
           onClose={() => setModalOpen(false)}
           vehicle={car}
-          vehicles={fleetData}
+          vehicles={fleetList}
           currentCarIdx={selectedIdx}
           onSelectCar={handleSelectVehicle}
           onBookVehicle={(selectedCar) => {

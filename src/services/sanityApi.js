@@ -183,9 +183,17 @@ export async function fetchSanityFleet() {
     const items = await sanityClient.fetch(query);
     if (items && items.length > 0) {
       return items.map((v) => {
-        let imageUrl = v.image?.imageUrl || '/images/fleet/s-class-transparent.png';
+        let imageUrl = v.image?.imageUrl;
         if (v.image?.asset) {
           imageUrl = urlForImage(v.image) || imageUrl;
+        }
+        if (!imageUrl || typeof imageUrl !== 'string' || !imageUrl.trim()) {
+          const key = (v.model || v.name || '').toLowerCase();
+          if (key.includes('e-class')) imageUrl = '/cars/e-class.png';
+          else if (key.includes('v-class')) imageUrl = '/cars/v-class.png';
+          else if (key.includes('sprinter')) imageUrl = '/cars/sprinter.png';
+          else if (key.includes('armored')) imageUrl = '/cars/armored.png';
+          else imageUrl = '/cars/s-class.png';
         }
         return {
           id: v._id,
@@ -229,19 +237,25 @@ export async function fetchSanityDayTrips() {
     }`;
     const items = await sanityClient.fetch(query);
     if (items && items.length > 0) {
-      return items.map((t) => ({
-        id: t._id,
-        title: t.title,
-        slug: t.slug?.current || '',
-        destination: t.destination,
-        duration: t.duration,
-        price: t.price,
-        shortDescription: t.shortDescription,
-        itinerary: t.itinerary,
-        included: t.included,
-        heroImage: t.heroImage?.imageUrl || (t.heroImage?.asset ? urlForImage(t.heroImage) : ''),
-        _source: 'sanity',
-      }));
+      return items.map((t) => {
+        let heroImage = t.heroImage?.imageUrl;
+        if (t.heroImage?.asset) {
+          heroImage = urlForImage(t.heroImage) || heroImage;
+        }
+        return {
+          id: t._id,
+          title: t.title,
+          slug: t.slug?.current || '',
+          destination: t.destination,
+          duration: t.duration,
+          price: t.price,
+          shortDescription: t.shortDescription,
+          itinerary: t.itinerary,
+          included: t.included,
+          heroImage: (typeof heroImage === 'string' && heroImage.trim()) ? heroImage.trim() : '',
+          _source: 'sanity',
+        };
+      });
     }
   } catch (err) {
     console.warn('[Sanity CMS] Day trips query notice:', err.message);
@@ -269,20 +283,26 @@ export async function fetchSanityServices() {
     }`;
     const items = await sanityClient.fetch(query);
     if (items && items.length > 0) {
-      return items.map((s) => ({
-        id: s._id,
-        title: s.title,
-        slug: s.slug?.current || '',
-        subtitle: s.subtitle,
-        description: s.shortDescription,
-        fullDescription: s.fullDescription,
-        icon: s.icon,
-        startingPrice: s.startingPrice,
-        priceUnit: s.priceUnit,
-        highlights: s.highlights,
-        heroImage: s.heroImage?.imageUrl || (s.heroImage?.asset ? urlForImage(s.heroImage) : ''),
-        _source: 'sanity',
-      }));
+      return items.map((s) => {
+        let heroImage = s.heroImage?.imageUrl;
+        if (s.heroImage?.asset) {
+          heroImage = urlForImage(s.heroImage) || heroImage;
+        }
+        return {
+          id: s._id,
+          title: s.title,
+          slug: s.slug?.current || '',
+          subtitle: s.subtitle,
+          description: s.shortDescription,
+          fullDescription: s.fullDescription,
+          icon: s.icon,
+          startingPrice: s.startingPrice,
+          priceUnit: s.priceUnit,
+          highlights: s.highlights,
+          heroImage: (typeof heroImage === 'string' && heroImage.trim()) ? heroImage.trim() : '',
+          _source: 'sanity',
+        };
+      });
     }
   } catch (err) {
     console.warn('[Sanity CMS] Services query notice:', err.message);

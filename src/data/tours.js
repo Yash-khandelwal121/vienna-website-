@@ -332,7 +332,7 @@ export const toursData = {
     eyebrow: "WORLD HERITAGE ALPINE GEM",
     metaTitle: "Private Hallstatt Day Trip from Vienna | Small Group Tour",
     metaDescription: "Enjoy a private Hallstatt day trip from Vienna with a licensed chauffeur. Luxury Mercedes vehicles, flexible stops & scenic views.",
-    heroImage: "https://viennadaytrip.com/wp-content/uploads/2026/03/Fairytale-Village-of-Hallstatt.jpg",
+    heroImage: "/images/Hallstatt.jpg",
     stats: [
       { label: "Duration", value: "11–12 Hours" },
       { label: "Distance", value: "580 km Roundtrip" },
@@ -378,7 +378,7 @@ export const toursData = {
       {
         title: "Fairytale Village of Hallstatt",
         text: "The iconic postcard scene of 16th-century Alpine houses hugging the sheer rockface.",
-        image: "https://viennadaytrip.com/wp-content/uploads/2026/03/Fairytale-Village-of-Hallstatt.jpg"
+        image: "/images/Hallstatt.jpg"
       },
       {
         title: "St. Gilgen Lakeside Coffee Stop",
@@ -848,7 +848,7 @@ export const toursData = {
       {
         title: "Alpine Lakes & Swiss Frontiers",
         text: "Crystal clear mountain passes and bespoke multi-day European touring.",
-        image: "https://viennadaytrip.com/wp-content/uploads/2026/03/Fairytale-Village-of-Hallstatt.jpg"
+        image: "/images/Hallstatt.jpg"
       }
     ],
     faqs: [

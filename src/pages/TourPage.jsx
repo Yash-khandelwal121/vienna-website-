@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import {
   MapPin, Clock, Calendar, Check, X, ArrowRight, ShieldCheck,
@@ -9,12 +9,62 @@ import FaqAccordion from '../components/FaqAccordion';
 import BookingWidget from '../components/BookingWidget';
 import { siteConfig } from '../data/site';
 import { signatureDestinations } from '../components/DestinationCarousel';
+import { fetchPublicDayTripBySlug } from '../services/api';
 
 export default function TourPage({ tourKey }) {
   const params = useParams();
-  // Get tour key either from props or path parameter
   const key = tourKey || params.slug || 'hallstatt-day-trip-from-vienna';
-  const tour = toursData[key] || toursData['hallstatt-day-trip-from-vienna'] || {};
+  const [liveTour, setLiveTour] = useState(toursData[key] || null);
+
+  useEffect(() => {
+    let isMounted = true;
+    async function load() {
+      if (toursData[key]) {
+        setLiveTour(toursData[key]);
+        return;
+      }
+      try {
+        const fetched = await fetchPublicDayTripBySlug(key);
+        if (isMounted && fetched) {
+          const formatted = {
+            ...fetched,
+            slug: fetched.slug,
+            title: fetched.title || `${fetched.name} from Vienna`,
+            eyebrow: fetched.eyebrow || 'PRIVATE LUXURY CHAUFFEUR',
+            heroImage: fetched.image || 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80',
+            stats: [
+              { label: 'Duration', value: fetched.duration || 'Full Day (10-12h)' },
+              { label: 'Departure', value: 'Vienna ⇄ Direct' },
+              { label: 'Fleet', value: 'Mercedes-Benz' },
+              { label: 'Price', value: fetched.price || 'From €550' }
+            ],
+            overview: [
+              fetched.shortDesc || '',
+              typeof fetched.fullDesc === 'string' ? fetched.fullDesc.replace(/<[^>]*>?/gm, '') : ''
+            ].filter(Boolean),
+            highlights: Array.isArray(fetched.highlights) && fetched.highlights.length > 0 ? fetched.highlights : [
+              'Door-to-door luxury transport in Vienna',
+              'Professional English & German-speaking chauffeur',
+              'Scenic viewpoints and flexible schedule'
+            ],
+            itinerary: Array.isArray(fetched.itinerary) ? fetched.itinerary : [],
+            included: Array.isArray(fetched.inclusions) && fetched.inclusions.length > 0 ? fetched.inclusions : [
+              'Private Mercedes-Benz vehicle',
+              'Professional chauffeur',
+              'Chilled mineral water & Wi-Fi onboard'
+            ],
+            notIncluded: Array.isArray(fetched.exclusions) ? fetched.exclusions : ['Entrance tickets & meals'],
+            faqs: Array.isArray(fetched.faqs) ? fetched.faqs : []
+          };
+          setLiveTour(formatted);
+        }
+      } catch (e) {}
+    }
+    load();
+    return () => { isMounted = false; };
+  }, [key]);
+
+  const tour = liveTour || toursData[key] || toursData['hallstatt-day-trip-from-vienna'] || {};
 
   const stats = Array.isArray(tour?.stats) ? tour.stats : [];
   const overview = Array.isArray(tour?.overview) ? tour.overview : [];

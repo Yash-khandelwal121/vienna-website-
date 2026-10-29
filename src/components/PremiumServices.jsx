@@ -1,12 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "../context/LanguageContext";
+import { fetchPublicServices } from "../services/api";
 
 export default function PremiumServices() {
   const { t } = useLanguage();
   const [activeService, setActiveService] = useState(0);
 
-  const services = [
+  const defaultServices = [
     {
       number: "01",
       icon: "✈",
@@ -48,6 +49,31 @@ export default function PremiumServices() {
       link: "/secure-transportation/",
     },
   ];
+
+  const [servicesList, setServicesList] = useState(defaultServices);
+
+  useEffect(() => {
+    let isMounted = true;
+    async function load() {
+      try {
+        const live = await fetchPublicServices();
+        if (isMounted && Array.isArray(live) && live.length > 0) {
+          const icons = ["✈", "♙", "♜", "♢", "★", "✦"];
+          const formatted = live.map((s, idx) => ({
+            number: String(idx + 1).padStart(2, "0"),
+            icon: s.icon || icons[idx % icons.length],
+            title: s.name || s.title,
+            description: s.shortDesc || s.desc || "",
+            image: s.image || "/images/airport-transfer.webp",
+            link: s.ctaUrl || (s.slug ? `/${s.slug}/` : "/our-services/")
+          }));
+          setServicesList(formatted);
+        }
+      } catch (e) {}
+    }
+    load();
+    return () => { isMounted = false; };
+  }, []);
 
   return (
     <>
@@ -504,7 +530,7 @@ export default function PremiumServices() {
             </p>
 
             <div className="vdt-services-list">
-              {services.map((service, index) => (
+              {servicesList.map((service, index) => (
                 <div
                   key={service.number}
                   className={`vdt-service-row ${
@@ -546,7 +572,7 @@ export default function PremiumServices() {
                 activeService === 3 ? "service-has-frame" : ""
               }`}
             >
-              {services.map((service, index) => (
+              {servicesList.map((service, index) => (
                 <img
                   key={service.number}
                   src={service.image}

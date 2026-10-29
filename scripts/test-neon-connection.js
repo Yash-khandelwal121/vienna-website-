@@ -61,7 +61,7 @@ async function runDiagnostic() {
       console.log('  🔄 Testing connection via public Cloud DNS (8.8.8.8 / 1.1.1.1)...');
       
       const { getResilientDatabaseUrl } = await import('../server/config/db.js');
-      const resilientUrl = await getResilientDatabaseUrl(dbUrl);
+      const resilientUrl = await getResilientDatabaseUrl(dbUrl, true);
       
       if (resilientUrl && resilientUrl !== dbUrl) {
         prisma = new PrismaClient({

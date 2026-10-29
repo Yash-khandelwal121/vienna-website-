@@ -99,7 +99,7 @@ export default function Home() {
                   overflow: 'hidden',
                   border: '1px solid var(--border)',
                   position: 'relative',
-                  height: 'clamp(340px, 55vw, 560px)'
+                  height: 'clamp(380px, 55vw, 560px)'
                 }}
               >
                 <img
@@ -123,26 +123,70 @@ export default function Home() {
                 <div
                   style={{
                     position: 'absolute',
-                    bottom: '2rem',
-                    left: '2rem',
-                    right: '2rem',
-                    padding: '1.75rem',
-                    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                    bottom: 'clamp(0.85rem, 2.5vw, 1.85rem)',
+                    left: 'clamp(0.85rem, 2.5vw, 1.85rem)',
+                    right: 'clamp(0.85rem, 2.5vw, 1.85rem)',
+                    padding: 'clamp(0.9rem, 2vw, 1.5rem)',
+                    backgroundColor: 'rgba(255, 255, 255, 0.96)',
                     backdropFilter: 'blur(16px)',
                     border: '1px solid rgba(197, 160, 89, 0.35)',
                     borderRadius: 'var(--radius-lg)',
-                    boxShadow: '0 10px 30px rgba(0, 0, 0, 0.08)'
+                    boxShadow: '0 10px 30px rgba(0, 0, 0, 0.08)',
+                    textAlign: 'center',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    boxSizing: 'border-box'
                   }}
                 >
-                  <div style={{ color: 'var(--text-gold)', fontFamily: 'var(--font-heading)', fontSize: '0.85rem', letterSpacing: '0.12em', textTransform: 'uppercase', fontWeight: 700 }}>
-                    LICENSED OPERATOR SINCE 2019
-                  </div>
-                  <div style={{ fontFamily: 'var(--font-heading)', fontSize: '1.45rem', fontWeight: 800, color: 'var(--text-primary)', marginTop: '0.25rem' }}>
-                    HARMEET SINGH CHEEMA
-                  </div>
-                  <div style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', marginTop: '0.35rem' }}>
-                    Founder & Managing Director • Official Partner of Vienna Chamber of Commerce (WKO)
-                  </div>
+                  <a
+                    href="https://www.wko.at/wien/transport-verkehr/befoerderungsgewerbe-personenkraftwagen/start"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      textDecoration: 'none',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      gap: '0.65rem',
+                      width: '100%'
+                    }}
+                  >
+                    <img
+                      src="/images/wko-wien-logo.svg"
+                      alt="Wirtschaftskammer Wien (WKO)"
+                      style={{
+                        height: 'clamp(26px, 3.8vw, 34px)',
+                        width: 'auto',
+                        maxWidth: '100%',
+                        objectFit: 'contain',
+                        display: 'block',
+                        transition: 'transform 0.2s ease'
+                      }}
+                      onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.04)')}
+                      onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
+                    />
+                    <div
+                      style={{
+                        fontFamily: 'var(--font-heading)',
+                        fontSize: 'clamp(0.85rem, 1.35vw, 1.05rem)',
+                        fontWeight: 700,
+                        color: 'var(--text-primary)',
+                        lineHeight: 1.35,
+                        letterSpacing: '0.01em',
+                        transition: 'color 0.2s ease',
+                        textAlign: 'center',
+                        maxWidth: '100%',
+                        overflowWrap: 'break-word',
+                        wordBreak: 'break-word'
+                      }}
+                      onMouseEnter={(e) => (e.currentTarget.style.color = '#C69C50')}
+                      onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-primary)')}
+                    >
+                      Official Partner of the Vienna Chamber of Commerce (WKO)
+                    </div>
+                  </a>
                 </div>
               </div>
             </div>

@@ -13,6 +13,7 @@ import Contact from './pages/Contact';
 import Legal from './pages/Legal';
 import TourPage from './pages/TourPage';
 import NotFound from './pages/NotFound';
+import Booking from './pages/Booking';
 import AdminApp from './admin/AdminApp';
 
 const StudioPage = React.lazy(() => import('./studio/StudioPage'));
@@ -196,9 +197,9 @@ export default function App() {
         <Route path="impressum/" element={<Legal type="imprint" />} />
         <Route path="impressum" element={<Legal type="imprint" />} />
 
-        {/* Booking shortcut */}
-        <Route path="booking/" element={<Navigate to="/" replace />} />
-        <Route path="booking" element={<Navigate to="/" replace />} />
+        {/* Booking Page */}
+        <Route path="booking/" element={<Booking />} />
+        <Route path="booking" element={<Booking />} />
 
         {/* 404 Catch-All */}
         <Route path="*" element={<NotFound />} />

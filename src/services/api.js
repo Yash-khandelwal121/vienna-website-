@@ -24,90 +24,292 @@ export {
   fetchSanitySEO,
 };
 
-/**
- * Fetch published fleet vehicles from Sanity CMS -> Backend API -> Static Fallback
- */
-export async function fetchPublicVehicles() {
-  // 1. Try Sanity CMS
-  try {
-    const sanityVehicles = await fetchSanityFleet();
-    if (sanityVehicles && sanityVehicles.length > 0) {
-      return sanityVehicles;
-    }
-  } catch (err) {
-    // continue to backend
-  }
+export const CANONICAL_DAY_TRIP_IMAGES = {
+  'hallstatt-day-trip-from-vienna': '/images/Hallstatt.jpg',
+  'salzburg-day-trip': 'https://viennadaytrip.com/wp-content/uploads/2026/03/St.-Gilgen-–-Coffee-Stop-by-the-Lake.jpg',
+  'wachau-valley-trip': '/images/gallery-wachau.webp',
+  'budapest-day-trip': '/images/gallery-budapest.webp',
+  'prague-day-trip': 'https://viennadaytrip.com/wp-content/uploads/2026/03/extra.webp',
+  'bratislava-day-trip': '/images/gallery-bratislava.webp',
+  'vienna-sightseeing-tour': 'https://viennadaytrip.com/wp-content/uploads/2026/03/vienna-day-teip.jpeg',
+  'customized-day-trips': 'https://viennadaytrip.com/wp-content/uploads/2026/03/vienna-road-trip.jpeg',
+  'airport-transfer-vienna': 'https://viennadaytrip.com/wp-content/uploads/2026/03/Vienna-Airport-Schwechat-Terminal-Gate-Check-in-Guide-1024x576-1.webp',
+  'hourly-chauffeur-service': 'https://viennadaytrip.com/wp-content/uploads/2026/03/your-professional-chauffeur.jpg',
+  'secure-transportation': 'https://viennadaytrip.com/wp-content/uploads/2026/05/Armored-Vehicle-.jpeg',
+};
 
-  // 2. Try Node.js Backend API
-  try {
-    const res = await fetch('/api/v1/public/vehicles');
-    if (res.ok) {
-      const data = await res.json();
-      if (data.success && data.vehicles?.length > 0) {
-        return data.vehicles;
-      }
-    }
-  } catch (err) {
-    // Graceful offline fallback
-  }
+export const CANONICAL_FLEET_IMAGES = {
+  'e-class': '/cars/e-class.png',
+  's-class': '/cars/s-class.png',
+  'v-class': '/cars/v-class.png',
+  'sprinter': '/cars/sprinter.png',
+  'armored': '/cars/armored.png',
+  'sedan_business': '/cars/e-class.png',
+  'sedan_first': '/cars/s-class.png',
+  'van_business': '/cars/v-class.png',
+  'mercedes-benz-e-class': '/cars/e-class.png',
+  'mercedes-benz-s-class': '/cars/s-class.png',
+  'mercedes-benz-v-class': '/cars/v-class.png',
+  'mercedes-benz-sprinter': '/cars/sprinter.png',
+  'mercedes-benz-sprinter-vip': '/cars/sprinter.png',
+  'armored-luxury-vehicle': '/cars/armored.png'
+};
 
-  // 3. Fallback to bundled dataset
-  return fleetData;
+export const CANONICAL_SERVICE_IMAGES = {
+  'airport-transfers': 'https://viennadaytrip.com/wp-content/uploads/2026/03/Vienna-Airport-Schwechat-Terminal-Gate-Check-in-Guide-1024x576-1.webp',
+  'airport-transfer-vienna': 'https://viennadaytrip.com/wp-content/uploads/2026/03/Vienna-Airport-Schwechat-Terminal-Gate-Check-in-Guide-1024x576-1.webp',
+  'hourly-chauffeur': 'https://viennadaytrip.com/wp-content/uploads/2026/03/your-professional-chauffeur.jpg',
+  'hourly-chauffeur-service': 'https://viennadaytrip.com/wp-content/uploads/2026/03/your-professional-chauffeur.jpg',
+  'private-day-trips': '/images/Hallstatt.jpg',
+  'day-trips': '/images/Hallstatt.jpg',
+  'secure-transportation': 'https://viennadaytrip.com/wp-content/uploads/2026/05/Armored-Vehicle-.jpeg'
+};
+
+export function sanitizeImageUrl(url, fallbackUrl = '') {
+  if (!url || typeof url !== 'string') return fallbackUrl;
+  const trimmed = url.trim();
+  if (!trimmed) return fallbackUrl;
+  if (trimmed.includes('drive.google.com')) return fallbackUrl;
+  if (trimmed.includes('photo-1506744038136-46273834b3fb')) return fallbackUrl;
+  if (trimmed === '[object Object]') return fallbackUrl;
+  return trimmed;
+}
+
+// Global in-memory request deduplication and caching to prevent redundant requests and re-render loops
+const requestCache = new Map();
+const inFlightRequests = new Map();
+const CACHE_TTL_MS = 30000; // 30 seconds
+
+function dedupeRequest(key, fetcher) {
+  const cached = requestCache.get(key);
+  if (cached && Date.now() - cached.time < CACHE_TTL_MS) {
+    return Promise.resolve(cached.data);
+  }
+  if (inFlightRequests.has(key)) {
+    return inFlightRequests.get(key);
+  }
+  const promise = fetcher()
+    .then((result) => {
+      requestCache.set(key, { data: result, time: Date.now() });
+      inFlightRequests.delete(key);
+      return result;
+    })
+    .catch((err) => {
+      inFlightRequests.delete(key);
+      throw err;
+    });
+  inFlightRequests.set(key, promise);
+  return promise;
 }
 
 /**
- * Fetch published services from Node.js Backend API (PostgreSQL) -> Sanity CMS -> Static Fallback
+ * Fetch published fleet vehicles with model-specific image mapping and deduplication
+ */
+export async function fetchPublicVehicles() {
+  return dedupeRequest('public_vehicles', async () => {
+    // 1. Try Node.js Backend API
+    try {
+      const res = await fetch('/api/v1/public/vehicles');
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && Array.isArray(data.vehicles) && data.vehicles.length > 0) {
+          return data.vehicles.map((v) => {
+            const key = (v.model || v.name || v.id || '').toLowerCase().replace(/[^a-z0-9]/g, '-');
+            const fallback = CANONICAL_FLEET_IMAGES[key] || CANONICAL_FLEET_IMAGES[v.id] || '/cars/s-class.png';
+            return {
+              ...v,
+              image: sanitizeImageUrl(v.image, fallback)
+            };
+          });
+        }
+      }
+    } catch {}
+
+    // 2. Try Sanity CMS
+    try {
+      const sanityVehicles = await fetchSanityFleet();
+      if (sanityVehicles && sanityVehicles.length > 0) {
+        return sanityVehicles.map((v) => {
+          const key = (v.model || v.name || v.id || '').toLowerCase().replace(/[^a-z0-9]/g, '-');
+          const fallback = CANONICAL_FLEET_IMAGES[key] || CANONICAL_FLEET_IMAGES[v.id] || '/cars/s-class.png';
+          return {
+            ...v,
+            image: sanitizeImageUrl(v.image, fallback)
+          };
+        });
+      }
+    } catch {}
+
+    // 3. Bundled static dataset
+    return fleetData;
+  });
+}
+
+/**
+ * Fetch published services with stable IDs and deduplication
  */
 export async function fetchPublicServices() {
-  // 1. Try Node.js Backend API (PostgreSQL Neon store)
+  return dedupeRequest('public_services', async () => {
+    // 1. Try Node.js Backend API
+    try {
+      const res = await fetch('/api/v1/public/services');
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && Array.isArray(data.services) && data.services.length > 0) {
+          return data.services.map((s) => {
+            const fallback = CANONICAL_SERVICE_IMAGES[s.slug] || '/images/vienna-palace-backdrop.webp';
+            return {
+              ...s,
+              image: sanitizeImageUrl(s.image, fallback)
+            };
+          });
+        }
+      }
+    } catch {}
+
+    // 2. Try Sanity CMS
+    try {
+      const sanityServices = await fetchSanityServices();
+      if (sanityServices && sanityServices.length > 0) {
+        const validServices = sanityServices.filter((s) => s && s.title && s.title.trim());
+        if (validServices.length > 0) {
+          return validServices.map((s) => {
+            const fallback = CANONICAL_SERVICE_IMAGES[s.slug] || '/images/vienna-palace-backdrop.webp';
+            return {
+              id: s.id,
+              slug: s.slug,
+              name: s.title,
+              shortDesc: s.description || s.subtitle || '',
+              fullDesc: s.fullDescription || '',
+              features: s.highlights || [],
+              image: sanitizeImageUrl(s.heroImage, fallback),
+              ctaLabel: 'Book Service',
+              ctaUrl: `/${s.slug}/`,
+              displayOrder: 1,
+              isPublished: true,
+            };
+          });
+        }
+      }
+    } catch {}
+
+    // 3. Bundled static dataset
+    return (servicesData.pillars || []).map((p, idx) => ({
+      id: `srv_${p.id}`,
+      slug: p.link?.replace(/^\/|\/$/g, '') || p.id,
+      name: p.title,
+      shortDesc: p.desc,
+      fullDesc: p.desc,
+      features: p.bullets || [],
+      image: sanitizeImageUrl(p.image, CANONICAL_SERVICE_IMAGES[p.id] || '/images/vienna-palace-backdrop.webp'),
+      ctaLabel: 'LEARN MORE & BOOK',
+      ctaUrl: p.link,
+      displayOrder: idx + 1,
+      isPublished: true,
+    }));
+  });
+}
+
+/**
+ * Fetch published day trips with canonical image mapping, robust deduplication, and zero cross-card pollution
+ */
+export async function fetchPublicDayTrips() {
+  return dedupeRequest('public_day_trips', async () => {
+    let backendTrips = [];
+    try {
+      const res = await fetch('/api/v1/public/day-trips');
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && Array.isArray(data.dayTrips)) {
+          backendTrips = data.dayTrips;
+        }
+      }
+    } catch {}
+
+    let sanityTrips = [];
+    try {
+      const sanityResult = await fetchSanityDayTrips();
+      if (Array.isArray(sanityResult)) sanityTrips = sanityResult;
+    } catch {}
+
+    const map = new Map();
+
+    // 1. Seed with Bundled static tours (Guaranteed pristine canonical baseline)
+    Object.values(toursData).forEach((t) => {
+      if (t.slug && !t.slug.includes('airport') && !t.slug.includes('hourly') && !t.slug.includes('secure')) {
+        const canonicalImg = CANONICAL_DAY_TRIP_IMAGES[t.slug] || t.heroImage;
+        map.set(t.slug, {
+          id: `tour_${t.slug}`,
+          slug: t.slug,
+          name: t.title?.replace(' from Vienna', '').replace(' Day Trip', '') || t.title,
+          title: t.title,
+          eyebrow: t.eyebrow || 'PRIVATE LUXURY CHAUFFEUR',
+          shortDesc: t.overview?.[0] || '',
+          fullDesc: t.overview?.join('\n\n') || '',
+          duration: t.stats?.find((s) => s.label === 'Duration')?.value || '10-12h',
+          image: canonicalImg,
+          price: 'From €550',
+          highlights: t.highlights || [],
+          inclusions: t.included || [],
+          exclusions: t.notIncluded || [],
+          itinerary: t.itinerary || [],
+          isPublished: true,
+          displayOrder: 1
+        });
+      }
+    });
+
+    // 2. Merge Sanity day trips without overwriting valid images with empty or generic URLs
+    sanityTrips.forEach((st) => {
+      if (st.slug && map.has(st.slug)) {
+        const prev = map.get(st.slug);
+        const resolvedImg = sanitizeImageUrl(st.heroImage, prev.image);
+        map.set(st.slug, {
+          ...prev,
+          ...st,
+          title: st.title || prev.title,
+          image: resolvedImg
+        });
+      }
+    });
+
+    // 3. Merge Backend / Neon PostgreSQL day trips (Preserving valid admin uploads while replacing broken/generic placeholders)
+    backendTrips.forEach((bt) => {
+      if (bt.slug) {
+        const prev = map.get(bt.slug) || {};
+        const fallback = CANONICAL_DAY_TRIP_IMAGES[bt.slug] || prev.image || '/images/vienna-palace-backdrop.webp';
+        const resolvedImg = sanitizeImageUrl(bt.image, fallback);
+        map.set(bt.slug, {
+          ...prev,
+          ...bt,
+          title: bt.title || prev.title,
+          image: resolvedImg
+        });
+      }
+    });
+
+    return Array.from(map.values()).filter((t) => t.isPublished !== false);
+  });
+}
+
+/**
+ * Fetch single day trip by slug (Backend API -> Bundled dataset)
+ */
+export async function fetchPublicDayTripBySlug(slug) {
+  const clean = (slug || '').trim().replace(/\/+$/, '');
+  if (!clean) return null;
+
   try {
-    const res = await fetch('/api/v1/public/services');
+    const res = await fetch(`/api/v1/public/day-trips/${clean}`);
     if (res.ok) {
       const data = await res.json();
-      if (data.success && Array.isArray(data.services) && data.services.length > 0) {
-        return data.services;
+      if (data.success && data.tour) {
+        return data.tour;
       }
     }
-  } catch (err) {
-    // Graceful offline fallback
-  }
+  } catch (err) {}
 
-  // 2. Try Sanity CMS
-  try {
-    const sanityServices = await fetchSanityServices();
-    if (sanityServices && sanityServices.length > 0) {
-      return sanityServices.map((s) => ({
-        id: s.id,
-        slug: s.slug,
-        name: s.title,
-        shortDesc: s.description || s.subtitle || '',
-        fullDesc: s.fullDescription || '',
-        features: s.highlights || [],
-        image: s.heroImage || '/images/vienna-palace-backdrop.webp',
-        ctaLabel: 'Book Service',
-        ctaUrl: `/${s.slug}/`,
-        displayOrder: 1,
-        isPublished: true,
-      }));
-    }
-  } catch (err) {
-    // Graceful fallback
-  }
-
-  // 3. Fallback to bundled static dataset
-  return (servicesData.pillars || []).map((p, idx) => ({
-    id: `srv_${p.id}`,
-    slug: p.link?.replace(/^\/|\/$/g, '') || p.id,
-    name: p.title,
-    shortDesc: p.desc,
-    fullDesc: p.desc,
-    features: p.bullets || [],
-    image: p.image,
-    ctaLabel: 'LEARN MORE & BOOK',
-    ctaUrl: p.link,
-    displayOrder: idx + 1,
-    isPublished: true,
-  }));
+  return toursData[clean] || null;
 }
 
 /**
@@ -115,114 +317,105 @@ export async function fetchPublicServices() {
  * Unified across Node.js Backend API (PostgreSQL / local store) and Sanity Cloud CMS
  */
 export async function fetchPublicBlogs({ page = 1, limit = 9, category = 'All', search = '' } = {}) {
-  let backendBlogs = [];
-  let sanityBlogs = [];
+  const cacheKey = `blogs_${page}_${limit}_${category}_${search}`;
+  return dedupeRequest(cacheKey, async () => {
+    let backendBlogs = [];
+    let sanityBlogs = [];
 
-  // 1. Fetch from Node.js Backend API
-  try {
-    const url = `/api/v1/public/blogs?limit=500&category=${encodeURIComponent(category)}&search=${encodeURIComponent(search)}`;
-    const res = await fetch(url);
-    if (res.ok) {
-      const data = await res.json();
-      if (data.success && Array.isArray(data.blogs)) {
-        backendBlogs = data.blogs;
+    // 1. Fetch from Node.js Backend API
+    try {
+      const url = `/api/v1/public/blogs?limit=500&category=${encodeURIComponent(category)}&search=${encodeURIComponent(search)}`;
+      const res = await fetch(url);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && Array.isArray(data.blogs)) {
+          backendBlogs = data.blogs;
+        }
       }
+    } catch (err) {}
+
+    // 2. Fetch from Sanity CMS
+    try {
+      const sanityResult = await fetchSanityBlogs({ limit: 500, category, search });
+      if (sanityResult && Array.isArray(sanityResult.blogs)) {
+        sanityBlogs = sanityResult.blogs;
+      }
+    } catch (err) {}
+
+    // 3. Fallback to local static dataset if both remote sources are empty
+    const baseList = (backendBlogs.length > 0 || sanityBlogs.length > 0)
+      ? []
+      : allBlogPosts;
+
+    const map = new Map();
+    baseList.forEach((b) => map.set(b.slug, b));
+    sanityBlogs.forEach((b) => map.set(b.slug, { ...map.get(b.slug), ...b }));
+    backendBlogs.forEach((b) => map.set(b.slug, { ...map.get(b.slug), ...b }));
+
+    let combined = Array.from(map.values()).filter((b) => b.isPublished !== false);
+
+    if (category && category !== 'All') {
+      combined = combined.filter((b) => b.category?.toLowerCase() === category.toLowerCase());
     }
-  } catch (err) {
-    // Continue to Sanity
-  }
-
-  // 2. Fetch from Sanity CMS
-  try {
-    const sanityResult = await fetchSanityBlogs({ limit: 500, category, search });
-    if (sanityResult && Array.isArray(sanityResult.blogs)) {
-      sanityBlogs = sanityResult.blogs;
+    if (search && search.trim()) {
+      const q = search.toLowerCase().trim();
+      combined = combined.filter((b) =>
+        b.title?.toLowerCase().includes(q) ||
+        b.excerpt?.toLowerCase().includes(q) ||
+        b.content?.toLowerCase().includes(q)
+      );
     }
-  } catch (err) {
-    // Continue to fallback
-  }
 
-  // 3. Fallback to local static dataset if both remote sources are empty
-  const baseList = (backendBlogs.length > 0 || sanityBlogs.length > 0)
-    ? []
-    : allBlogPosts;
+    combined.sort((a, b) => new Date(b.rawDate || b.publishedAt || b.createdAt || 0) - new Date(a.rawDate || a.publishedAt || a.createdAt || 0));
 
-  // Unify and deduplicate by slug (Backend recent admin edits have priority)
-  const map = new Map();
-  // Static dataset
-  baseList.forEach((b) => map.set(b.slug, b));
-  // Sanity blogs
-  sanityBlogs.forEach((b) => map.set(b.slug, { ...map.get(b.slug), ...b }));
-  // Backend blogs
-  backendBlogs.forEach((b) => map.set(b.slug, { ...map.get(b.slug), ...b }));
+    const total = combined.length;
+    const startIndex = (page - 1) * limit;
+    const paginated = combined.slice(startIndex, startIndex + limit);
 
-  let combined = Array.from(map.values()).filter((b) => b.isPublished !== false);
-
-  if (category && category !== 'All') {
-    combined = combined.filter((b) => b.category?.toLowerCase() === category.toLowerCase());
-  }
-  if (search && search.trim()) {
-    const q = search.toLowerCase().trim();
-    combined = combined.filter((b) =>
-      b.title?.toLowerCase().includes(q) ||
-      b.excerpt?.toLowerCase().includes(q) ||
-      b.content?.toLowerCase().includes(q)
-    );
-  }
-
-  // Sort by date (newest first)
-  combined.sort((a, b) => new Date(b.rawDate || b.publishedAt || b.createdAt || 0) - new Date(a.rawDate || a.publishedAt || a.createdAt || 0));
-
-  const total = combined.length;
-  const startIndex = (page - 1) * limit;
-  const paginated = combined.slice(startIndex, startIndex + limit);
-
-  return {
-    success: true,
-    total,
-    page,
-    limit,
-    totalPages: Math.ceil(total / limit) || 1,
-    blogs: paginated,
-  };
+    return {
+      success: true,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit) || 1,
+      blogs: paginated,
+    };
+  });
 }
 
 /**
- * Fetch single blog article by slug
- * Resilient lookup: Backend API -> Sanity CMS -> Local Static Dataset
+ * Fetch single blog article by slug with deduplication
  */
 export async function fetchPublicBlogBySlug(slug) {
   const clean = (slug || '').trim().replace(/\/+$/, '');
   if (!clean) return { blog: null, source: 'none' };
 
-  // 1. Try Node.js Backend API first (instant availability for newly published admin articles)
-  try {
-    const res = await fetch(`/api/v1/public/blogs/${clean}`);
-    if (res.ok) {
-      const data = await res.json();
-      const blogData = data.blog || data.post;
-      if (data.success && blogData) {
-        return { blog: blogData, related: data.related || [], source: 'backend' };
+  return dedupeRequest(`blog_${clean}`, async () => {
+    // 1. Try Node.js Backend API first
+    try {
+      const res = await fetch(`/api/v1/public/blogs/${clean}`);
+      if (res.ok) {
+        const data = await res.json();
+        const blogData = data.blog || data.post;
+        if (data.success && blogData) {
+          return { blog: blogData, related: data.related || [], source: 'backend' };
+        }
       }
-    }
-  } catch (err) {
-    // fallback to Sanity
-  }
+    } catch (err) {}
 
-  // 2. Try Sanity CMS
-  try {
-    const sanityArticle = await fetchSanityBlogBySlug(clean);
-    if (sanityArticle && sanityArticle.blog) {
-      return sanityArticle;
-    }
-  } catch (err) {
-    // continue to local fallback
-  }
+    // 2. Try Sanity CMS
+    try {
+      const sanityArticle = await fetchSanityBlogBySlug(clean);
+      if (sanityArticle && sanityArticle.blog) {
+        return sanityArticle;
+      }
+    } catch (err) {}
 
-  // 3. Fallback to local dataset
-  const blog = allBlogPosts.find((b) => b.slug === clean);
-  const related = allBlogPosts.filter((b) => b.slug !== clean && b.category === blog?.category).slice(0, 3);
-  return { blog: blog || null, related, source: 'local' };
+    // 3. Fallback to local dataset
+    const blog = allBlogPosts.find((b) => b.slug === clean);
+    const related = allBlogPosts.filter((b) => b.slug !== clean && b.category === blog?.category).slice(0, 3);
+    return { blog: blog || null, related, source: 'local' };
+  });
 }
 
 /**

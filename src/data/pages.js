@@ -110,7 +110,7 @@ export const servicesData = {
         "Pristine Mercedes-Benz with Wi-Fi and chilled water"
       ],
       link: "/hallstatt-day-trip-from-vienna/",
-      image: "https://viennadaytrip.com/wp-content/uploads/2026/03/Fairytale-Village-of-Hallstatt.jpg"
+      image: "/images/Hallstatt.jpg"
     },
     {
       id: "secure",
@@ -255,7 +255,7 @@ export const pricingData = {
       slug: "hallstatt-day-trip-from-vienna",
       duration: "11–12 Hours",
       capacity: "1–7 Guests",
-      image: "https://viennadaytrip.com/wp-content/uploads/2026/03/Fairytale-Village-of-Hallstatt.jpg"
+      image: "/images/Hallstatt.jpg"
     },
     {
       title: "Salzburg Day Trip",
@@ -382,7 +382,7 @@ export const blogPosts = [
     category: "Travel Guides",
     readTime: "5 min read",
     excerpt: "Salzburg packs a wealth of sights into a small old town, and the Salzburg Card promises free entry to most of it. We break down the math to help you determine if it makes sense for your private day trip schedule.",
-    image: "https://viennadaytrip.com/wp-content/uploads/2026/03/Fairytale-Village-of-Hallstatt.jpg"
+    image: "/images/Hallstatt.jpg"
   }
 ];
 

@@ -123,83 +123,128 @@ export default function Footer() {
                   }}
                 />
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <span
-                  style={{
-                    fontFamily: 'var(--font-heading)',
-                    fontSize: '1.2rem',
-                    fontWeight: 800,
-                    letterSpacing: '0.08em',
-                    color: '#17191C',
-                    textTransform: 'uppercase',
-                    lineHeight: 1
-                  }}
-                >
-                  VIENNA DAY TRIP
-                </span>
-                <span
-                  style={{
-                    fontFamily: 'var(--font-heading)',
-                    fontSize: '0.62rem',
-                    letterSpacing: '0.18em',
-                    color: '#C69C50',
-                    textTransform: 'uppercase',
-                    fontWeight: 700
-                  }}
-                >
-                  PRIVATE CHAUFFEUR TOURS
-                </span>
-              </div>
+              <span
+                style={{
+                  fontFamily: 'var(--font-heading)',
+                  fontSize: '1.25rem',
+                  fontWeight: 800,
+                  letterSpacing: '0.08em',
+                  color: '#17191C',
+                  textTransform: 'uppercase',
+                  lineHeight: 1,
+                  display: 'inline-flex',
+                  alignItems: 'center'
+                }}
+              >
+                VIENNA DAY TRIP
+              </span>
             </Link>
 
-            <p style={{ color: '#62666D', fontSize: '0.9rem', lineHeight: '1.7', marginBottom: '1.25rem' }}>
+            <p style={{ color: '#62666D', fontSize: '0.9rem', lineHeight: '1.7', marginBottom: '1.5rem' }}>
               At Vienna Day Trip, we provide premium private chauffeur services based in Vienna. Working with embassies, top hotels, cruise companies, and renowned global travel partners, we deliver luxury airport transfers, private sightseeing, day trips, and custom European tours.
             </p>
 
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', color: '#C69C50', fontSize: '0.84rem', fontWeight: 600, marginBottom: '1.25rem' }}>
-              <ShieldCheck size={16} />
-              <span>Official Partner of Vienna Chamber of Commerce (WKO)</span>
-            </div>
-
-            {/* Social Media Links */}
+            {/* Social Media Links with Official SVG Icons */}
             <div>
-              <div style={{ fontSize: '0.72rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#8E929B', marginBottom: '0.5rem', fontWeight: 600 }}>
+              <div style={{ fontSize: '0.72rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#8E929B', marginBottom: '0.65rem', fontWeight: 600 }}>
                 Social Channels
               </div>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.45rem' }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.65rem', alignItems: 'center' }}>
                 {[
-                  { name: 'Instagram', url: siteConfig.socials.instagram },
-                  { name: 'Facebook', url: siteConfig.socials.facebook },
-                  { name: 'TripAdvisor', url: siteConfig.socials.tripadvisor },
-                  { name: 'Trustpilot', url: siteConfig.socials.trustpilot },
-                  { name: 'TikTok', url: siteConfig.socials.tiktok }
+                  {
+                    name: 'Instagram',
+                    url: siteConfig.socials.instagram,
+                    ariaLabel: 'Follow Vienna Day Trip on Instagram',
+                    icon: (
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                        <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+                        <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+                      </svg>
+                    )
+                  },
+                  {
+                    name: 'Facebook',
+                    url: siteConfig.socials.facebook,
+                    ariaLabel: 'Visit Vienna Day Trip on Facebook',
+                    icon: (
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                      </svg>
+                    )
+                  },
+                  {
+                    name: 'TripAdvisor',
+                    url: siteConfig.socials.tripadvisor,
+                    ariaLabel: 'Read Vienna Day Trip on TripAdvisor',
+                    icon: (
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                        <circle cx="6.5" cy="13.5" r="2"/>
+                        <circle cx="17.5" cy="13.5" r="2"/>
+                        <circle cx="6.5" cy="13.5" r="4.5" fill="none" stroke="currentColor" strokeWidth="1.8"/>
+                        <circle cx="17.5" cy="13.5" r="4.5" fill="none" stroke="currentColor" strokeWidth="1.8"/>
+                        <path d="M12 9.5c-2.3 0-4.3 1-5.5 2.5h11c-1.2-1.5-3.2-2.5-5.5-2.5zm0-4.5c2.5 0 4.8 1.1 6.5 2.8l2-2.3 1 3.5-3.5-.5 1.7-2A9.9 9.9 0 0 0 12 4a9.9 9.9 0 0 0-7.7 3.5l1.7 2-3.5.5 1-3.5 2 2.3A9.9 9.9 0 0 1 12 5z"/>
+                        <polygon points="12,12.5 11,15.5 13,15.5"/>
+                      </svg>
+                    )
+                  },
+                  {
+                    name: 'Trustpilot',
+                    url: siteConfig.socials.trustpilot,
+                    ariaLabel: 'Check Vienna Day Trip reviews on Trustpilot',
+                    icon: (
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 0l3.708 7.514 8.292 1.205-6 5.849 1.416 8.258L12 18.924l-7.416 3.902L6 14.568 0 8.719l8.292-1.205z" fill="#00B67A"/>
+                        <path d="M17.416 22.826L12 18.924l5.416-2.85 1.026 6.752z" fill="#005128"/>
+                      </svg>
+                    )
+                  },
+                  {
+                    name: 'TikTok',
+                    url: siteConfig.socials.tiktok,
+                    ariaLabel: 'Follow Vienna Day Trip on TikTok',
+                    icon: (
+                      <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19.589 6.686a4.793 4.793 0 0 1-3.77-4.245V2h-3.445v13.672a2.896 2.896 0 0 1-5.201 1.743 2.9 2.9 0 0 1 2.316-4.643c.277 0 .548.04.808.113V9.387a6.368 6.368 0 0 0-.808-.052 6.347 6.347 0 0 0-6.346 6.348 6.346 6.346 0 0 0 6.346 6.347 6.333 6.333 0 0 0 6.33-6.347V8.583a8.197 8.197 0 0 0 4.77 1.526V6.686z"/>
+                      </svg>
+                    )
+                  }
                 ].map((s) => (
                   <a
                     key={s.name}
                     href={s.url}
                     target="_blank"
                     rel="noopener noreferrer"
+                    aria-label={s.ariaLabel}
+                    title={s.name}
                     style={{
-                      padding: '0.3rem 0.65rem',
+                      width: '40px',
+                      height: '40px',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
                       backgroundColor: '#FFFFFF',
                       border: '1px solid #E6D8C3',
-                      borderRadius: '6px',
-                      color: '#62666D',
+                      borderRadius: '50%',
+                      color: '#17191C',
                       textDecoration: 'none',
-                      fontSize: '0.75rem',
-                      fontWeight: 600,
-                      transition: 'all 0.15s ease'
+                      transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+                      boxShadow: '0 2px 6px rgba(0, 0, 0, 0.03)'
                     }}
                     onMouseEnter={(e) => {
                       e.currentTarget.style.color = '#C69C50';
                       e.currentTarget.style.borderColor = '#C69C50';
+                      e.currentTarget.style.transform = 'translateY(-2px)';
+                      e.currentTarget.style.boxShadow = '0 6px 14px rgba(198, 156, 80, 0.2)';
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.color = '#62666D';
+                      e.currentTarget.style.color = '#17191C';
                       e.currentTarget.style.borderColor = '#E6D8C3';
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.boxShadow = '0 2px 6px rgba(0, 0, 0, 0.03)';
                     }}
                   >
-                    {s.name}
+                    {s.icon}
                   </a>
                 ))}
               </div>
@@ -225,6 +270,7 @@ export default function Footer() {
               {[
                 { label: t('nav_home'), href: '/' },
                 { label: t('nav_about'), href: '/about-vienna-day-trip/' },
+                { label: 'Booking', href: '/booking' },
                 { label: t('nav_fleet'), href: '/our-fleet/' },
                 { label: t('footer_private_day_trips') || 'Private Day Trips', href: '/day-trips/' },
                 { label: t('nav_blog'), href: '/blog/' }

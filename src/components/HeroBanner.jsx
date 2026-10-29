@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   MapPin,
   Calendar as CalendarIcon,
@@ -11,7 +11,10 @@ import {
   ShieldCheck,
   Gem,
   Compass,
-  Lock
+  Lock,
+  ChevronDown,
+  HelpCircle,
+  Check
 } from 'lucide-react';
 import VehicleModal from './VehicleModal';
 import { useLanguage } from '../context/LanguageContext';
@@ -98,86 +101,89 @@ const HERO_VEHICLES = [
     shadowLeft: '4%',
     passengers: '7 Guests',
     luggage: '7 Large Bags',
-    ride: 'Luxury Air Ride',
-    description: 'The Mercedes V-Class offers the perfect combination of generous space and uncompromised luxury. With flexible conference seating and abundant luggage space, it is ideal for families, small groups, and long-distance European journeys.',
+    ride: 'Agility Control Suspension',
+    description: 'The Mercedes V-Class defines executive MPV travel. Accommodating up to 7 passengers with generous luggage capacity, its face-to-face conference seating creates a mobile executive suite.',
     features: [
-      'Spacious conference seating face-to-face setup',
-      'Separate rear digital passenger climate control',
-      'Generous luggage capacity for up to 7 large suitcases',
-      'Privacy tinted glass & electric sliding doors'
+      'Conference face-to-face seating arrangement',
+      'Individual reading lights & USB-C fast charging',
+      'Dual electric sliding doors for easy entry',
+      'Deep tinted rear privacy glass'
     ]
   },
   {
     id: 'sprinter',
     fleetId: 'sprinter',
     bookingValue: 'Mercedes Sprinter VIP',
-    name: 'Mercedes-Benz Sprinter',
-    badge: 'VIP Group Minibus',
+    name: 'Mercedes-Benz Sprinter VIP',
+    badge: 'VIP Executive Minibus',
     image: '/cars/hero-sprinter-car.webp',
     fallback: '/cars/hero-sprinter-car.png',
     alt: 'Mercedes-Benz Sprinter VIP luxury minibus with professional chauffeur in Vienna',
     scale: 1.0,
     offsetY: '0px',
     offsetX: '5px',
-    chauffeurHeight: '57.5%',
-    chauffeurRight: '24.5%',
+    chauffeurHeight: '62%',
+    chauffeurRight: '25.5%',
     chauffeurBottom: '0px',
-    shadowWidth: '92%',
-    shadowLeft: '4%',
-    passengers: '8-16 Guests',
-    luggage: '16 Large Bags',
-    ride: 'Heavy-Duty Comfort',
-    description: 'The Mercedes Sprinter offers premium comfort, generous headroom, and smooth long-distance travel for group transportation, airport transfers, corporate delegations, and private European tours.',
+    shadowWidth: '94%',
+    shadowLeft: '3%',
+    passengers: '8+ Guests',
+    luggage: '12+ Large Bags',
+    ride: 'Heavy Duty Air Suspension',
+    description: 'For corporate delegations, VIP delegations, and extended family travel, the Sprinter VIP offers unmatched headroom, bespoke leather captains chairs, and expansive storage capacity.',
     features: [
-      'Stand-up cabin height with panoramic tinted windows',
-      'Reclining leather captain chairs with armrests',
-      'Individual air conditioning vents & power outlets',
-      'Huge separate luggage compartment in the rear'
+      'Standing headroom with wide central aisle',
+      'Custom handcrafted diamond-quilted leather seats',
+      'Overhead ambient LED starlight ceiling illumination',
+      'High-capacity separate rear luggage compartment'
     ]
   }
 ];
 
 export default function HeroBanner() {
   const { t } = useLanguage();
+  const navigate = useNavigate();
+
+  // Helper date & formatting utilities
+  const p2 = (n) => String(n).padStart(2, '0');
+  const now = new Date();
+  const todayStr = `${now.getFullYear()}-${p2(now.getMonth() + 1)}-${p2(now.getDate())}`;
+
+  const defaultTimeStr = useMemo(() => {
+    const t0 = new Date(now);
+    t0.setMinutes(now.getMinutes() < 30 ? 30 : 60, 0, 0);
+    return `${p2(t0.getHours())}:${p2(t0.getMinutes())}`;
+  }, []);
 
   // Carousel State
-  const [currentCarIdx, setCurrentCarIdx] = useState(() => {
-    try {
-      const urlParams = new URLSearchParams(window.location.search);
-      const carParam = urlParams.get('car') || urlParams.get('vehicle');
-      if (carParam) {
-        const matchIdx = HERO_VEHICLES.findIndex(
-          (v) => v.id === carParam || v.fleetId === carParam || v.bookingValue.toLowerCase().includes(carParam.toLowerCase()) || v.name.toLowerCase().includes(carParam.toLowerCase())
-        );
-        if (matchIdx !== -1) return matchIdx;
-      }
-    } catch (e) {}
-    return 0;
-  });
+  const [currentCarIdx, setCurrentCarIdx] = useState(0);
   const [prevCarIdx, setPrevCarIdx] = useState(null);
-  const [slideDirection, setSlideDirection] = useState('next'); // 'next' | 'prev'
+  const [slideDirection, setSlideDirection] = useState('next');
   const [isHovered, setIsHovered] = useState(false);
   const [isTabActive, setIsTabActive] = useState(!document.hidden);
   const [timerResetKey, setTimerResetKey] = useState(0);
   const [touchStart, setTouchStart] = useState(null);
 
-  // Booking Form State
-  const [activeTab, setActiveTab] = useState('airport'); // 'airport' | 'daytrip' | 'hourly'
+  // Reference-Matched Booking Form State: TRANSFER | HOURLY | DAY TRIP
+  const [activeTab, setActiveTab] = useState('transfer'); // 'transfer' | 'hourly' | 'daytrip'
   const [formData, setFormData] = useState({
-    pickup: 'Vienna International Airport (VIE)',
-    dropoff: 'Hotel or destination',
-    date: '2026-10-22',
-    time: '02:00',
-    passengers: '1 Passenger',
-    vehicle: 'Mercedes S-Class'
+    date: todayStr,
+    time: defaultTimeStr,
+    pickup: '',
+    dropoff: '',
+    transferType: 'One Way',
+    extraTime: '0 minute(s)',
+    duration: '2 hours',
+    route: 'Vienna Sightseeing Tour',
   });
   const [errorMsg, setErrorMsg] = useState('');
+  const [focusedField, setFocusedField] = useState(null);
 
   // Modal showcase state (for vehicle inspection if clicked)
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalCarIdx, setModalCarIdx] = useState(0);
 
-  // Preload all 4 vehicle images immediately to eliminate blank frames/flicker
+  // Preload all 4 vehicle images immediately
   useEffect(() => {
     HERO_VEHICLES.forEach((v) => {
       const img = new Image();
@@ -185,57 +191,16 @@ export default function HeroBanner() {
     });
   }, []);
 
-  // Listen for preselected vehicle requests from URL or other pages
+  // Monitor tab visibility
   useEffect(() => {
-    try {
-      const urlParams = new URLSearchParams(window.location.search);
-      const carParam = urlParams.get('car') || urlParams.get('vehicle');
-      if (carParam) {
-        const matchIdx = HERO_VEHICLES.findIndex(
-          (v) => v.id === carParam || v.fleetId === carParam || v.bookingValue.toLowerCase().includes(carParam.toLowerCase()) || v.name.toLowerCase().includes(carParam.toLowerCase())
-        );
-        if (matchIdx !== -1) {
-          setCurrentCarIdx(matchIdx);
-          setFormData((prev) => ({ ...prev, vehicle: HERO_VEHICLES[matchIdx].bookingValue }));
-        }
-      }
-
-      const preselected = sessionStorage.getItem('vdt_selected_vehicle');
-      if (preselected) {
-        setFormData((prev) => ({ ...prev, vehicle: preselected }));
-        sessionStorage.removeItem('vdt_selected_vehicle');
-        const matchIdx = HERO_VEHICLES.findIndex(
-          (v) => v.bookingValue === preselected || v.name.toLowerCase().includes(preselected.toLowerCase())
-        );
-        if (matchIdx !== -1) {
-          setCurrentCarIdx(matchIdx);
-        }
-        setTimeout(() => {
-          const card = document.getElementById('hero-booking-card');
-          if (card) {
-            card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }
-        }, 150);
-      }
-    } catch (e) {
-      // ignore
-    }
-  }, []);
-
-  // Monitor tab visibility to pause automatic timer when hidden
-  useEffect(() => {
-    const handleVisibility = () => {
-      setIsTabActive(!document.hidden);
-    };
+    const handleVisibility = () => setIsTabActive(!document.hidden);
     document.addEventListener('visibilitychange', handleVisibility);
     return () => document.removeEventListener('visibilitychange', handleVisibility);
   }, []);
 
-  // 5-Second Automatic Carousel: pauses on hover, modal open, or inactive tab
+  // 5-Second Automatic Carousel
   useEffect(() => {
-    if (isHovered || isModalOpen || !isTabActive) {
-      return;
-    }
+    if (isHovered || isModalOpen || !isTabActive) return;
 
     const interval = setInterval(() => {
       setSlideDirection('next');
@@ -249,14 +214,11 @@ export default function HeroBanner() {
   // Clean up previous vehicle after transition (550ms)
   useEffect(() => {
     if (prevCarIdx !== null) {
-      const timer = setTimeout(() => {
-        setPrevCarIdx(null);
-      }, 550);
+      const timer = setTimeout(() => setPrevCarIdx(null), 550);
       return () => clearTimeout(timer);
     }
   }, [prevCarIdx]);
 
-  // Manual Navigation Controls
   const handleNextCar = () => {
     setSlideDirection('next');
     setPrevCarIdx(currentCarIdx);
@@ -271,120 +233,105 @@ export default function HeroBanner() {
     setTimerResetKey((k) => k + 1);
   };
 
-  const handleSelectCar = (idx) => {
-    if (idx === currentCarIdx) return;
-    setSlideDirection(idx > currentCarIdx ? 'next' : 'prev');
-    setPrevCarIdx(currentCarIdx);
-    setCurrentCarIdx(idx);
-    setTimerResetKey((k) => k + 1);
-  };
-
-  const handleTabChange = (tab) => {
-    setActiveTab(tab);
-    if (tab === 'airport') {
-      setFormData((prev) => ({
-        ...prev,
-        pickup: 'Vienna International Airport (VIE)',
-        dropoff: 'Hotel or destination'
-      }));
-    } else if (tab === 'daytrip') {
-      setFormData((prev) => ({
-        ...prev,
-        pickup: 'Vienna City Center / Hotel',
-        dropoff: 'Hallstatt (Salzkammergut)'
-      }));
-    } else {
-      setFormData((prev) => ({
-        ...prev,
-        pickup: 'Vienna City Center',
-        dropoff: 'Hourly Chauffeur (Vienna & Surrounds)'
-      }));
-    }
-  };
-
   const handleInputChange = (field, val) => {
     setFormData((prev) => ({ ...prev, [field]: val }));
-    if (field === 'vehicle') {
-      // Sync carousel vehicle preview when user changes preferred vehicle in booking form
-      const idx = HERO_VEHICLES.findIndex((v) => v.bookingValue === val || v.name === val);
-      if (idx !== -1 && idx !== currentCarIdx) {
-        handleSelectCar(idx);
-      }
-    }
     if (errorMsg) setErrorMsg('');
   };
 
-  const handleGetQuote = async (e) => {
-    e.preventDefault();
-    if (!formData.pickup || !formData.dropoff || !formData.date || !formData.time) {
-      setErrorMsg('Please complete all journey fields before requesting your quote.');
+  // Popular locations for quick suggestion
+  const popularLocations = [
+    'Vienna International Airport (VIE), Schwechat',
+    'Vienna City Center (Innere Stadt / Stephansplatz)',
+    'Hotel Sacher Vienna, Philharmoniker Str. 4',
+    'Hotel Bristol, Kärntner Ring 1, Vienna',
+    'Hotel Imperial, Kärntner Ring 16, Vienna',
+    'The Ritz-Carlton, Schubertring 5-7, Vienna',
+    'Palais Coburg, Coburgbastei 4, Vienna',
+    'Vienna Central Station (Wien Hauptbahnhof)',
+    'Vienna West Station (Westbahnhof)',
+    'Schönbrunn Palace, Schloßstraße 47, Vienna',
+    'Bratislava, Slovakia',
+    'Budapest, Hungary',
+    'Salzburg, Austria',
+    'Hallstatt, Austria',
+    'Prague, Czech Republic',
+    'Graz, Austria'
+  ];
+
+  /**
+   * REQUIREMENT 3: GET A QUOTE REDIRECT
+   * Validates required fields, builds query parameters, and redirects to /booking.
+   */
+  const handleGetQuote = (e) => {
+    if (e) e.preventDefault();
+    setErrorMsg('');
+
+    if (!formData.date) {
+      setErrorMsg('Please select a pickup date.');
+      return;
+    }
+    if (!formData.time) {
+      setErrorMsg('Please select a pickup time.');
+      return;
+    }
+    if (!formData.pickup || !formData.pickup.trim()) {
+      setErrorMsg('Please enter a pickup location.');
+      return;
+    }
+    if (activeTab === 'transfer' && (!formData.dropoff || !formData.dropoff.trim())) {
+      setErrorMsg('Please enter a drop-off location.');
       return;
     }
 
-    const tabName =
-      activeTab === 'airport'
-        ? 'Airport Transfer'
-        : activeTab === 'daytrip'
-        ? 'Private Day Trip'
-        : 'Hourly Chauffeur';
+    const params = new URLSearchParams();
+    params.set('service', activeTab);
+    params.set('date', formData.date);
+    params.set('time', formData.time);
+    params.set('pickup', formData.pickup.trim());
 
-    // Asynchronously register enquiry in PostgreSQL database
-    let bookingRef = '';
-    try {
-      const apiRes = await submitBookingEnquiry({
-        customerName: 'Website Guest',
-        email: 'concierge-lead@viennadaytrip.com',
-        serviceType: tabName,
-        pickupLocation: formData.pickup,
-        dropoffLocation: formData.dropoff,
-        pickupDate: formData.date,
-        pickupTime: formData.time,
-        passengerCount: formData.passengers,
-        preferredVehicle: formData.vehicle
-      });
-      if (apiRes && apiRes.success && apiRes.reference) {
-        bookingRef = apiRes.reference;
+    if (activeTab === 'transfer') {
+      params.set('dropoff', formData.dropoff.trim());
+      params.set('type', formData.transferType === 'Return' ? 'return' : 'oneway');
+      const extraNum = parseInt(formData.extraTime, 10) || 0;
+      if (extraNum > 0) params.set('extra', extraNum);
+    } else if (activeTab === 'hourly') {
+      const hoursNum = parseInt(formData.duration, 10) || 2;
+      params.set('hours', hoursNum);
+      if (formData.dropoff && formData.dropoff.trim()) {
+        params.set('dropoff', formData.dropoff.trim());
       }
-    } catch (err) {
-      // Graceful offline fallback
+    } else if (activeTab === 'daytrip') {
+      params.set('tour', formData.route);
+      const extraNum = parseInt(formData.extraTime, 10) || 0;
+      if (extraNum > 0) params.set('extra', extraNum);
     }
 
-    const refLine = bookingRef ? `\n• Booking Reference: ${bookingRef}` : '';
-    const message = `Hello Vienna Day Trip! I would like to request a private chauffeur quote:${refLine}\n\n• Service: ${tabName}\n• Pickup Location: ${formData.pickup}\n• Drop-off Location: ${formData.dropoff}\n• Pickup Date: ${formData.date}\n• Pickup Time: ${formData.time}\n• Passengers: ${formData.passengers}\n• Preferred Vehicle: ${formData.vehicle}\n\nPlease let me know availability and private quote details. Thank you!`;
+    // Pass preferred vehicle
+    params.set('vehicle', HERO_VEHICLES[currentCarIdx].id);
 
-    const encoded = encodeURIComponent(message);
-    const whatsappUrl = `https://wa.me/436642035445?text=${encoded}`;
-    window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+    // Asynchronously log inquiry in background
+    submitBookingEnquiry({
+      customerName: 'Website Guest',
+      email: 'quote-lead@viennadaytrip.com',
+      serviceType: activeTab === 'transfer' ? 'Transfer' : activeTab === 'hourly' ? 'Hourly Chauffeur' : 'Day Trip',
+      pickupLocation: formData.pickup,
+      dropoffLocation: formData.dropoff || formData.route,
+      pickupDate: formData.date,
+      pickupTime: formData.time,
+      passengerCount: '1-3 Passengers',
+      preferredVehicle: HERO_VEHICLES[currentCarIdx].name
+    }).catch(() => {});
+
+    // Redirect to /booking with prefilled values
+    navigate(`/booking?${params.toString()}`);
   };
-
-  const handleBookVehicleFromModal = (selectedCar) => {
-    setIsModalOpen(false);
-    setFormData((prev) => ({
-      ...prev,
-      vehicle: selectedCar.bookingValue || selectedCar.name
-    }));
-
-    setTimeout(() => {
-      const bookingCard = document.getElementById('hero-booking-card');
-      if (bookingCard) {
-        bookingCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
-      const vehicleSelect = document.getElementById('hero-preferred-vehicle-select');
-      if (vehicleSelect) {
-        vehicleSelect.focus();
-      }
-    }, 100);
-  };
-
-  const currentCar = HERO_VEHICLES[currentCarIdx];
 
   return (
     <div className="hero-master-wrapper">
       {/* =============================================================
           1. HERO ROUNDED LUXURY BANNER
-          - Static Vienna Hofburg Palace (Michaelerplatz) backdrop
-          - Left: Heading, Description, 5 Highlights, CTA Button
-          - Bottom-Right: Grounded Mercedes Carousel with Realistic Shadows
+          - Fixed background positioning (showcases chauffeur + Mercedes on right)
+          - Left text constrained to 600px with subtle cream gradient backdrop
           ============================================================= */}
       <div
         className="hero-rounded-banner"
@@ -401,10 +348,10 @@ export default function HeroBanner() {
         {/* Layer 1: Static Vienna Palace Backdrop */}
         <div className="hero-palace-stage" aria-hidden="true">
           <picture>
-            <source srcSet="/images/vienna-palace-backdrop.webp" type="image/webp" />
+            <source srcSet="/images/backimage.webp" type="image/webp" />
             <img
-              src="/images/vienna-palace-backdrop.jpg"
-              alt="Vienna Hofburg Palace at Michaelerplatz"
+              src="/images/backimage.png"
+              alt="Vienna Chauffeur Service Mercedes-Benz S-Class at Hofburg Palace"
               className="hero-palace-img"
               loading="eager"
               decoding="async"
@@ -415,59 +362,65 @@ export default function HeroBanner() {
           <div className="hero-palace-gradient" />
         </div>
 
-        {/* Layer 2: Main Hero Content (Left Side Text) */}
+        {/* Layer 2: Main Hero Content (Left Side Text with Cream Gradient Card) */}
         <div className="hero-content-stage">
           <div className="hero-left-col">
-            {/* Small Top Label */}
-            <div className="hero-eyebrow-container">
-              <span className="hero-eyebrow-text">{t('hero_small_label')}</span>
-              <span className="hero-eyebrow-line" />
-            </div>
+            <div className="hero-text-cream-backdrop">
+              {/* Small Top Label */}
+              <div className="hero-eyebrow-container">
+                <span className="hero-eyebrow-text">{t('hero_small_label')}</span>
+                <span className="hero-eyebrow-line" />
+              </div>
 
-            {/* Playfair Display Main Heading */}
-            <h1 className="hero-heading">
-              {t('hero_heading_part1')}{' '}
-              <span className="hero-heading-gold-italic">
-                {t('hero_heading_highlight')}
-              </span>{' '}
-              {t('hero_heading_part2')}
-            </h1>
+              {/* Playfair Display Main Heading (H1) */}
+              <h1 className="hero-heading">
+                Your Private Chauffeur in{' '}
+                <span className="hero-heading-gold-italic">
+                  Vienna &amp; Beyond
+                </span>
+              </h1>
 
-            {/* Description */}
-            <p className="hero-description">
-              {t('hero_desc')}
-            </p>
+              {/* Semantic Subtitle (H2) */}
+              <h2 className="hero-subtitle">
+                Luxury Transfers &amp; Private Day Trips
+              </h2>
 
-            {/* 5 Service Highlights arranged elegantly */}
-            <div className="hero-highlights-wrap">
-              <div className="hero-highlight-item">
-                <span className="hero-gold-checkmark">✓</span>
-                <span className="hero-highlight-label">{t('hero_hl_licensed')}</span>
-              </div>
-              <div className="hero-highlight-item">
-                <span className="hero-gold-checkmark">✓</span>
-                <span className="hero-highlight-label">{t('hero_hl_pricing')}</span>
-              </div>
-              <div className="hero-highlight-item">
-                <span className="hero-gold-checkmark">✓</span>
-                <span className="hero-highlight-label">{t('hero_hl_fleet')}</span>
-              </div>
-              <div className="hero-highlight-item">
-                <span className="hero-gold-checkmark">✓</span>
-                <span className="hero-highlight-label">{t('hero_hl_flight')}</span>
-              </div>
-              <div className="hero-highlight-item">
-                <span className="hero-gold-checkmark">✓</span>
-                <span className="hero-highlight-label">{t('hero_hl_child_seats')}</span>
-              </div>
-            </div>
+              {/* Description */}
+              <p className="hero-description">
+                {t('hero_desc')}
+              </p>
 
-            {/* CTA Button */}
-            <div className="hero-cta-wrapper">
-              <Link to="/our-fleet/" className="hero-cta-btn">
-                <span>{t('hero_cta_fleet')}</span>
-                <ArrowRight size={14} />
-              </Link>
+              {/* 5 Service Highlights */}
+              <div className="hero-highlights-wrap">
+                <div className="hero-highlight-item">
+                  <span className="hero-gold-checkmark">✓</span>
+                  <span className="hero-highlight-label">{t('hero_hl_licensed')}</span>
+                </div>
+                <div className="hero-highlight-item">
+                  <span className="hero-gold-checkmark">✓</span>
+                  <span className="hero-highlight-label">{t('hero_hl_pricing')}</span>
+                </div>
+                <div className="hero-highlight-item">
+                  <span className="hero-gold-checkmark">✓</span>
+                  <span className="hero-highlight-label">{t('hero_hl_fleet')}</span>
+                </div>
+                <div className="hero-highlight-item">
+                  <span className="hero-gold-checkmark">✓</span>
+                  <span className="hero-highlight-label">{t('hero_hl_flight')}</span>
+                </div>
+                <div className="hero-highlight-item">
+                  <span className="hero-gold-checkmark">✓</span>
+                  <span className="hero-highlight-label">{t('hero_hl_child_seats')}</span>
+                </div>
+              </div>
+
+              {/* CTA Button */}
+              <div className="hero-cta-wrapper">
+                <Link to="/our-fleet/" className="hero-cta-btn">
+                  <span>{t('hero_cta_fleet')}</span>
+                  <ArrowRight size={14} />
+                </Link>
+              </div>
             </div>
           </div>
         </div>
@@ -478,7 +431,6 @@ export default function HeroBanner() {
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
         >
-          {/* Vehicle Slides with Calibrated Ground Baseline */}
           <div className="hero-vehicle-viewport">
             {HERO_VEHICLES.map((vehicle, index) => {
               const isCurrent = index === currentCarIdx;
@@ -498,7 +450,6 @@ export default function HeroBanner() {
                     '--chauffeur-b': vehicle.chauffeurBottom || '0px'
                   }}
                 >
-                  {/* Standalone Mercedes Vehicle Presentation */}
                   <picture className="hero-car-picture">
                     <source srcSet={vehicle.image} type="image/webp" />
                     <img
@@ -510,7 +461,6 @@ export default function HeroBanner() {
                     />
                   </picture>
 
-                  {/* Professional Vienna Chauffeur Layer positioned beside this vehicle */}
                   <div className="hero-chauffeur-wrapper">
                     <picture className="hero-chauffeur-picture">
                       <source srcSet="/images/hero-chauffeur-cutout.webp" type="image/webp" />
@@ -532,186 +482,408 @@ export default function HeroBanner() {
       </div>
 
       {/* =============================================================
-          2. COMPACT HORIZONTAL BOOKING PANEL
-          - Moved to bottom of hero section
-          - Overlaps hero boundary by ~45-50px on desktop
-          - Warm ivory background (#FAF7F2), champagne-gold accents
-          - Preserves all 6 fields + WhatsApp Quote CTA
-          - Responsive: Desktop horizontal, Tablet 2-column, Mobile stacked below
-          - Never covers the Mercedes vehicle
+          2. REFERENCE-MATCHED LUXURY BOOKING PANEL
+          - Three Tabs: TRANSFER | HOURLY | DAY TRIP
+          - Exact 2-row clean white segmented box
+          - Upper Row: Pickup Date, Pickup Time, Pickup Location
+          - Lower Row: Drop-off Location, Transfer Type, Extra Time
+          - GET A QUOTE button (redirects with auto-prefilled params)
           ============================================================= */}
       <div className="hero-booking-panel-container">
-        <div id="hero-booking-card" className="hero-horizontal-booking-card">
-          {/* Booking Service Tabs */}
-          <div className="hero-booking-tabs-row">
+        <div id="hero-booking-card" className="vdt-ref-booking-wrapper">
+          {/* Tabs on Top of Form */}
+          <div className="vdt-ref-tabs" role="tablist">
             <button
               type="button"
-              onClick={() => handleTabChange('airport')}
-              className={`hero-h-tab-btn ${activeTab === 'airport' ? 'active' : ''}`}
+              role="tab"
+              aria-selected={activeTab === 'transfer'}
+              onClick={() => { setActiveTab('transfer'); setErrorMsg(''); }}
+              className={`vdt-ref-tab-btn ${activeTab === 'transfer' ? 'active' : ''}`}
             >
-              <Plane size={14} style={{ flexShrink: 0 }} />
-              <span>{t('tab_airport')}</span>
+              TRANSFER
             </button>
             <button
               type="button"
-              onClick={() => handleTabChange('daytrip')}
-              className={`hero-h-tab-btn ${activeTab === 'daytrip' ? 'active' : ''}`}
+              role="tab"
+              aria-selected={activeTab === 'hourly'}
+              onClick={() => { setActiveTab('hourly'); setErrorMsg(''); }}
+              className={`vdt-ref-tab-btn ${activeTab === 'hourly' ? 'active' : ''}`}
             >
-              <Car size={14} style={{ flexShrink: 0 }} />
-              <span>{t('tab_daytrip')}</span>
+              HOURLY
             </button>
             <button
               type="button"
-              onClick={() => handleTabChange('hourly')}
-              className={`hero-h-tab-btn ${activeTab === 'hourly' ? 'active' : ''}`}
+              role="tab"
+              aria-selected={activeTab === 'daytrip'}
+              onClick={() => { setActiveTab('daytrip'); setErrorMsg(''); }}
+              className={`vdt-ref-tab-btn ${activeTab === 'daytrip' ? 'active' : ''}`}
             >
-              <Clock size={14} style={{ flexShrink: 0 }} />
-              <span>{t('tab_hourly')}</span>
+              DAY TRIP
             </button>
           </div>
 
-          {/* Booking Inputs Form */}
-          <form onSubmit={handleGetQuote} className="hero-h-form">
-            <div className="hero-h-fields-grid">
-              {/* Field 1: Pickup Location */}
-              <div className="hero-h-field-group">
-                <label className="hero-h-field-label">{t('lbl_pickup').toUpperCase()}</label>
-                <div className="hero-h-input-box">
-                  <MapPin size={13} className="hero-h-icon" />
-                  <select
-                    value={formData.pickup}
-                    onChange={(e) => handleInputChange('pickup', e.target.value)}
-                    className="hero-h-select"
-                  >
-                    <option value="Vienna International Airport (VIE)">Vienna Airport (VIE)</option>
-                    <option value="Vienna City Center (Innere Stadt)">Vienna City Center</option>
-                    <option value="Hotel Sacher / Bristol / Imperial">Hotel Sacher / Imperial</option>
-                    <option value="Vienna Central Station (Hauptbahnhof)">Vienna Central Station</option>
-                    <option value="Private Address / Residence">Private Address</option>
-                  </select>
+          {/* Form Box */}
+          <form onSubmit={handleGetQuote} className="vdt-ref-form-card">
+            {activeTab === 'transfer' && (
+              <>
+                {/* Row 1: Pickup Date, Pickup Time, Pickup Location */}
+                <div className="vdt-ref-grid-row vdt-ref-grid-3">
+                  <div className="vdt-ref-cell">
+                    <label className="vdt-ref-cell-label" htmlFor="hero-pickup-date">
+                      <span>PICKUP DATE</span>
+                      <span className="vdt-ref-help" title="Departure date">?</span>
+                    </label>
+                    <input
+                      id="hero-pickup-date"
+                      type="date"
+                      min={todayStr}
+                      value={formData.date}
+                      onChange={(e) => handleInputChange('date', e.target.value)}
+                      className="vdt-ref-cell-input"
+                    />
+                  </div>
+
+                  <div className="vdt-ref-cell">
+                    <label className="vdt-ref-cell-label" htmlFor="hero-pickup-time">
+                      <span>PICKUP TIME</span>
+                      <span className="vdt-ref-help" title="Desired pickup time">?</span>
+                    </label>
+                    <input
+                      id="hero-pickup-time"
+                      type="time"
+                      value={formData.time}
+                      onChange={(e) => handleInputChange('time', e.target.value)}
+                      className="vdt-ref-cell-input"
+                    />
+                  </div>
+
+                  <div className="vdt-ref-cell">
+                    <label className="vdt-ref-cell-label" htmlFor="hero-pickup-loc">
+                      <span>PICKUP LOCATION</span>
+                      <span className="vdt-ref-help" title="Pickup airport, hotel or address">?</span>
+                    </label>
+                    <input
+                      id="hero-pickup-loc"
+                      type="text"
+                      placeholder="Enter a location"
+                      value={formData.pickup}
+                      onChange={(e) => handleInputChange('pickup', e.target.value)}
+                      onFocus={() => setFocusedField('pickup')}
+                      onBlur={() => setTimeout(() => setFocusedField(null), 250)}
+                      className="vdt-ref-cell-input"
+                      autoComplete="off"
+                    />
+                    {focusedField === 'pickup' && (
+                      <div className="vdt-ref-suggestions-menu">
+                        {popularLocations.filter(loc => !formData.pickup || loc.toLowerCase().includes(formData.pickup.toLowerCase())).slice(0, 5).map((loc, i) => (
+                          <div
+                            key={i}
+                            className="vdt-ref-suggestion-item"
+                            onMouseDown={() => handleInputChange('pickup', loc)}
+                          >
+                            <MapPin size={12} className="vdt-ref-suggestion-icon" />
+                            <span>{loc}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
 
-              {/* Field 2: Drop-off Location */}
-              <div className="hero-h-field-group">
-                <label className="hero-h-field-label">{t('lbl_dropoff').toUpperCase()}</label>
-                <div className="hero-h-input-box">
-                  <MapPin size={13} className="hero-h-icon" />
-                  <select
-                    value={formData.dropoff}
-                    onChange={(e) => handleInputChange('dropoff', e.target.value)}
-                    className="hero-h-select"
-                  >
-                    <option value="Hotel or destination">Hotel or destination</option>
-                    <option value="Vienna City Center (Innere Stadt)">Vienna City Center</option>
-                    <option value="Vienna International Airport (VIE)">Vienna Airport (VIE)</option>
-                    <option value="Hallstatt (Salzkammergut)">Hallstatt Day Trip</option>
-                    <option value="Salzburg (Historic Center)">Salzburg Day Trip</option>
-                    <option value="Budapest (Hungary)">Budapest Day Trip</option>
-                    <option value="Prague (Czech Republic)">Prague Day Trip</option>
-                    <option value="Bratislava (Slovakia)">Bratislava Day Trip</option>
-                  </select>
+                {/* Row 2: Drop-off Location, Transfer Type, Extra Time */}
+                <div className="vdt-ref-grid-row vdt-ref-grid-3">
+                  <div className="vdt-ref-cell">
+                    <label className="vdt-ref-cell-label" htmlFor="hero-dropoff-loc">
+                      <span>DROP-OFF LOCATION</span>
+                      <span className="vdt-ref-help" title="Destination address or city">?</span>
+                    </label>
+                    <input
+                      id="hero-dropoff-loc"
+                      type="text"
+                      placeholder="Enter a location"
+                      value={formData.dropoff}
+                      onChange={(e) => handleInputChange('dropoff', e.target.value)}
+                      onFocus={() => setFocusedField('dropoff')}
+                      onBlur={() => setTimeout(() => setFocusedField(null), 250)}
+                      className="vdt-ref-cell-input"
+                      autoComplete="off"
+                    />
+                    {focusedField === 'dropoff' && (
+                      <div className="vdt-ref-suggestions-menu">
+                        {popularLocations.filter(loc => !formData.dropoff || loc.toLowerCase().includes(formData.dropoff.toLowerCase())).slice(0, 5).map((loc, i) => (
+                          <div
+                            key={i}
+                            className="vdt-ref-suggestion-item"
+                            onMouseDown={() => handleInputChange('dropoff', loc)}
+                          >
+                            <MapPin size={12} className="vdt-ref-suggestion-icon" />
+                            <span>{loc}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="vdt-ref-cell">
+                    <label className="vdt-ref-cell-label" htmlFor="hero-transfer-type">
+                      <span>TRANSFER TYPE</span>
+                      <span className="vdt-ref-help" title="Single journey or round trip">?</span>
+                    </label>
+                    <div className="vdt-ref-select-wrap">
+                      <select
+                        id="hero-transfer-type"
+                        value={formData.transferType}
+                        onChange={(e) => handleInputChange('transferType', e.target.value)}
+                        className="vdt-ref-cell-select"
+                      >
+                        <option value="One Way">One Way</option>
+                        <option value="Return">Return</option>
+                      </select>
+                      <ChevronDown size={16} className="vdt-ref-chevron" />
+                    </div>
+                  </div>
+
+                  <div className="vdt-ref-cell">
+                    <label className="vdt-ref-cell-label" htmlFor="hero-extra-time">
+                      <span>EXTRA TIME</span>
+                      <span className="vdt-ref-help" title="Complimentary or extra waiting time">?</span>
+                    </label>
+                    <div className="vdt-ref-select-wrap">
+                      <select
+                        id="hero-extra-time"
+                        value={formData.extraTime}
+                        onChange={(e) => handleInputChange('extraTime', e.target.value)}
+                        className="vdt-ref-cell-select"
+                      >
+                        <option value="0 minute(s)">0 minute(s)</option>
+                        <option value="15 minute(s)">15 minute(s)</option>
+                        <option value="30 minute(s)">30 minute(s)</option>
+                        <option value="45 minute(s)">45 minute(s)</option>
+                        <option value="60 minute(s)">60 minute(s)</option>
+                        <option value="90 minute(s)">90 minute(s)</option>
+                        <option value="120 minute(s)">120 minute(s)</option>
+                      </select>
+                      <ChevronDown size={16} className="vdt-ref-chevron" />
+                    </div>
+                  </div>
                 </div>
-              </div>
-
-              {/* Field 3: Date */}
-              <div className="hero-h-field-group">
-                <label className="hero-h-field-label">{t('lbl_date').toUpperCase()}</label>
-                <div className="hero-h-input-box">
-                  <CalendarIcon size={13} className="hero-h-icon" />
-                  <input
-                    type="date"
-                    value={formData.date}
-                    onChange={(e) => handleInputChange('date', e.target.value)}
-                    className="hero-h-input"
-                  />
-                </div>
-              </div>
-
-              {/* Field 4: Time */}
-              <div className="hero-h-field-group">
-                <label className="hero-h-field-label">{t('lbl_time').toUpperCase()}</label>
-                <div className="hero-h-input-box">
-                  <Clock size={13} className="hero-h-icon" />
-                  <select
-                    value={formData.time}
-                    onChange={(e) => handleInputChange('time', e.target.value)}
-                    className="hero-h-select"
-                  >
-                    <option value="02:00">02:00</option>
-                    <option value="06:00">06:00</option>
-                    <option value="08:00">08:00</option>
-                    <option value="09:00">09:00</option>
-                    <option value="10:00">10:00</option>
-                    <option value="12:00">12:00</option>
-                    <option value="14:00">14:00</option>
-                    <option value="16:00">16:00</option>
-                    <option value="18:00">18:00</option>
-                    <option value="20:00">20:00</option>
-                    <option value="22:00">22:00</option>
-                  </select>
-                </div>
-              </div>
-
-              {/* Field 5: Passengers */}
-              <div className="hero-h-field-group">
-                <label className="hero-h-field-label">{t('lbl_passengers').toUpperCase()}</label>
-                <div className="hero-h-input-box">
-                  <Users size={13} className="hero-h-icon" />
-                  <select
-                    value={formData.passengers}
-                    onChange={(e) => handleInputChange('passengers', e.target.value)}
-                    className="hero-h-select"
-                  >
-                    <option value="1 Passenger">1 Passenger</option>
-                    <option value="2 Passengers">2 Passengers</option>
-                    <option value="3 Passengers">3 Passengers</option>
-                    <option value="4-7 Passengers (Van)">4-7 Passengers</option>
-                    <option value="8+ Passengers (Sprinter)">8+ Passengers</option>
-                  </select>
-                </div>
-              </div>
-
-              {/* Field 6: Preferred Vehicle */}
-              <div className="hero-h-field-group">
-                <label className="hero-h-field-label">{t('lbl_vehicle').toUpperCase()}</label>
-                <div className="hero-h-input-box">
-                  <Car size={13} className="hero-h-icon" />
-                  <select
-                    id="hero-preferred-vehicle-select"
-                    value={formData.vehicle}
-                    onChange={(e) => handleInputChange('vehicle', e.target.value)}
-                    className="hero-h-select"
-                  >
-                    <option value="Mercedes S-Class">Mercedes S-Class</option>
-                    <option value="Mercedes E-Class">Mercedes E-Class</option>
-                    <option value="Mercedes V-Class">Mercedes V-Class</option>
-                    <option value="Mercedes Sprinter VIP">Mercedes Sprinter</option>
-                  </select>
-                </div>
-              </div>
-
-              {/* Action Button: GET QUOTE ON WHATSAPP */}
-              <div className="hero-h-field-group hero-h-action-group">
-                <button type="submit" className="hero-h-quote-btn">
-                  <span>{t('btn_get_quote_whatsapp')}</span>
-                  <ArrowRight size={14} />
-                </button>
-              </div>
-            </div>
-
-            {errorMsg && (
-              <div className="hero-h-error-msg">
-                {errorMsg}
-              </div>
+              </>
             )}
 
-            {/* Subtext reassurance */}
-            <div className="hero-h-reassurance">
-              <Lock size={12} style={{ opacity: 0.65 }} />
-              <span>{t('booking_no_payment')}</span>
-            </div>
+            {activeTab === 'hourly' && (
+              <>
+                {/* Row 1: Pickup Date, Pickup Time, Pickup Location */}
+                <div className="vdt-ref-grid-row vdt-ref-grid-3">
+                  <div className="vdt-ref-cell">
+                    <label className="vdt-ref-cell-label" htmlFor="hero-hourly-date">
+                      <span>PICKUP DATE</span>
+                      <span className="vdt-ref-help" title="Service date">?</span>
+                    </label>
+                    <input
+                      id="hero-hourly-date"
+                      type="date"
+                      min={todayStr}
+                      value={formData.date}
+                      onChange={(e) => handleInputChange('date', e.target.value)}
+                      className="vdt-ref-cell-input"
+                    />
+                  </div>
+
+                  <div className="vdt-ref-cell">
+                    <label className="vdt-ref-cell-label" htmlFor="hero-hourly-time">
+                      <span>PICKUP TIME</span>
+                      <span className="vdt-ref-help" title="Service start time">?</span>
+                    </label>
+                    <input
+                      id="hero-hourly-time"
+                      type="time"
+                      value={formData.time}
+                      onChange={(e) => handleInputChange('time', e.target.value)}
+                      className="vdt-ref-cell-input"
+                    />
+                  </div>
+
+                  <div className="vdt-ref-cell">
+                    <label className="vdt-ref-cell-label" htmlFor="hero-hourly-pickup">
+                      <span>PICKUP LOCATION</span>
+                      <span className="vdt-ref-help" title="Pickup hotel or address">?</span>
+                    </label>
+                    <input
+                      id="hero-hourly-pickup"
+                      type="text"
+                      placeholder="Enter a location"
+                      value={formData.pickup}
+                      onChange={(e) => handleInputChange('pickup', e.target.value)}
+                      onFocus={() => setFocusedField('pickup')}
+                      onBlur={() => setTimeout(() => setFocusedField(null), 250)}
+                      className="vdt-ref-cell-input"
+                      autoComplete="off"
+                    />
+                    {focusedField === 'pickup' && (
+                      <div className="vdt-ref-suggestions-menu">
+                        {popularLocations.filter(loc => !formData.pickup || loc.toLowerCase().includes(formData.pickup.toLowerCase())).slice(0, 5).map((loc, i) => (
+                          <div
+                            key={i}
+                            className="vdt-ref-suggestion-item"
+                            onMouseDown={() => handleInputChange('pickup', loc)}
+                          >
+                            <MapPin size={12} className="vdt-ref-suggestion-icon" />
+                            <span>{loc}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Row 2: Duration, Drop-off Location */}
+                <div className="vdt-ref-grid-row vdt-ref-grid-hourly-2">
+                  <div className="vdt-ref-cell">
+                    <label className="vdt-ref-cell-label" htmlFor="hero-hourly-duration">
+                      <span>DURATION (IN HOURS)</span>
+                      <span className="vdt-ref-help" title="Total hours of chauffeur disposal">?</span>
+                    </label>
+                    <div className="vdt-ref-select-wrap">
+                      <select
+                        id="hero-hourly-duration"
+                        value={formData.duration}
+                        onChange={(e) => handleInputChange('duration', e.target.value)}
+                        className="vdt-ref-cell-select"
+                      >
+                        <option value="2 hours">2 hours</option>
+                        <option value="3 hours">3 hours</option>
+                        <option value="4 hours">4 hours</option>
+                        <option value="5 hours">5 hours</option>
+                        <option value="6 hours">6 hours</option>
+                        <option value="8 hours">8 hours</option>
+                        <option value="10 hours">10 hours</option>
+                        <option value="12 hours">12 hours</option>
+                      </select>
+                      <ChevronDown size={16} className="vdt-ref-chevron" />
+                    </div>
+                  </div>
+
+                  <div className="vdt-ref-cell">
+                    <label className="vdt-ref-cell-label" htmlFor="hero-hourly-dropoff">
+                      <span>DROP-OFF LOCATION</span>
+                      <span className="vdt-ref-help" title="Optional final destination">?</span>
+                    </label>
+                    <input
+                      id="hero-hourly-dropoff"
+                      type="text"
+                      placeholder="Enter a location"
+                      value={formData.dropoff}
+                      onChange={(e) => handleInputChange('dropoff', e.target.value)}
+                      className="vdt-ref-cell-input"
+                    />
+                  </div>
+                </div>
+              </>
+            )}
+
+            {activeTab === 'daytrip' && (
+              <>
+                {/* Row 1: Pickup Date, Pickup Time, Route, Extra Time */}
+                <div className="vdt-ref-grid-row vdt-ref-grid-4">
+                  <div className="vdt-ref-cell">
+                    <label className="vdt-ref-cell-label" htmlFor="hero-daytrip-date">
+                      <span>PICKUP DATE</span>
+                      <span className="vdt-ref-help" title="Departure date">?</span>
+                    </label>
+                    <input
+                      id="hero-daytrip-date"
+                      type="date"
+                      min={todayStr}
+                      value={formData.date}
+                      onChange={(e) => handleInputChange('date', e.target.value)}
+                      className="vdt-ref-cell-input"
+                    />
+                  </div>
+
+                  <div className="vdt-ref-cell">
+                    <label className="vdt-ref-cell-label" htmlFor="hero-daytrip-time">
+                      <span>PICKUP TIME</span>
+                      <span className="vdt-ref-help" title="Departure time">?</span>
+                    </label>
+                    <input
+                      id="hero-daytrip-time"
+                      type="time"
+                      value={formData.time}
+                      onChange={(e) => handleInputChange('time', e.target.value)}
+                      className="vdt-ref-cell-input"
+                    />
+                  </div>
+
+                  <div className="vdt-ref-cell">
+                    <label className="vdt-ref-cell-label" htmlFor="hero-daytrip-route">
+                      <span>ROUTE</span>
+                      <span className="vdt-ref-help" title="Chosen private day tour">?</span>
+                    </label>
+                    <div className="vdt-ref-select-wrap">
+                      <select
+                        id="hero-daytrip-route"
+                        value={formData.route}
+                        onChange={(e) => handleInputChange('route', e.target.value)}
+                        className="vdt-ref-cell-select"
+                      >
+                        <option value="Vienna Sightseeing Tour">Vienna Sightseeing Tour</option>
+                        <option value="Hallstatt Day Trip">Hallstatt Day Trip</option>
+                        <option value="Salzburg Day Trip">Salzburg Day Trip</option>
+                        <option value="Wachau Valley Day Trip">Wachau Valley Day Trip</option>
+                        <option value="Bratislava Day Trip">Bratislava Day Trip</option>
+                        <option value="Budapest Day Trip">Budapest Day Trip</option>
+                        <option value="Prague Day Trip">Prague Day Trip</option>
+                      </select>
+                      <ChevronDown size={16} className="vdt-ref-chevron" />
+                    </div>
+                  </div>
+
+                  <div className="vdt-ref-cell">
+                    <label className="vdt-ref-cell-label" htmlFor="hero-daytrip-extra">
+                      <span>EXTRA TIME</span>
+                      <span className="vdt-ref-help" title="Tour extension waiting time">?</span>
+                    </label>
+                    <div className="vdt-ref-select-wrap">
+                      <select
+                        id="hero-daytrip-extra"
+                        value={formData.extraTime}
+                        onChange={(e) => handleInputChange('extraTime', e.target.value)}
+                        className="vdt-ref-cell-select"
+                      >
+                        <option value="0 minute(s)">0 minute(s)</option>
+                        <option value="15 minute(s)">15 minute(s)</option>
+                        <option value="30 minute(s)">30 minute(s)</option>
+                        <option value="45 minute(s)">45 minute(s)</option>
+                        <option value="60 minute(s)">60 minute(s)</option>
+                        <option value="90 minute(s)">90 minute(s)</option>
+                        <option value="120 minute(s)">120 minute(s)</option>
+                      </select>
+                      <ChevronDown size={16} className="vdt-ref-chevron" />
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
           </form>
+
+          {/* Action Bar below Card: Error Message & "GET A QUOTE" Button */}
+          <div className="vdt-ref-bottom-bar">
+            {errorMsg ? (
+              <div className="vdt-ref-error-message">
+                <span>{errorMsg}</span>
+              </div>
+            ) : <div />}
+
+            <button
+              type="button"
+              onClick={handleGetQuote}
+              className="vdt-ref-quote-btn"
+              id="hero-booking-quote-submit"
+            >
+              <span>GET A QUOTE</span>
+              <ArrowRight size={15} />
+            </button>
+          </div>
         </div>
       </div>
 
@@ -723,7 +895,13 @@ export default function HeroBanner() {
         vehicles={HERO_VEHICLES}
         currentCarIdx={modalCarIdx}
         onSelectCar={(idx) => setModalCarIdx(idx)}
-        onBookVehicle={handleBookVehicleFromModal}
+        onBookVehicle={(selectedCar) => {
+          setIsModalOpen(false);
+          const params = new URLSearchParams();
+          params.set('service', activeTab);
+          params.set('vehicle', selectedCar.id || selectedCar.bookingValue);
+          navigate(`/booking?${params.toString()}`);
+        }}
       />
 
       {/* =============================================================
@@ -732,7 +910,6 @@ export default function HeroBanner() {
       <div className="hero-trust-container">
         <div className="hero-trust-inner-card">
           <div className="hero-trust-grid">
-            {/* Column 1 */}
             <div className="hero-trust-item">
               <div className="hero-trust-icon-box">
                 <ShieldCheck size={20} strokeWidth={1.8} />
@@ -743,7 +920,6 @@ export default function HeroBanner() {
               </div>
             </div>
 
-            {/* Column 2 */}
             <div className="hero-trust-item hero-trust-bordered">
               <div className="hero-trust-icon-box">
                 <Gem size={20} strokeWidth={1.8} />
@@ -754,7 +930,6 @@ export default function HeroBanner() {
               </div>
             </div>
 
-            {/* Column 3 */}
             <div className="hero-trust-item hero-trust-bordered">
               <div className="hero-trust-icon-box">
                 <Compass size={20} strokeWidth={1.8} />
@@ -765,7 +940,6 @@ export default function HeroBanner() {
               </div>
             </div>
 
-            {/* Column 4 */}
             <div className="hero-trust-item hero-trust-bordered">
               <div className="hero-trust-icon-box">
                 <Clock size={20} strokeWidth={1.8} />
@@ -788,14 +962,14 @@ export default function HeroBanner() {
           padding-top: 74px;
           position: relative;
           width: 100%;
-          background-color: var(--bg-main, #FFFFFF);
+          background-color: var(--bg-main, #FAF7F2);
           overflow-x: clip;
         }
 
         /* 1. Rounded Luxury Hero Banner */
         .hero-rounded-banner {
           max-width: 1820px;
-          min-height: clamp(520px, 42vw, 630px);
+          min-height: clamp(560px, 44vw, 680px);
           margin: 18px 32px 0 32px;
           border-radius: 26px;
           border: 1px solid #E6D8C3;
@@ -815,7 +989,7 @@ export default function HeroBanner() {
           }
         }
 
-        /* Palace Backdrop */
+        /* Palace Backdrop: Positioned to showcase Chauffeur & Mercedes on the right */
         .hero-palace-stage {
           position: absolute;
           inset: 0;
@@ -824,15 +998,18 @@ export default function HeroBanner() {
           overflow: hidden;
           z-index: 0;
           pointer-events: none;
+          background-image: url('/images/backimage.png');
+          background-size: cover;
+          background-position: 68% center;
+          background-repeat: no-repeat;
         }
 
         .hero-palace-img {
           width: 100%;
           height: 100%;
           object-fit: cover;
-          object-position: center 54%;
+          object-position: 68% center;
           display: block;
-          transform: scale(1.02);
         }
 
         .hero-palace-sheen {
@@ -841,10 +1018,9 @@ export default function HeroBanner() {
           z-index: 1;
           pointer-events: none;
           background: radial-gradient(
-            ellipse 65% 55% at 52% 40%,
-            rgba(212, 175, 55, 0.12) 0%,
-            rgba(198, 156, 80, 0.04) 45%,
-            transparent 75%
+            ellipse 65% 55% at 65% 45%,
+            rgba(212, 175, 55, 0.08) 0%,
+            transparent 70%
           );
           mix-blend-mode: soft-light;
         }
@@ -856,11 +1032,11 @@ export default function HeroBanner() {
           pointer-events: none;
           background: linear-gradient(
             90deg,
-            rgba(252, 250, 246, 0.95) 0%,
-            rgba(252, 250, 246, 0.88) 32%,
-            rgba(252, 250, 246, 0.50) 48%,
-            rgba(252, 250, 246, 0.12) 64%,
-            rgba(252, 250, 246, 0.00) 100%
+            rgba(250, 247, 242, 0.95) 0%,
+            rgba(250, 247, 242, 0.86) 28%,
+            rgba(250, 247, 242, 0.42) 44%,
+            rgba(250, 247, 242, 0.08) 56%,
+            transparent 68%
           );
         }
 
@@ -876,12 +1052,24 @@ export default function HeroBanner() {
         }
 
         .hero-left-col {
-          max-width: 580px;
+          max-width: 460px;
+          width: 100%;
           display: flex;
           flex-direction: column;
           justify-content: center;
           position: relative;
           z-index: 12;
+        }
+
+        /* Transparent Hero Text Container */
+        .hero-text-cream-backdrop {
+          background: transparent;
+          backdrop-filter: none;
+          -webkit-backdrop-filter: none;
+          padding: 0;
+          border-radius: 0;
+          border: none;
+          box-shadow: none;
         }
 
         .hero-eyebrow-container {
@@ -910,12 +1098,13 @@ export default function HeroBanner() {
         /* Playfair Display Heading */
         .hero-heading {
           font-family: 'Playfair Display', Georgia, serif;
-          font-size: clamp(34px, 3.1vw, 48px);
-          line-height: 1.14;
+          font-size: clamp(32px, 2.7vw, 44px);
+          line-height: 1.15;
           font-weight: 600;
           color: #17191C;
           letter-spacing: -0.015em;
           margin: 0 0 0.85rem 0;
+          max-width: 450px;
         }
 
         .hero-heading-gold-italic {
@@ -924,22 +1113,33 @@ export default function HeroBanner() {
           font-weight: 500;
         }
 
+        .hero-subtitle {
+          font-family: 'Playfair Display', Georgia, serif;
+          font-size: clamp(17px, 1.45vw, 22px);
+          line-height: 1.25;
+          font-weight: 600;
+          color: #C69C50;
+          letter-spacing: 0.01em;
+          margin: -0.35rem 0 0.85rem 0;
+          max-width: 440px;
+        }
+
         .hero-description {
           font-family: var(--font-body);
           font-size: 0.94rem;
-          line-height: 1.58;
+          line-height: 1.6;
           color: #525660;
-          max-width: 530px;
+          max-width: 420px;
           margin: 0 0 1.15rem 0;
         }
 
-        /* 5 Service Highlights arranged elegantly */
+        /* 5 Service Highlights */
         .hero-highlights-wrap {
           display: flex;
           flex-wrap: wrap;
           gap: 0.45rem 1.15rem;
           margin-bottom: 1.35rem;
-          max-width: 560px;
+          max-width: 440px;
         }
 
         .hero-highlight-item {
@@ -995,330 +1195,270 @@ export default function HeroBanner() {
           box-shadow: 0 8px 22px rgba(198, 156, 80, 0.45);
         }
 
-        /* 
-          =============================================================
-          GROUNDED MERCEDES CAROUSEL STAGE (Bottom-Right of Hero)
-          - Positioned toward bottom-right, resting on cobblestone pavement
-          - Calibrated offset-y for each vehicle removes transparent padding gap
-          - Authentic double-layer ground contact shadow beneath the tyres
-          =============================================================
-        */
+        /* Grounded Mercedes Carousel Stage (Bottom-Right of Hero) */
         .hero-vehicle-carousel-stage {
-          position: absolute;
-          right: clamp(10px, 2vw, 35px);
-          bottom: clamp(38px, 3.8vw, 54px);
-          width: clamp(580px, 51vw, 860px);
-          height: clamp(290px, 25.5vw, 430px);
-          z-index: 10;
-          pointer-events: auto;
-          display: flex;
-          flex-direction: column;
-          justify-content: flex-end;
-          align-items: flex-end;
+          display: none;
         }
 
-        /* Vehicle Viewport Container */
-        .hero-vehicle-viewport {
-          position: relative;
-          width: 100%;
-          height: 100%;
-          display: flex;
-          align-items: flex-end;
-          justify-content: flex-end;
-          overflow: visible;
-        }
-
-        /* Animated Vehicle Slide */
-        .hero-vehicle-slide {
-          position: absolute;
-          right: 0;
-          bottom: 0;
-          width: 100%;
-          height: 100%;
-          display: flex;
-          align-items: flex-end;
-          justify-content: flex-end;
-          will-change: transform, opacity;
-          transition: opacity 600ms cubic-bezier(0.22, 1, 0.36, 1),
-                      transform 600ms cubic-bezier(0.22, 1, 0.36, 1);
-        }
-
-        .hero-vehicle-slide.active {
-          opacity: 1;
-          transform: translateX(calc(0px + var(--car-offset-x, 0px))) translateY(var(--car-offset-y, 0px)) scale(var(--car-scale, 1));
-          z-index: 2;
-        }
-
-        .hero-vehicle-slide.exiting.slide-dir-next {
-          opacity: 0;
-          transform: translateX(calc(-24px + var(--car-offset-x, 0px))) translateY(var(--car-offset-y, 0px)) scale(var(--car-scale, 1));
-          z-index: 1;
-        }
-
-        .hero-vehicle-slide.exiting.slide-dir-prev {
-          opacity: 0;
-          transform: translateX(calc(24px + var(--car-offset-x, 0px))) translateY(var(--car-offset-y, 0px)) scale(var(--car-scale, 1));
-          z-index: 1;
-        }
-
-        .hero-car-picture {
-          width: 100%;
-          height: 100%;
-          display: flex;
-          align-items: flex-end;
-          justify-content: flex-end;
-        }
-
-        .hero-car-image {
-          width: 100%;
-          height: 100%;
-          object-fit: contain;
-          object-position: right bottom;
-          display: block;
-          position: relative;
-          z-index: 1;
-        }
-
-        /* Calibrated Luxury Chauffeur Layer */
-        .hero-chauffeur-wrapper {
-          position: absolute;
-          right: var(--chauffeur-r, 27.5%);
-          bottom: var(--chauffeur-b, 0px);
-          height: var(--chauffeur-h, 74%);
-          width: auto;
-          aspect-ratio: 373 / 1241;
-          z-index: 3;
-          pointer-events: none;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: flex-end;
-        }
-
-        .hero-chauffeur-picture {
-          height: 100%;
-          width: 100%;
-          display: block;
-        }
-
-        .hero-chauffeur-img {
-          width: 100%;
-          height: 100%;
-          object-fit: contain;
-          object-position: bottom center;
-          display: block;
-          filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.22));
-        }
-
-        /* Authentic ground contact shadow beneath chauffeur shoes */
-        .hero-chauffeur-shadow {
-          position: absolute;
-          bottom: -2px;
-          left: 50%;
-          transform: translateX(-50%);
-          width: 88%;
-          height: 10px;
-          background: radial-gradient(
-            ellipse 55% 45% at 50% 50%,
-            rgba(18, 18, 24, 0.65) 0%,
-            rgba(18, 18, 24, 0.30) 45%,
-            rgba(18, 18, 24, 0.08) 75%,
-            transparent 100%
-          );
-          filter: blur(2px);
-          pointer-events: none;
-          z-index: -1;
-        }
-
-        /* 
-          2. COMPACT HORIZONTAL BOOKING PANEL
-          - Placed directly below the hero banner
-          - Overlaps hero boundary by ~45-50px on desktop
-          - Warm ivory background (#FAF7F2), champagne-gold accents
-        */
+        /* =============================================================
+           2. REFERENCE-MATCHED BOOKING FORM STYLES
+           ============================================================= */
         .hero-booking-panel-container {
-          position: relative;
-          z-index: 25;
+          width: 100%;
           max-width: 1420px;
           margin: -48px auto 0 auto;
           padding: 0 32px;
+          position: relative;
+          z-index: 30;
+        }
+
+        .vdt-ref-booking-wrapper {
+          display: flex;
+          flex-direction: column;
           width: 100%;
         }
 
-        .hero-horizontal-booking-card {
-          background-color: #FAF7F2;
-          border: 1px solid rgba(198, 156, 80, 0.35);
-          border-radius: 20px;
-          padding: 20px 24px 18px 24px;
-          box-shadow: 0 18px 45px rgba(23, 25, 28, 0.08), 0 2px 10px rgba(198, 156, 80, 0.04);
-        }
-
-        /* Tabs row */
-        .hero-booking-tabs-row {
-          display: inline-flex;
-          align-items: center;
-          gap: 0.5rem;
-          margin-bottom: 1rem;
-          background: rgba(255, 255, 255, 0.65);
-          padding: 4px;
-          border-radius: 12px;
-          border: 1px solid #EAE3D6;
-        }
-
-        .hero-h-tab-btn {
-          display: inline-flex;
-          align-items: center;
-          gap: 0.45rem;
-          padding: 0.5rem 1rem;
-          border-radius: 8px;
-          border: 1px solid transparent;
-          background-color: transparent;
-          color: #555962;
-          font-family: var(--font-heading);
-          font-size: 0.78rem;
-          font-weight: 600;
-          cursor: pointer;
-          transition: all 0.2s ease;
-        }
-
-        .hero-h-tab-btn:hover {
-          color: #17191C;
-        }
-
-        .hero-h-tab-btn.active {
-          background-color: #C69C50;
-          color: #FFFFFF;
-          border-color: #C69C50;
-          box-shadow: 0 3px 10px rgba(198, 156, 80, 0.28);
-        }
-
-        /* Horizontal 7-column grid on desktop */
-        .hero-h-fields-grid {
-          display: grid;
-          grid-template-columns: repeat(6, minmax(130px, 1fr)) minmax(195px, 1.3fr);
-          gap: 10px;
-          align-items: flex-end;
-        }
-
-        .hero-h-field-group {
+        /* Tabs on Top */
+        .vdt-ref-tabs {
           display: flex;
-          flex-direction: column;
-          min-width: 0;
+          gap: 12px;
+          margin-bottom: 14px;
         }
 
-        .hero-h-field-label {
-          font-family: var(--font-heading);
-          font-size: 0.65rem;
+        .vdt-ref-tab-btn {
+          border: 1px solid rgba(0, 0, 0, 0.08);
+          border-radius: 12px;
+          padding: 13px 30px;
+          background-color: #FFFFFF;
+          color: #17191C;
+          font-family: 'Playfair Display', Georgia, serif;
+          font-size: 13.5px;
           font-weight: 700;
           letter-spacing: 0.08em;
           text-transform: uppercase;
-          color: #6A6E78;
-          margin-bottom: 0.35rem;
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
+          cursor: pointer;
+          box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+          transition: all 0.22s ease;
         }
 
-        .hero-h-input-box {
-          position: relative;
-          width: 100%;
+        .vdt-ref-tab-btn:hover {
+          border-color: #C69C50;
+          transform: translateY(-1px);
         }
 
-        .hero-h-icon {
-          position: absolute;
-          left: 10px;
-          top: 50%;
-          transform: translateY(-50%);
-          color: #C69C50;
-          pointer-events: none;
+        .vdt-ref-tab-btn.active {
+          background-color: #000000;
+          color: #FFFFFF;
+          border-color: #000000;
+          box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22);
         }
 
-        .hero-h-select,
-        .hero-h-input {
-          width: 100%;
-          height: 46px;
+        /* Main Form Card */
+        .vdt-ref-form-card {
           background-color: #FFFFFF;
           border: 1px solid #E6D8C3;
-          border-radius: 10px;
-          padding: 0 0.5rem 0 1.95rem;
-          font-family: var(--font-body);
-          font-size: 0.81rem;
-          color: #17191C;
-          outline: none;
-          cursor: pointer;
-          transition: border-color 0.2s ease, box-shadow 0.2s ease;
-          box-sizing: border-box;
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
+          border-radius: 18px;
+          box-shadow: 0 16px 45px rgba(23, 25, 28, 0.08);
+          overflow: visible;
         }
 
-        .hero-h-select {
-          appearance: none;
-          background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2362666D' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-          background-repeat: no-repeat;
-          background-position: right 8px center;
-          background-size: 11px;
-          padding-right: 22px;
-        }
-
-        .hero-h-select:focus,
-        .hero-h-input:focus {
-          border-color: #C69C50;
-          box-shadow: 0 0 0 2px rgba(198, 156, 80, 0.18);
-        }
-
-        /* Action Column & Quote Button */
-        .hero-h-action-group {
-          justify-content: flex-end;
-        }
-
-        .hero-h-quote-btn {
+        .vdt-ref-grid-row {
+          display: grid;
           width: 100%;
-          height: 46px;
-          background: linear-gradient(135deg, #C69C50 0%, #B88B3C 100%);
-          color: #FFFFFF;
-          border: none;
-          border-radius: 10px;
+        }
+
+        .vdt-ref-grid-row:not(:last-child) {
+          border-bottom: 1px solid #ECE7DE;
+        }
+
+        .vdt-ref-grid-3 {
+          grid-template-columns: repeat(3, 1fr);
+        }
+
+        .vdt-ref-grid-hourly-2 {
+          grid-template-columns: 1fr 2fr;
+        }
+
+        .vdt-ref-grid-4 {
+          grid-template-columns: repeat(4, 1fr);
+        }
+
+        .vdt-ref-cell {
+          padding: 18px 24px;
+          position: relative;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          min-height: 84px;
+          box-sizing: border-box;
+        }
+
+        .vdt-ref-cell:not(:last-child) {
+          border-right: 1px solid #ECE7DE;
+        }
+
+        .vdt-ref-cell-label {
+          display: inline-flex;
+          align-items: center;
+          gap: 5px;
           font-family: var(--font-heading);
-          font-size: 0.76rem;
+          font-size: 11px;
           font-weight: 700;
-          letter-spacing: 0.04em;
+          letter-spacing: 0.06em;
           text-transform: uppercase;
-          cursor: pointer;
-          box-shadow: 0 4px 16px rgba(198, 156, 80, 0.32);
+          color: #4B4F58;
+          margin-bottom: 6px;
+          user-select: none;
+        }
+
+        .vdt-ref-help {
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          gap: 0.45rem;
-          transition: all 0.25s ease;
-          white-space: nowrap;
-          padding: 0 0.75rem;
+          width: 14px;
+          height: 14px;
+          border-radius: 50%;
+          background: #EAE6DF;
+          color: #6E727A;
+          font-size: 9px;
+          font-weight: 700;
+          cursor: help;
+          line-height: 1;
         }
 
-        .hero-h-quote-btn:hover {
-          background: linear-gradient(135deg, #B58B3F 0%, #A4782E 100%);
-          transform: translateY(-1px);
-          box-shadow: 0 6px 20px rgba(198, 156, 80, 0.42);
-        }
-
-        .hero-h-error-msg {
-          color: #DC2626;
-          font-size: 0.78rem;
+        .vdt-ref-cell-input {
+          width: 100%;
+          border: none;
+          outline: none;
+          background: transparent;
           font-family: var(--font-body);
-          text-align: center;
-          margin-top: 0.65rem;
+          font-size: 15px;
+          font-weight: 500;
+          color: #17191C;
+          padding: 2px 0;
+          box-sizing: border-box;
         }
 
-        .hero-h-reassurance {
+        .vdt-ref-cell-input::placeholder {
+          color: #8C8F96;
+          font-weight: 400;
+        }
+
+        .vdt-ref-select-wrap {
+          position: relative;
+          width: 100%;
           display: flex;
           align-items: center;
-          justify-content: center;
-          gap: 0.4rem;
-          margin-top: 0.75rem;
-          color: #62666D;
-          font-size: 0.74rem;
-          font-family: var(--font-body);
+        }
+
+        .vdt-ref-cell-select {
+          width: 100%;
+          border: none;
+          outline: none;
+          background: transparent;
+          font-family: var(--font-heading);
+          font-size: 15px;
+          font-weight: 600;
+          color: #17191C;
+          cursor: pointer;
+          appearance: none;
+          -webkit-appearance: none;
+          padding: 2px 24px 2px 0;
+          box-sizing: border-box;
+        }
+
+        .vdt-ref-chevron {
+          position: absolute;
+          right: 0;
+          top: 50%;
+          transform: translateY(-50%);
+          pointer-events: none;
+          color: #555962;
+        }
+
+        /* Suggestions Dropdown */
+        .vdt-ref-suggestions-menu {
+          position: absolute;
+          top: 100%;
+          left: 0;
+          right: 0;
+          background: #FFFFFF;
+          border: 1px solid #E6D8C3;
+          border-radius: 12px;
+          box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+          z-index: 50;
+          max-height: 220px;
+          overflow-y: auto;
+          margin-top: 4px;
+        }
+
+        .vdt-ref-suggestion-item {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 10px 14px;
+          font-size: 13.5px;
+          color: #17191C;
+          cursor: pointer;
+          transition: background 0.15s ease;
+        }
+
+        .vdt-ref-suggestion-item:hover {
+          background: #FAF7F2;
+          color: #C69C50;
+        }
+
+        .vdt-ref-suggestion-icon {
+          color: #C69C50;
+          flex-shrink: 0;
+        }
+
+        /* Action Bar below Card */
+        .vdt-ref-bottom-bar {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          margin-top: 16px;
+          gap: 16px;
+        }
+
+        .vdt-ref-error-message {
+          color: #DC2626;
+          font-size: 13.5px;
+          font-weight: 500;
+          background: #FEF2F2;
+          border: 1px solid #FCA5A5;
+          padding: 8px 16px;
+          border-radius: 9999px;
+          display: inline-flex;
+          align-items: center;
+        }
+
+        .vdt-ref-quote-btn {
+          margin-left: auto;
+          display: inline-flex;
+          align-items: center;
+          gap: 10px;
+          background-color: #000000;
+          color: #FFFFFF;
+          border: none;
+          border-radius: 9999px;
+          padding: 15px 36px;
+          font-family: var(--font-heading);
+          font-size: 13px;
+          font-weight: 700;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          cursor: pointer;
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
+          transition: all 0.25s ease;
+        }
+
+        .vdt-ref-quote-btn:hover {
+          background-color: #C69C50;
+          color: #FFFFFF;
+          transform: translateY(-2px);
+          box-shadow: 0 10px 28px rgba(198, 156, 80, 0.38);
         }
 
         /* 3. Luxury Trust Bar */
@@ -1390,77 +1530,58 @@ export default function HeroBanner() {
             margin: 16px 24px 0 24px;
             min-height: 520px;
           }
+          .hero-palace-img {
+            object-position: 66% center;
+          }
           .hero-content-stage {
             padding: 30px 35px 85px 35px;
           }
-          .hero-heading {
-            font-size: 38px;
+          .hero-left-col {
+            max-width: 440px;
           }
-          .hero-vehicle-carousel-stage {
-            width: clamp(520px, 50vw, 720px);
-            height: clamp(270px, 25vw, 360px);
-            bottom: clamp(36px, 3.5vw, 48px);
-            right: clamp(10px, 1.8vw, 25px);
+          .hero-heading {
+            font-size: 36px;
           }
           .hero-booking-panel-container {
             padding: 0 24px;
             margin-top: -45px;
           }
-          .hero-h-fields-grid {
-            grid-template-columns: repeat(3, 1fr) repeat(3, 1fr);
-          }
-          .hero-h-action-group {
-            grid-column: span 6;
-          }
         }
 
-        /* Tablet (769px - 1023px): 2-Column Balanced Layout */
+        /* Tablet (769px - 1023px) */
         @media (max-width: 1023px) and (min-width: 769px) {
           .hero-rounded-banner {
             margin: 16px 20px 0 20px;
-            min-height: unset;
+            min-height: 560px;
             border-radius: 22px;
-            flex-direction: column;
-            align-items: stretch;
-            padding-bottom: 20px;
+          }
+          .hero-palace-img {
+            object-position: 65% center;
           }
           .hero-content-stage {
-            padding: 30px 25px 15px 25px;
+            padding: 30px 28px;
           }
           .hero-left-col {
-            max-width: 100%;
+            max-width: 430px;
           }
           .hero-heading {
-            font-size: 34px;
-          }
-          .hero-vehicle-carousel-stage {
-            position: relative;
-            right: auto;
-            bottom: auto;
-            width: 100%;
-            max-width: 620px;
-            height: clamp(260px, 32vw, 330px);
-            margin: 12px auto 0 auto;
-            align-items: center;
-          }
-          .hero-car-picture {
-            justify-content: center;
-          }
-          .hero-car-image {
-            object-position: center bottom;
+            font-size: 32px;
           }
           .hero-booking-panel-container {
             margin-top: 16px;
             padding: 0 20px;
           }
-          .hero-h-fields-grid {
+          .vdt-ref-grid-3,
+          .vdt-ref-grid-4 {
             grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
           }
-          .hero-h-action-group {
-            grid-column: span 2;
+          .vdt-ref-grid-hourly-2 {
+            grid-template-columns: 1fr;
           }
-          .hero-trust-container {
+          .vdt-ref-cell:nth-child(2n) {
+            border-right: none;
+          }
+          .vdt-ref-trust-container {
             padding: 0 20px;
           }
           .hero-trust-grid {
@@ -1480,22 +1601,33 @@ export default function HeroBanner() {
           .hero-rounded-banner {
             margin: 12px 12px 0 12px;
             border-radius: 18px;
-            min-height: unset;
+            min-height: 520px;
             flex-direction: column;
+            justify-content: flex-start;
             align-items: stretch;
             padding-bottom: 22px;
+          }
+          .hero-palace-img {
+            object-position: center;
           }
           .hero-palace-gradient {
             background: linear-gradient(
               180deg,
-              rgba(252, 250, 246, 0.95) 0%,
-              rgba(252, 250, 246, 0.84) 40%,
-              rgba(252, 250, 246, 0.40) 70%,
-              rgba(252, 250, 246, 0.15) 100%
+              rgba(250, 247, 242, 0.95) 0%,
+              rgba(250, 247, 242, 0.88) 50%,
+              rgba(250, 247, 242, 0.50) 75%,
+              transparent 100%
             );
           }
           .hero-content-stage {
-            padding: 24px 16px 12px 16px;
+            padding: 20px 16px;
+          }
+          .hero-text-cream-backdrop {
+            padding: 0;
+            border-radius: 0;
+            background: transparent;
+            border: none;
+            box-shadow: none;
           }
           .hero-heading {
             font-size: clamp(26px, 6.5vw, 32px);
@@ -1511,53 +1643,40 @@ export default function HeroBanner() {
             margin-bottom: 1.15rem;
           }
 
-          /* Grounded Car and Chauffeur in Mobile */
-          .hero-vehicle-carousel-stage {
-            position: relative;
-            right: auto;
-            bottom: auto;
-            width: 100%;
-            max-width: 440px;
-            height: clamp(210px, 54vw, 250px);
-            margin: 12px auto 0 auto;
-            align-items: center;
-            justify-content: flex-end;
-          }
-          .hero-car-picture {
-            justify-content: center;
-          }
-          .hero-car-image {
-            object-position: center bottom;
-            padding-bottom: 2px;
-          }
-
-          /* Booking form stacked below hero banner, NEVER covering the car */
+          /* Booking form stacked cleanly below hero */
           .hero-booking-panel-container {
             margin-top: 14px;
             padding: 0 12px;
           }
-          .hero-horizontal-booking-card {
-            border-radius: 16px;
-            padding: 16px 14px;
+          .vdt-ref-tabs {
+            gap: 8px;
           }
-          .hero-booking-tabs-row {
-            width: 100%;
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            padding: 3px;
-            gap: 2px;
+          .vdt-ref-tab-btn {
+            flex: 1;
+            padding: 11px 10px;
+            font-size: 11px;
+            text-align: center;
           }
-          .hero-h-tab-btn {
-            font-size: 0.68rem;
-            padding: 0.5rem 0.2rem;
-            justify-content: center;
-          }
-          .hero-h-fields-grid {
+          .vdt-ref-grid-3,
+          .vdt-ref-grid-hourly-2,
+          .vdt-ref-grid-4 {
             grid-template-columns: 1fr;
-            gap: 10px;
           }
-          .hero-h-action-group {
-            margin-top: 4px;
+          .vdt-ref-cell:not(:last-child) {
+            border-right: none;
+            border-bottom: 1px solid #ECE7DE;
+          }
+          .vdt-ref-cell {
+            padding: 14px 18px;
+            min-height: 72px;
+          }
+          .vdt-ref-bottom-bar {
+            flex-direction: column;
+            align-items: stretch;
+          }
+          .vdt-ref-quote-btn {
+            width: 100%;
+            justify-content: center;
           }
           .hero-trust-container {
             padding: 0 12px;
@@ -1571,14 +1690,6 @@ export default function HeroBanner() {
             border-left: none;
             border-top: 1px solid #E8E4DC;
             padding-top: 0.85rem;
-          }
-        }
-
-        /* Respect accessibility preference */
-        @media (prefers-reduced-motion: reduce) {
-          .hero-vehicle-slide {
-            transition: opacity 200ms ease !important;
-            transform: translateY(var(--car-offset-y, 0px)) scale(var(--car-scale, 1)) !important;
           }
         }
       `}</style>
