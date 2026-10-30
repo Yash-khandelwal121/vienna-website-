@@ -21,17 +21,54 @@ app.use(async (req, res, next) => {
   next();
 });
 
-// Security & Parsing Middleware
+// ─────────────────────────────────────────────────────────────────────────────
+// CORS CONFIGURATION
+// ─────────────────────────────────────────────────────────────────────────────
 
-// Explicitly approved production domains
+// Explicitly approved production & stable preview domains
 const defaultProductionOrigins = [
-  'https://vienna-website-mbtdl2jng-yashdev15.vercel.app',
-  'https://vienna-website-seven.vercel.app',
+  'https://vienna-website-mbtdl2jng-yashdev15.vercel.app', // legacy stable preview
+  'https://vienna-website-seven.vercel.app',               // stable alias
   'https://viennadaytrip.com',
   'https://www.viennadaytrip.com'
 ];
 
-// Helper to reliably check for loopback/localhost origins without unsafe substring matching
+/**
+ * Scoped Vercel Preview allowance.
+ *
+ * Allows ONLY preview deployments for THIS specific project + team:
+ *   https://vienna-website-<alphanumeric_hash>-yashdev15.vercel.app
+ *
+ * Security guarantees:
+ *  ✓ Anchored regex — no partial matches
+ *  ✓ Hash segment restricted to lowercase alphanumerics only (no dots, slashes, etc.)
+ *  ✓ Project name must be exactly "vienna-website"
+ *  ✓ Team slug must be exactly "yashdev15"
+ *  ✓ HTTPS only (enforced by protocol check below)
+ *  ✗ Will NOT allow:  other-project-hash-yashdev15.vercel.app
+ *  ✗ Will NOT allow:  vienna-website-hash-otherperson.vercel.app
+ *  ✗ Will NOT allow:  evil-vienna-website-hash-yashdev15.vercel.app
+ *  ✗ Will NOT allow:  any arbitrary *.vercel.app domain
+ */
+const VERCEL_PREVIEW_PATTERN = /^vienna-website-[a-z0-9]+-yashdev15\.vercel\.app$/;
+
+/**
+ * Returns true if origin is a HTTPS Vercel Preview URL matching this project.
+ * Parses the URL properly rather than doing substring matching.
+ */
+function isAuthorizedVercelPreview(origin) {
+  try {
+    const parsed = new URL(origin);
+    // Must be HTTPS — never HTTP
+    if (parsed.protocol !== 'https:') return false;
+    // Hostname must exactly match the project + team preview pattern
+    return VERCEL_PREVIEW_PATTERN.test(parsed.hostname);
+  } catch {
+    return false;
+  }
+}
+
+/** Returns true if origin is localhost / loopback (no substring tricks) */
 function isLocalhostOrigin(origin) {
   try {
     const { hostname } = new URL(origin);
@@ -46,24 +83,24 @@ function isLocalhostOrigin(origin) {
   }
 }
 
-// Helper to normalize origin string (trim and strip trailing slash)
+/** Normalize origin string — trim whitespace and strip any trailing slash */
 function normalizeOrigin(origin) {
   return typeof origin === 'string' ? origin.trim().replace(/\/+$/, '') : '';
 }
 
-// User-supplied origins via environment variable
+// Extra origins supplied via CORS_ORIGIN env-var (comma-separated, Vercel env panel)
 const customAllowedOrigins = (process.env.CORS_ORIGIN || '')
   .split(',')
   .map(normalizeOrigin)
   .filter(Boolean);
 
-// Strict production allowlist (localhost origins are explicitly excluded from production)
+// Production allowlist — static Set, no localhost entries permitted
 const productionAllowedOrigins = new Set([
   ...defaultProductionOrigins.map(normalizeOrigin),
-  ...customAllowedOrigins.filter((origin) => !isLocalhostOrigin(origin))
+  ...customAllowedOrigins.filter((o) => !isLocalhostOrigin(o))
 ]);
 
-// Development allowlist (includes common local dev ports plus all production origins)
+// Development allowlist — includes localhost ports + all production origins
 const developmentAllowedOrigins = new Set([
   'http://localhost:5173',
   'http://localhost:5174',
@@ -76,7 +113,7 @@ const developmentAllowedOrigins = new Set([
 
 const corsOptions = {
   origin: (origin, callback) => {
-    // Allow requests with no origin (like mobile apps, curl, server-to-server, or same-origin)
+    // Requests with no origin header (server-to-server, curl, same-origin) — always allow
     if (!origin) {
       return callback(null, true);
     }
@@ -85,22 +122,29 @@ const corsOptions = {
     const isProduction = process.env.NODE_ENV === 'production';
 
     if (isProduction) {
-      // PRODUCTION: strictly allow only explicitly configured production origins
+      // ① Static production allowlist (exact match)
       if (productionAllowedOrigins.has(normalized)) {
         return callback(null, true);
       }
+
+      // ② Scoped Vercel Preview allowance — project-specific pattern only
+      if (isAuthorizedVercelPreview(normalized)) {
+        return callback(null, true);
+      }
+
+      // ③ Everything else — reject
       return callback(
         new Error(`CORS policy does not allow access from origin: ${origin}`)
       );
     } else {
-      // DEVELOPMENT: allow localhost / loopback interfaces and configured development origins
+      // DEVELOPMENT: allow localhost / loopback and explicitly configured origins
       if (
         developmentAllowedOrigins.has(normalized) ||
         isLocalhostOrigin(normalized)
       ) {
         return callback(null, true);
       }
-      // In development, permit other local network origins gracefully
+      // Permit other LAN / emulator origins in development gracefully
       return callback(null, true);
     }
   },
