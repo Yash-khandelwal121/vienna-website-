@@ -72,25 +72,37 @@ const CHILD_SEAT_RATE_EUR = 10; // €10 per child seat
 export function calculatePayableAmount(booking, discountCode, childSeatCountOverride) {
   const service = (booking.serviceType || '').toLowerCase();
   const vehicle = (booking.preferredVehicle || '').toLowerCase();
+  const pickup = (booking.pickupLocation || '').toLowerCase();
+  const dropoff = (booking.dropoffLocation || '').toLowerCase();
+  const combined = `${service} ${pickup} ${dropoff}`;
 
   // 1. Determine Base Rate
   let basePrice = 55; // Default minimum transfer
 
-  if (service.includes('hallstatt')) basePrice = 595;
-  else if (service.includes('salzburg')) basePrice = 595;
-  else if (service.includes('wachau')) basePrice = 416;
-  else if (service.includes('bratislava')) basePrice = 208;
-  else if (service.includes('budapest')) basePrice = 495;
-  else if (service.includes('prague')) basePrice = 513;
-  else if (service.includes('sightseeing') || service.includes('vienna tour')) basePrice = 208;
+  if (combined.includes('hallstatt')) basePrice = 595;
+  else if (combined.includes('salzburg')) basePrice = 595;
+  else if (combined.includes('wachau') || combined.includes('melk')) basePrice = 416;
+  else if (combined.includes('bratislava')) {
+    basePrice = service.includes('day trip') ? 208 : 120;
+  }
+  else if (combined.includes('budapest')) basePrice = 495;
+  else if (combined.includes('prague')) basePrice = 513;
+  else if (combined.includes('graz')) basePrice = 338;
+  else if (combined.includes('sightseeing') || combined.includes('vienna tour')) basePrice = 208;
   else if (service.includes('day trip')) basePrice = 495;
   else if (service.includes('hourly')) {
-    // 3 hours default if unspecified
-    basePrice = 52 * 3;
-  } else if (service.includes('return')) {
-    basePrice = 55 * 2;
+    let hours = 3;
+    const notes = (booking.specialRequests || '');
+    const m = notes.match(/(\d+)\s*hours?/i) || service.match(/(\d+)\s*hours?/i);
+    if (m && m[1]) hours = parseInt(m[1], 10);
+    basePrice = 52 * hours;
   } else {
+    // Standard transfer
     basePrice = 55;
+  }
+
+  if (service.includes('return') || combined.includes('return')) {
+    basePrice *= 2;
   }
 
   // 2. Vehicle Multiplier

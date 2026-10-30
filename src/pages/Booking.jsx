@@ -151,6 +151,72 @@ const LUXURY_MAP_STYLES = [
   }
 ];
 
+/**
+ * Fallback route distance (km) and travel duration (min) estimator
+ * for Vienna Day Trip when Google Maps is disabled, offline, or returns no driving route.
+ */
+export function estimateRouteDistance(pu = '', dr = '', mode = 'transfer', tourIdx = 0) {
+  if (mode === 'hourly') {
+    return { km: 0, min: 0 };
+  }
+
+  if (mode === 'daytrip') {
+    const TOUR_ESTIMATES = {
+      0: { km: 290, min: 200 }, // Hallstatt Day Trip
+      1: { km: 300, min: 180 }, // Salzburg Day Trip
+      2: { km: 90, min: 65 },   // Wachau Valley Day Trip / Melk
+      3: { km: 80, min: 60 },   // Bratislava Day Trip
+      4: { km: 245, min: 150 }, // Budapest Day Trip
+      5: { km: 330, min: 210 }, // Prague Day Trip
+      6: { km: 25, min: 45 }    // Vienna Sightseeing Tour
+    };
+    return TOUR_ESTIMATES[tourIdx] || { km: 200, min: 150 };
+  }
+
+  // Transfer mode — examine pickup and drop-off text
+  const tx = `${pu || ''} ${dr || ''}`.toLowerCase();
+
+  // Known Intercity & Long-Distance routes
+  if (tx.includes('salzburg')) return { km: 300, min: 180 };
+  if (tx.includes('hallstatt')) return { km: 290, min: 200 };
+  if (tx.includes('budapest')) return { km: 245, min: 150 };
+  if (tx.includes('prague')) return { km: 330, min: 210 };
+  if (tx.includes('bratislava')) return { km: 80, min: 60 };
+  if (tx.includes('graz')) return { km: 200, min: 130 };
+  if (tx.includes('wachau') || tx.includes('melk')) return { km: 90, min: 65 };
+  if (tx.includes('linz')) return { km: 185, min: 115 };
+  if (tx.includes('munich') || tx.includes('münchen')) return { km: 435, min: 270 };
+  if (tx.includes('innsbruck')) return { km: 480, min: 300 };
+  if (tx.includes('cesky krumlov') || tx.includes('krumlov')) return { km: 205, min: 150 };
+  if (tx.includes('brno')) return { km: 140, min: 95 };
+
+  // Vienna Airport (VIE) / Schwechat routes
+  if (tx.includes('airport') || tx.includes('vie') || tx.includes('schwechat')) {
+    return { km: 20, min: 25 };
+  }
+
+  // City center landmarks, stations and hotels
+  if (
+    tx.includes('hauptbahnhof') ||
+    tx.includes('westbahnhof') ||
+    tx.includes('stephansplatz') ||
+    tx.includes('innere stadt') ||
+    tx.includes('schönbrunn') ||
+    tx.includes('schoenbrunn') ||
+    tx.includes('hotel')
+  ) {
+    return { km: 15, min: 25 };
+  }
+
+  // Local Vienna transfer when both addresses are specified
+  if (pu.trim() && dr.trim()) {
+    return { km: 15, min: 25 };
+  }
+
+  // Standard initial transfer baseline
+  return { km: 20, min: 25 };
+}
+
 export default function Booking() {
   const location = useLocation();
 
@@ -170,8 +236,8 @@ export default function Booking() {
   const [mode, setMode] = useState('transfer'); // 'transfer' | 'hourly' | 'daytrip'
   const [car, setCar] = useState(S.CARS[0]);
   const [disc, setDisc] = useState(null); // { c: 'WELCOME10', p: 10 }
-  const [km, setKm] = useState(0);
-  const [min, setMin] = useState(0);
+  const [km, setKm] = useState(20);
+  const [min, setMin] = useState(25);
   const [paymentMethod, setPaymentMethod] = useState('online'); // 'online' | 'later'
   const [promoCodeInput, setPromoCodeInput] = useState('');
   const [promoMessage, setPromoMessage] = useState(null); // { type: 'ok'|'no', text: '' }
@@ -533,10 +599,10 @@ export default function Booking() {
     }
   };
 
-  // Route calculation (Google Directions live route)
+  // Route calculation (Google Directions live route with reliable fallback estimation)
   const calcRoute = () => {
     if (mode === 'hourly') {
-      setMin(hr * 60);
+      setMin((Number(hr) || 3) * 60);
       setKm(0);
       setRouteError(null);
       if (dirRenRef.current) dirRenRef.current.set('directions', null);
@@ -563,8 +629,9 @@ export default function Booking() {
     }
 
     if (!ENABLE_GOOGLE_MAPS || !window.google?.maps) {
-      setKm(0);
-      setMin(0);
+      const est = estimateRouteDistance(pu, dr, mode, tr);
+      setKm(est.km);
+      setMin(est.min);
       setRouteError(null);
       return;
     }
@@ -601,10 +668,18 @@ export default function Booking() {
               if (puMarkerRef.current) puMarkerRef.current.setMap(null);
               if (drMarkerRef.current) drMarkerRef.current.setMap(null);
             } else {
-              setRouteError(`Google Directions status: ${status}`);
+              const est = estimateRouteDistance(pu, dr, mode, tr);
+              setKm(est.km);
+              setMin(est.min);
+              setRouteError(null);
             }
           }
         );
+      } else {
+        const est = estimateRouteDistance(pu, dr, mode, tr);
+        setKm(est.km);
+        setMin(est.min);
+        setRouteError(null);
       }
       return;
     }
@@ -624,15 +699,19 @@ export default function Booking() {
             if (puMarkerRef.current) puMarkerRef.current.setMap(null);
             if (drMarkerRef.current) drMarkerRef.current.setMap(null);
           } else {
-            setRouteError(`Directions could not find a driving route between these locations (${status}).`);
+            const est = estimateRouteDistance(pu, dr, mode, tr);
+            setKm(est.km);
+            setMin(est.min);
+            setRouteError(null);
           }
         }
       );
     } else {
       // Clear route line if both locations are not set
       if (dirRenRef.current) dirRenRef.current.set('directions', null);
-      setKm(0);
-      setMin(0);
+      const est = estimateRouteDistance(pu, dr, mode, tr);
+      setKm(est.km);
+      setMin(est.min);
 
       if (pu && !dr && window.google?.maps?.Geocoder && gmapRef.current) {
         const geocoder = new window.google.maps.Geocoder();
@@ -714,46 +793,54 @@ export default function Booking() {
     }
   }, [step, directionsData]);
 
-  // Pricing (Business Sedan base)
+  // Pricing (Business Sedan base in EUR)
   const basePrice = useMemo(() => {
     const e = (Number(ex) / 60) * S.HOURLY;
     let b = null;
     if (mode === 'hourly') {
-      b = Number(hr) * S.HOURLY;
+      const hours = Math.max(2, Number(hr) || 2);
+      b = hours * S.HOURLY;
     } else if (mode === 'daytrip') {
       b = S.TOURS[tr] ? S.TOURS[tr][1] : 208;
     } else {
       const tx = `${pu} ${dr}`.toLowerCase();
-      const v = /vienna|wien|\bvie\b|airport|schwechat/.test(tx);
       for (const k in S.FIX) {
-        if (v && tx.indexOf(k) > -1) {
+        if (tx.indexOf(k) > -1) {
           b = S.FIX[k];
           break;
         }
       }
-      if (b === null && km > 0) {
-        b = Math.max(S.MIN, S.BASE + km * S.PER_KM);
+      if (b === null) {
+        const est = estimateRouteDistance(pu, dr, mode, tr);
+        const effectiveKm = km > 0 ? km : est.km;
+        if (effectiveKm > 0) {
+          b = Math.max(S.MIN, S.BASE + effectiveKm * S.PER_KM);
+        } else {
+          b = S.MIN;
+        }
       }
       if (b !== null && ty === 'return') {
         b *= 2;
       }
     }
-    return b === null ? null : b + e;
+    const calculatedBase = (b !== null && !isNaN(b)) ? b : S.MIN;
+    return calculatedBase + e;
   }, [mode, hr, tr, ex, pu, dr, km, ty]);
 
   const CHILD_SEAT_RATE = 10; // EUR per child seat
 
   const totals = useMemo(() => {
-    if (basePrice === null || !car) return null;
-    const s = basePrice * car.mult;
-    const childSeatCharge = Number(cs) * CHILD_SEAT_RATE;
+    const effectiveBase = (basePrice !== null && !isNaN(basePrice)) ? basePrice : S.MIN;
+    const selectedCar = car || S.CARS[0];
+    const s = effectiveBase * selectedCar.mult;
+    const childSeatCharge = Number(cs || 0) * CHILD_SEAT_RATE;
     const subtotalWithChildSeats = s + childSeatCharge;
     const d = disc ? (s * disc.p) / 100 : 0;
     return {
-      s,                    // vehicle subtotal (before child seats & discount)
-      childSeatCharge,      // €10 * number of child seats
-      d,                    // discount applied to vehicle subtotal only
-      t: subtotalWithChildSeats - d  // final total
+      s,                            // vehicle subtotal (before child seats & discount)
+      childSeatCharge,              // €10 * number of child seats
+      d,                            // discount applied to vehicle subtotal only
+      t: subtotalWithChildSeats - d // final total in EUR
     };
   }, [basePrice, car, disc, cs]);
 
@@ -853,7 +940,7 @@ export default function Booking() {
       if (tVal.childSeatCharge > 0) L.push(['Child seats charge', money(tVal.childSeatCharge)]);
       if (tVal.d > 0) L.push(['Discount', `-${money(tVal.d)}`]);
     }
-    L.push(['Total', tVal ? money(tVal.t) : 'Quote on request']);
+    L.push(['Total', money(tVal ? tVal.t : (S.MIN * (car?.mult || 1)))]);
     return L;
   };
 
@@ -921,12 +1008,15 @@ export default function Booking() {
       preferredVehicle: car.name,
       childSeatCount,
       childSeatCharge,
+      paymentAmount: totals?.t ? Number(totals.t.toFixed(2)) : undefined,
+      promoCode: disc?.c || undefined,
       specialRequests: [
         nt ? `Notes: ${nt}` : '',
         fl ? `Flight: ${fl}` : '',
         wt ? `Water: ${wt}` : '',
         disc ? `Discount: ${disc.c} (-${disc.p}%)` : '',
         childSeatCount > 0 ? `Child seats: ${childSeatCount} × €${CHILD_SEAT_RATE} = €${childSeatCharge}` : '',
+        totals ? `Vehicle Price: €${totals.s.toFixed(2)} | Total: €${totals.t.toFixed(2)}` : '',
         isOnline
           ? 'Payment method: Pay Online (Stripe)'
           : 'Payment method: Request only (Pay later / on board)'
@@ -1446,12 +1536,9 @@ export default function Booking() {
             <div id="cars">
               {S.CARS.map((vehicle) => {
                 const isSelected = car && car.id === vehicle.id;
-                const priceFormatted =
-                  basePrice === null ? (
-                    <span style={{ fontSize: '15px' }}>Quote on request</span>
-                  ) : (
-                    eur(basePrice * vehicle.mult)
-                  );
+                const vehicleBase = (basePrice !== null && !isNaN(basePrice)) ? basePrice : S.MIN;
+                const calculatedPrice = vehicleBase * vehicle.mult;
+                const priceFormatted = eur(calculatedPrice);
 
                 return (
                   <div
@@ -1910,7 +1997,7 @@ export default function Booking() {
                   ) : (
                     <div className="pr t">
                       <span>Total</span>
-                      <span>Quote on request</span>
+                      <span>{money((basePrice ?? S.MIN) * (car?.mult || 1))}</span>
                     </div>
                   )}
                 </div>

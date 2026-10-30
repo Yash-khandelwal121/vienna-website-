@@ -21,7 +21,9 @@ export async function createBooking(req, res) {
       preferredVehicle,
       specialRequests,
       childSeatCount,
-      childSeatCharge
+      childSeatCharge,
+      paymentAmount,
+      promoCode
     } = req.body;
 
     const resolvedDropoff =
@@ -58,6 +60,8 @@ export async function createBooking(req, res) {
         specialRequests: sanitizeText(specialRequests || ''),
         childSeatCount: Math.min(3, Math.max(0, Number(childSeatCount || 0))),
         childSeatCharge: Math.round(Math.max(0, Number(childSeatCharge || 0)) * 100) / 100,
+        paymentAmount: Number(paymentAmount) > 0 ? Number(paymentAmount) : undefined,
+        promoCode: promoCode ? sanitizeText(promoCode) : undefined,
         status: 'NEW',
         internalNotes: ''
       }

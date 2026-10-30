@@ -380,12 +380,12 @@ export async function submitContactEnquiry(contactData) {
 /**
  * Initiate server-side Stripe Checkout Session
  */
-export async function createStripeCheckoutSession({ bookingId, discountCode }) {
+export async function createStripeCheckoutSession({ bookingId, discountCode, childSeatCount }) {
   try {
     const res = await fetch('/api/v1/public/payments/create-checkout-session', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ bookingId, discountCode }),
+      body: JSON.stringify({ bookingId, discountCode, childSeatCount }),
     });
     const data = await res.json();
     return data;
