@@ -107,7 +107,7 @@ function dedupeRequest(key, fetcher) {
  */
 export async function fetchPublicVehicles() {
   return dedupeRequest('public_vehicles', async () => {
-    // 1. Try Node.js Backend API
+    // 1. Try Node.js Backend API (PostgreSQL / store.json)
     try {
       const res = await fetch('/api/v1/public/vehicles');
       if (res.ok) {
@@ -125,22 +125,7 @@ export async function fetchPublicVehicles() {
       }
     } catch {}
 
-    // 2. Try Sanity CMS
-    try {
-      const sanityVehicles = await fetchSanityFleet();
-      if (sanityVehicles && sanityVehicles.length > 0) {
-        return sanityVehicles.map((v) => {
-          const key = (v.model || v.name || v.id || '').toLowerCase().replace(/[^a-z0-9]/g, '-');
-          const fallback = CANONICAL_FLEET_IMAGES[key] || CANONICAL_FLEET_IMAGES[v.id] || '/cars/s-class.png';
-          return {
-            ...v,
-            image: sanitizeImageUrl(v.image, fallback)
-          };
-        });
-      }
-    } catch {}
-
-    // 3. Bundled static dataset
+    // 2. Bundled static dataset fallback
     return fleetData;
   });
 }
@@ -150,7 +135,7 @@ export async function fetchPublicVehicles() {
  */
 export async function fetchPublicServices() {
   return dedupeRequest('public_services', async () => {
-    // 1. Try Node.js Backend API
+    // 1. Try Node.js Backend API (PostgreSQL / store.json)
     try {
       const res = await fetch('/api/v1/public/services');
       if (res.ok) {
@@ -167,33 +152,7 @@ export async function fetchPublicServices() {
       }
     } catch {}
 
-    // 2. Try Sanity CMS
-    try {
-      const sanityServices = await fetchSanityServices();
-      if (sanityServices && sanityServices.length > 0) {
-        const validServices = sanityServices.filter((s) => s && s.title && s.title.trim());
-        if (validServices.length > 0) {
-          return validServices.map((s) => {
-            const fallback = CANONICAL_SERVICE_IMAGES[s.slug] || '/images/vienna-palace-backdrop.webp';
-            return {
-              id: s.id,
-              slug: s.slug,
-              name: s.title,
-              shortDesc: s.description || s.subtitle || '',
-              fullDesc: s.fullDescription || '',
-              features: s.highlights || [],
-              image: sanitizeImageUrl(s.heroImage, fallback),
-              ctaLabel: 'Book Service',
-              ctaUrl: `/${s.slug}/`,
-              displayOrder: 1,
-              isPublished: true,
-            };
-          });
-        }
-      }
-    } catch {}
-
-    // 3. Bundled static dataset
+    // 2. Bundled static dataset fallback
     return (servicesData.pillars || []).map((p, idx) => ({
       id: `srv_${p.id}`,
       slug: p.link?.replace(/^\/|\/$/g, '') || p.id,
@@ -226,12 +185,6 @@ export async function fetchPublicDayTrips() {
       }
     } catch {}
 
-    let sanityTrips = [];
-    try {
-      const sanityResult = await fetchSanityDayTrips();
-      if (Array.isArray(sanityResult)) sanityTrips = sanityResult;
-    } catch {}
-
     const map = new Map();
 
     // 1. Seed with Bundled static tours (Guaranteed pristine canonical baseline)
@@ -259,21 +212,7 @@ export async function fetchPublicDayTrips() {
       }
     });
 
-    // 2. Merge Sanity day trips without overwriting valid images with empty or generic URLs
-    sanityTrips.forEach((st) => {
-      if (st.slug && map.has(st.slug)) {
-        const prev = map.get(st.slug);
-        const resolvedImg = sanitizeImageUrl(st.heroImage, prev.image);
-        map.set(st.slug, {
-          ...prev,
-          ...st,
-          title: st.title || prev.title,
-          image: resolvedImg
-        });
-      }
-    });
-
-    // 3. Merge Backend / Neon PostgreSQL day trips (Preserving valid admin uploads while replacing broken/generic placeholders)
+    // 2. Merge Backend / Neon PostgreSQL day trips (Preserving valid admin uploads while replacing broken/generic placeholders)
     backendTrips.forEach((bt) => {
       if (bt.slug) {
         const prev = map.get(bt.slug) || {};
@@ -314,15 +253,14 @@ export async function fetchPublicDayTripBySlug(slug) {
 
 /**
  * Fetch published blog articles with pagination, category filter & search
- * Unified across Node.js Backend API (PostgreSQL / local store) and Sanity Cloud CMS
+ * Backed authoritatively by Node.js Backend API (PostgreSQL / local store)
  */
 export async function fetchPublicBlogs({ page = 1, limit = 9, category = 'All', search = '' } = {}) {
   const cacheKey = `blogs_${page}_${limit}_${category}_${search}`;
   return dedupeRequest(cacheKey, async () => {
     let backendBlogs = [];
-    let sanityBlogs = [];
 
-    // 1. Fetch from Node.js Backend API
+    // 1. Fetch from Node.js Backend API (PostgreSQL / store.json)
     try {
       const url = `/api/v1/public/blogs?limit=500&category=${encodeURIComponent(category)}&search=${encodeURIComponent(search)}`;
       const res = await fetch(url);
@@ -334,22 +272,11 @@ export async function fetchPublicBlogs({ page = 1, limit = 9, category = 'All', 
       }
     } catch (err) {}
 
-    // 2. Fetch from Sanity CMS
-    try {
-      const sanityResult = await fetchSanityBlogs({ limit: 500, category, search });
-      if (sanityResult && Array.isArray(sanityResult.blogs)) {
-        sanityBlogs = sanityResult.blogs;
-      }
-    } catch (err) {}
-
-    // 3. Fallback to local static dataset if both remote sources are empty
-    const baseList = (backendBlogs.length > 0 || sanityBlogs.length > 0)
-      ? []
-      : allBlogPosts;
+    // 2. Fallback to local static dataset if backend is unreachable
+    const baseList = backendBlogs.length > 0 ? [] : allBlogPosts;
 
     const map = new Map();
     baseList.forEach((b) => map.set(b.slug, b));
-    sanityBlogs.forEach((b) => map.set(b.slug, { ...map.get(b.slug), ...b }));
     backendBlogs.forEach((b) => map.set(b.slug, { ...map.get(b.slug), ...b }));
 
     let combined = Array.from(map.values()).filter((b) => b.isPublished !== false);
@@ -391,7 +318,7 @@ export async function fetchPublicBlogBySlug(slug) {
   if (!clean) return { blog: null, source: 'none' };
 
   return dedupeRequest(`blog_${clean}`, async () => {
-    // 1. Try Node.js Backend API first
+    // 1. Try Node.js Backend API first (PostgreSQL / store.json)
     try {
       const res = await fetch(`/api/v1/public/blogs/${clean}`);
       if (res.ok) {
@@ -403,15 +330,7 @@ export async function fetchPublicBlogBySlug(slug) {
       }
     } catch (err) {}
 
-    // 2. Try Sanity CMS
-    try {
-      const sanityArticle = await fetchSanityBlogBySlug(clean);
-      if (sanityArticle && sanityArticle.blog) {
-        return sanityArticle;
-      }
-    } catch (err) {}
-
-    // 3. Fallback to local dataset
+    // 2. Fallback to local dataset
     const blog = allBlogPosts.find((b) => b.slug === clean);
     const related = allBlogPosts.filter((b) => b.slug !== clean && b.category === blog?.category).slice(0, 3);
     return { blog: blog || null, related, source: 'local' };
@@ -457,3 +376,54 @@ export async function submitContactEnquiry(contactData) {
     };
   }
 }
+
+/**
+ * Initiate server-side Stripe Checkout Session
+ */
+export async function createStripeCheckoutSession({ bookingId, discountCode }) {
+  try {
+    const res = await fetch('/api/v1/public/payments/create-checkout-session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ bookingId, discountCode }),
+    });
+    const data = await res.json();
+    return data;
+  } catch (err) {
+    return {
+      success: false,
+      error: 'Failed to connect to Stripe payment service. Please try again.',
+    };
+  }
+}
+
+/**
+ * Fetch verified database payment status for a booking
+ */
+export async function fetchBookingPaymentStatus(bookingId) {
+  try {
+    const res = await fetch(`/api/v1/public/payments/status/${bookingId}`);
+    const data = await res.json();
+    return data;
+  } catch (err) {
+    return { success: false, error: 'Could not retrieve payment status.' };
+  }
+}
+
+/**
+ * Simulate payment confirmation in local test mode
+ */
+export async function simulatePaymentSuccess({ bookingId, sessionId }) {
+  try {
+    const res = await fetch('/api/v1/public/payments/simulate-confirmation', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ bookingId, sessionId }),
+    });
+    const data = await res.json();
+    return data;
+  } catch (err) {
+    return { success: false, error: 'Failed to simulate payment.' };
+  }
+}
+

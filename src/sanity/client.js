@@ -1,4 +1,3 @@
-import { createClient } from '@sanity/client';
 import { createImageUrlBuilder } from '@sanity/image-url';
 
 export const projectId = import.meta.env.VITE_SANITY_PROJECT_ID || 'lwp5b4fm';
@@ -7,20 +6,14 @@ export const apiVersion = import.meta.env.VITE_SANITY_API_VERSION || '2024-01-01
 
 const isDev = typeof window !== 'undefined' && import.meta.env.DEV;
 
-// Public frontend client with CDN enabled for ultra-fast cached responses
-export const sanityClient = createClient({
-  projectId,
-  dataset,
-  apiVersion,
-  useCdn: true,
-  perspective: 'published',
-  ...(isDev
-    ? {
-        apiHost: `${window.location.origin}/sanity-cdn`,
-        useProjectHostname: false,
-      }
-    : {}),
-});
+// Sanity CMS Integration: Disabled (Website operates on Express + PostgreSQL)
+export const SANITY_DISABLED = true;
+
+// Public frontend client - network queries disabled
+export const sanityClient = {
+  fetch: async () => null,
+  config: () => ({ projectId, dataset, apiVersion }),
+};
 
 // Helper for generating responsive, optimized Sanity image URLs using supported named export
 const builder = createImageUrlBuilder({ projectId, dataset });
@@ -31,6 +24,9 @@ export function urlForImage(source) {
   if (typeof source === 'string') return source;
   if (source.imageUrl && typeof source.imageUrl === 'string' && source.imageUrl.trim() && !source.imageUrl.includes('drive.google.com')) {
     return source.imageUrl.trim();
+  }
+  if (source.url && typeof source.url === 'string') {
+    return source.url.trim();
   }
   if (source.asset) {
     try {
@@ -43,17 +39,10 @@ export function urlForImage(source) {
 }
 
 /**
- * Robust fetch wrapper that gracefully catches network/CORS/empty errors
- * without ever crashing the application.
+ * Disabled fetch wrapper - safely returns null without making any network requests
  */
-export async function sanityFetch(query, params = {}) {
-  try {
-    const data = await sanityClient.fetch(query, params);
-    return { data, error: null };
-  } catch (err) {
-    console.warn('[Sanity CMS] Query notice:', err.message);
-    return { data: null, error: err };
-  }
+export async function sanityFetch() {
+  return { data: null, error: null };
 }
 
 export default sanityClient;

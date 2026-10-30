@@ -1,21 +1,8 @@
 import { db } from '../config/db.js';
 
-// Helper to get Sanity client with write access if token available
+// Helper to get Sanity client (Safely Disabled - Website operates on Express + PostgreSQL)
 export async function getSanityWriteClient() {
-  if (!process.env.SANITY_API_TOKEN) return null;
-  try {
-    const { createClient } = await import('@sanity/client');
-    return createClient({
-      projectId: process.env.SANITY_PROJECT_ID || process.env.VITE_SANITY_PROJECT_ID || 'lwp5b4fm',
-      dataset: process.env.SANITY_DATASET || process.env.VITE_SANITY_DATASET || 'production',
-      apiVersion: '2024-01-01',
-      token: process.env.SANITY_API_TOKEN,
-      useCdn: false
-    });
-  } catch (err) {
-    console.warn('[Sanity Sync Client Note]:', err.message);
-    return null;
-  }
+  return null;
 }
 
 /**
@@ -64,41 +51,7 @@ export async function getPublicBlogs(req, res) {
 export async function getPublicBlogBySlug(req, res) {
   try {
     const cleanSlug = (req.params.slug || '').trim().replace(/\/+$/, '');
-    let blog = await db.blogs.findUnique({ where: { slug: cleanSlug } });
-
-    // Fallback: Check Sanity CMS if not found in db.blogs
-    if (!blog) {
-      try {
-        const { createClient } = await import('@sanity/client');
-        const sanity = createClient({
-          projectId: process.env.SANITY_PROJECT_ID || process.env.VITE_SANITY_PROJECT_ID || 'lwp5b4fm',
-          dataset: process.env.SANITY_DATASET || process.env.VITE_SANITY_DATASET || 'production',
-          apiVersion: '2024-01-01',
-          useCdn: false
-        });
-        const query = `*[_type == "blogPost" && slug.current == $slug][0]`;
-        const item = await sanity.fetch(query, { slug: cleanSlug });
-        if (item) {
-          blog = {
-            id: item._id,
-            slug: cleanSlug,
-            title: item.title,
-            excerpt: item.excerpt || '',
-            content: item.content || '',
-            body: item.body,
-            featuredImage: item.coverImage?.imageUrl || '/images/vienna-palace-backdrop.webp',
-            category: item.categoryName || 'Travel Guides',
-            author: item.author || 'Vienna Day Trip Concierge',
-            date: item.publishedAt ? new Date(item.publishedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'October 2026',
-            rawDate: item.publishedAt || new Date().toISOString(),
-            isPublished: item.isPublished !== false,
-            seo: item.seo || {}
-          };
-        }
-      } catch (sanityErr) {
-        // Continue to not found
-      }
-    }
+    const blog = await db.blogs.findUnique({ where: { slug: cleanSlug } });
 
     if (!blog || !blog.isPublished) {
       return res.status(404).json({ success: false, error: 'Article not found.' });
@@ -202,67 +155,6 @@ export async function createBlog(req, res) {
       }
     });
 
-    // Cloud persistence: Synchronize with Sanity CMS
-    let sanitySuccess = false;
-    let sanityError = null;
-    const sanity = await getSanityWriteClient();
-    if (sanity) {
-      try {
-        const sanityDoc = {
-          _type: 'blogPost',
-          _id: `blogPost-${cleanSlug}`,
-          title: data.title.trim(),
-          slug: { _type: 'slug', current: cleanSlug },
-          excerpt: data.excerpt || '',
-          content: data.content,
-          categoryName: data.category || 'Travel Guides',
-          author: data.author || 'Vienna Day Trip Concierge',
-          publishedAt: data.rawDate || nowIso,
-          modifiedAt: nowIso,
-          isPublished: isPub,
-          coverImage: {
-            _type: 'image',
-            imageUrl: data.featuredImage || '/images/vienna-palace-backdrop.webp',
-            alt: data.featuredImageAlt || data.title.trim(),
-            title: data.featuredImageTitle || ''
-          },
-          seo: {
-            metaTitle: data.seo?.metaTitle || data.title.trim(),
-            metaDescription: data.seo?.metaDescription || data.excerpt || '',
-            canonicalUrl: data.seo?.canonicalUrl || `https://viennadaytrip.com/blog/${cleanSlug}/`,
-            keywords: data.seo?.keywords || []
-          }
-        };
-        await sanity.createOrReplace(sanityDoc);
-        sanitySuccess = true;
-        console.log(`[Sanity Sync] Successfully persisted article to Sanity Cloud CMS: ${cleanSlug}`);
-      } catch (sanityErr) {
-        sanityError = sanityErr.message;
-        console.error('[Sanity Sync Failure]:', sanityErr.message);
-      }
-    } else {
-      sanityError = 'Sanity API client not configured or token missing.';
-    }
-
-    // STRICT PRODUCTION PERSISTENCE CHECK:
-    // If PostgreSQL is not connected AND Sanity CMS write failed:
-    if (!db.isConnectedToPostgres && !sanitySuccess) {
-      // PREVENT DATA LOSS: Preserve author's work as a draft in local memory/store
-      if (created.isPublished) {
-        await db.blogs.update({
-          where: { id: created.id },
-          data: { isPublished: false }
-        });
-      }
-
-      return res.status(502).json({
-        success: false,
-        error: `Cloud persistence failed: Unable to save to Sanity CMS (${sanityError}). Your article content has been preserved safely as a draft.`,
-        draftSaved: true,
-        blog: { ...created, isPublished: false }
-      });
-    }
-
     await db.audit.log({
       userId: req.user?.id,
       action: 'CREATE_BLOG',
@@ -274,8 +166,8 @@ export async function createBlog(req, res) {
     res.status(201).json({
       success: true,
       message: isPub
-        ? 'Article published and permanently stored in Sanity CMS.'
-        : 'Article saved as draft in Sanity CMS.',
+        ? 'Article published successfully.'
+        : 'Article saved as draft successfully.',
       blog: created
     });
   } catch (error) {
@@ -305,68 +197,6 @@ export async function updateBlog(req, res) {
     const targetSlug = updateData.slug || existing.slug;
     const isTargetPub = updateData.isPublished !== undefined ? updateData.isPublished : existing.isPublished;
 
-    // Cloud persistence: Synchronize with Sanity CMS
-    let sanitySuccess = false;
-    let sanityError = null;
-    const sanity = await getSanityWriteClient();
-    if (sanity) {
-      try {
-        const sanityDoc = {
-          _type: 'blogPost',
-          _id: `blogPost-${targetSlug}`,
-          title: (updateData.title || existing.title).trim(),
-          slug: { _type: 'slug', current: targetSlug },
-          excerpt: updateData.excerpt !== undefined ? updateData.excerpt : existing.excerpt,
-          content: updateData.content !== undefined ? updateData.content : existing.content,
-          categoryName: updateData.category || existing.category,
-          author: updateData.author || existing.author,
-          publishedAt: existing.rawDate || existing.createdAt || new Date().toISOString(),
-          modifiedAt: new Date().toISOString(),
-          isPublished: isTargetPub,
-          coverImage: {
-            _type: 'image',
-            imageUrl: updateData.featuredImage || existing.featuredImage,
-            alt: updateData.featuredImageAlt || updateData.title || existing.title,
-            title: updateData.featuredImageTitle || ''
-          },
-          seo: {
-            metaTitle: updateData.seo?.metaTitle || updateData.title || existing.title,
-            metaDescription: updateData.seo?.metaDescription || updateData.excerpt || existing.excerpt,
-            canonicalUrl: updateData.seo?.canonicalUrl || `https://viennadaytrip.com/blog/${targetSlug}/`,
-            keywords: updateData.seo?.keywords || []
-          }
-        };
-        await sanity.createOrReplace(sanityDoc);
-        sanitySuccess = true;
-        console.log(`[Sanity Sync] Updated article in Sanity Cloud CMS: ${targetSlug}`);
-      } catch (sanityErr) {
-        sanityError = sanityErr.message;
-        console.error('[Sanity Sync Update Failed]:', sanityErr.message);
-      }
-    } else {
-      sanityError = 'Sanity API client not configured or token missing.';
-    }
-
-    // STRICT PRODUCTION PERSISTENCE CHECK:
-    if (!db.isConnectedToPostgres && !sanitySuccess) {
-      // PREVENT DATA LOSS: Save updates locally as a draft so author's edits are never lost
-      const safeData = {
-        ...updateData,
-        isPublished: false // Roll back to draft so unpublished articles never appear published
-      };
-      const draftUpdated = await db.blogs.update({
-        where: { id: req.params.id },
-        data: safeData
-      });
-
-      return res.status(502).json({
-        success: false,
-        error: `Cloud persistence failed: Unable to update Sanity CMS (${sanityError}). Your edits have been preserved locally as a draft.`,
-        draftSaved: true,
-        blog: draftUpdated
-      });
-    }
-
     const updated = await db.blogs.update({
       where: { id: req.params.id },
       data: updateData
@@ -382,7 +212,7 @@ export async function updateBlog(req, res) {
 
     res.json({
       success: true,
-      message: updated.isPublished ? 'Article published and permanently stored in Sanity CMS.' : 'Draft updated successfully in Sanity CMS.',
+      message: updated.isPublished ? 'Article published successfully.' : 'Draft updated successfully.',
       blog: updated
     });
   } catch (error) {
@@ -396,17 +226,7 @@ export async function updateBlog(req, res) {
  */
 export async function deleteBlog(req, res) {
   try {
-    const existing = await db.blogs.findUnique({ where: { id: req.params.id } });
     await db.blogs.delete({ where: { id: req.params.id } });
-
-    if (existing?.slug) {
-      const sanity = await getSanityWriteClient();
-      if (sanity) {
-        try {
-          await sanity.delete(`blogPost-${existing.slug}`).catch(() => {});
-        } catch (e) {}
-      }
-    }
 
     await db.audit.log({
       userId: req.user?.id,

@@ -182,15 +182,15 @@ export default function SettingsManager() {
             </div>
             <div>
               <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 600, color: '#17191C' }}>
-                Sanity CMS Cloud Integration
+                Sanity CMS Integration (Disabled)
               </h3>
               <p style={{ margin: 0, fontSize: '0.8rem', color: '#707070' }}>
-                Headless content infrastructure configured for Vienna Day Trip
+                Safely disabled in standby mode. Content is managed directly via Express & Neon PostgreSQL.
               </p>
             </div>
           </div>
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', padding: '0.3rem 0.75rem', borderRadius: '999px', fontSize: '0.75rem', fontWeight: 600, backgroundColor: '#EBF7EE', color: '#1E7E34' }}>
-            <CheckCircle size={12} /> Active Connection
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', padding: '0.3rem 0.75rem', borderRadius: '999px', fontSize: '0.75rem', fontWeight: 600, backgroundColor: '#F0EEE9', color: '#62666D' }}>
+            Disabled (Standby)
           </span>
         </div>
 
@@ -204,26 +204,32 @@ export default function SettingsManager() {
             <div style={{ fontSize: '0.95rem', fontWeight: 600, color: '#17191C', marginTop: '0.2rem' }}>production</div>
           </div>
           <div style={{ padding: '0.85rem', backgroundColor: '#FAF8F4', borderRadius: '8px', border: '1px solid #E6D8C3' }}>
-            <div style={{ fontSize: '0.75rem', color: '#707070', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Embedded Studio</div>
-            <div style={{ fontSize: '0.95rem', fontWeight: 600, color: '#C69C50', marginTop: '0.2rem' }}>/studio</div>
+            <div style={{ fontSize: '0.75rem', color: '#707070', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Studio Status</div>
+            <div style={{ fontSize: '0.95rem', fontWeight: 600, color: '#707070', marginTop: '0.2rem' }}>Disabled (Redirects to /admin)</div>
           </div>
           <div style={{ padding: '0.85rem', backgroundColor: '#FAF8F4', borderRadius: '8px', border: '1px solid #E6D8C3' }}>
-            <div style={{ fontSize: '0.75rem', color: '#707070', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Prepared NDJSON</div>
-            <div style={{ fontSize: '0.95rem', fontWeight: 600, color: '#17191C', marginTop: '0.2rem' }}>157 Documents</div>
+            <div style={{ fontSize: '0.75rem', color: '#707070', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Authoritative Source</div>
+            <div style={{ fontSize: '0.95rem', fontWeight: 600, color: '#1E7E34', marginTop: '0.2rem' }}>Express + PostgreSQL</div>
           </div>
         </div>
 
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
-          <a
-            href="/studio"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="vdt-btn-primary"
-            style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}
+          <span
+            style={{
+              padding: '0.55rem 1rem',
+              backgroundColor: '#FAF8F4',
+              border: '1px solid #E6D8C3',
+              borderRadius: '6px',
+              color: '#707070',
+              fontSize: '0.825rem',
+              fontWeight: 500,
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+            }}
           >
-            <span>Launch Sanity Studio</span>
-            <span style={{ fontSize: '0.8rem' }}>↗</span>
-          </a>
+            <span>Sanity Studio Access Disabled</span>
+          </span>
           <a
             href="https://www.sanity.io/manage/project/lwp5b4fm/api"
             target="_blank"
@@ -242,7 +248,7 @@ export default function SettingsManager() {
               gap: '0.5rem',
             }}
           >
-            <span>Sanity Cloud Console (CORS & Tokens)</span>
+            <span>External Sanity Management Console</span>
             <span style={{ fontSize: '0.8rem' }}>↗</span>
           </a>
         </div>

@@ -16,60 +16,14 @@ import NotFound from './pages/NotFound';
 import Booking from './pages/Booking';
 import AdminApp from './admin/AdminApp';
 
-const StudioPage = React.lazy(() => import('./studio/StudioPage'));
-
 export default function App() {
   return (
     <Routes>
       {/* =========================================================================
-          SANITY STUDIO CMS (Accessible directly at /studio)
+          SANITY STUDIO ROUTE (Disabled — Redirects to Integrated Admin Console)
           ========================================================================= */}
-      <Route
-        path="/studio/*"
-        element={
-          <React.Suspense
-            fallback={
-              <div
-                style={{
-                  height: '100vh',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  backgroundColor: '#101112',
-                  color: '#FAF8F4',
-                  fontFamily: 'sans-serif',
-                }}
-              >
-                <div
-                  style={{
-                    width: '42px',
-                    height: '42px',
-                    border: '3px solid rgba(198,156,80,0.2)',
-                    borderTop: '3px solid #C69C50',
-                    borderRadius: '50%',
-                    animation: 'vdtSpin 1s linear infinite',
-                  }}
-                />
-                <p
-                  style={{
-                    marginTop: '1.25rem',
-                    color: '#C69C50',
-                    letterSpacing: '0.12em',
-                    fontSize: '0.85rem',
-                    textTransform: 'uppercase',
-                  }}
-                >
-                  Loading Vienna Day Trip Sanity Studio...
-                </p>
-                <style>{`@keyframes vdtSpin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
-              </div>
-            }
-          >
-            <StudioPage />
-          </React.Suspense>
-        }
-      />
+      <Route path="/studio/*" element={<Navigate to="/admin" replace />} />
+      <Route path="/studio" element={<Navigate to="/admin" replace />} />
 
       {/* =========================================================================
           ADMIN DASHBOARD & CMS PORTAL (Independent Clean Luxury Console)
@@ -86,10 +40,14 @@ export default function App() {
         {/* 2. About Us */}
         <Route path="about-vienna-day-trip/" element={<About />} />
         <Route path="about-vienna-day-trip" element={<About />} />
+        <Route path="about/" element={<About />} />
+        <Route path="about" element={<About />} />
 
         {/* 3. Our Services Overview */}
         <Route path="our-services/" element={<Services />} />
         <Route path="our-services" element={<Services />} />
+        <Route path="services/" element={<Services />} />
+        <Route path="services" element={<Services />} />
 
         {/* 4. Airport Transfer */}
         <Route path="airport-transfer-vienna/" element={<TourPage tourKey="airport-transfer-vienna" />} />
@@ -156,6 +114,8 @@ export default function App() {
         <Route path="our-fleet" element={<Fleet />} />
         <Route path="luxury-fleet/" element={<Fleet />} />
         <Route path="luxury-fleet" element={<Fleet />} />
+        <Route path="fleet/" element={<Fleet />} />
+        <Route path="fleet" element={<Fleet />} />
 
         {/* 16. B2B Solutions */}
         <Route path="b2b-solutions/" element={<B2B />} />
@@ -182,6 +142,8 @@ export default function App() {
         <Route path="contact-us-i" element={<Contact />} />
         <Route path="contact-us/" element={<Contact />} />
         <Route path="contact-us" element={<Contact />} />
+        <Route path="contact/" element={<Contact />} />
+        <Route path="contact" element={<Contact />} />
 
         {/* 20. Privacy Policy */}
         <Route path="privacy-policy/" element={<Legal type="privacy" />} />
@@ -190,6 +152,8 @@ export default function App() {
         {/* 21. Cancellation & Refund Policy */}
         <Route path="cancellation-refund-policy/" element={<Legal type="cancellation" />} />
         <Route path="cancellation-refund-policy" element={<Legal type="cancellation" />} />
+        <Route path="terms/" element={<Legal type="cancellation" />} />
+        <Route path="terms" element={<Legal type="cancellation" />} />
 
         {/* 22. Imprint */}
         <Route path="imprint/" element={<Legal type="imprint" />} />

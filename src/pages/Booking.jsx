@@ -1,12 +1,20 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useLocation, Link } from 'react-router-dom';
-import { submitBookingEnquiry } from '../services/api';
+import {
+  submitBookingEnquiry,
+  createStripeCheckoutSession,
+  fetchBookingPaymentStatus,
+  simulatePaymentSuccess
+} from '../services/api';
 import './Booking.css';
 
 /* =========================================================================
    SETTINGS & CONFIGURATION (matching exact supplied code)
    ========================================================================= */
+const ENABLE_GOOGLE_MAPS = import.meta.env.VITE_ENABLE_GOOGLE_MAPS === 'true';
+
 const S = {
+  ENABLE_MAPS: ENABLE_GOOGLE_MAPS,
   MAPS_KEY: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '',
   RAZORPAY_KEY: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_XXXXXXXXXXXX',
   CURRENCY: 'EUR',
@@ -42,7 +50,7 @@ const S = {
       pax: 3,
       bags: 2,
       mult: 1,
-      img: 'https://tourlytransfer.com/assets/e_class.jpg'
+      img: '/cars/e-class.webp'
     },
     {
       id: 'sedan_first',
@@ -51,7 +59,7 @@ const S = {
       pax: 3,
       bags: 2,
       mult: 1.5,
-      img: 'https://tourlytransfer.com/assets/s_class.webp'
+      img: '/cars/s-class.webp'
     },
     {
       id: 'eqs',
@@ -60,7 +68,7 @@ const S = {
       pax: 3,
       bags: 2,
       mult: 1.5,
-      img: 'https://tourlytransfer.com/assets/eqs.jpg'
+      img: '/cars/s-class.webp'
     },
     {
       id: 'van_business',
@@ -69,7 +77,7 @@ const S = {
       pax: 7,
       bags: 7,
       mult: 1.35,
-      img: 'https://tourlytransfer.com/assets/v_class.webp'
+      img: '/cars/v-class.webp'
     }
   ]
 };
@@ -79,6 +87,68 @@ const STEP_NAMES = [
   'Choose a Vehicle',
   'Enter Contact Details',
   'Booking Summary'
+];
+
+const LUXURY_MAP_STYLES = [
+  { elementType: 'geometry', stylers: [{ color: '#f7f4ed' }] },
+  { elementType: 'labels.icon', stylers: [{ visibility: 'off' }] },
+  { elementType: 'labels.text.fill', stylers: [{ color: '#524335' }] },
+  { elementType: 'labels.text.stroke', stylers: [{ color: '#f7f4ed' }] },
+  {
+    featureType: 'administrative.land_parcel',
+    elementType: 'labels.text.fill',
+    stylers: [{ color: '#ae9e8c' }]
+  },
+  {
+    featureType: 'poi',
+    elementType: 'geometry',
+    stylers: [{ color: '#ede7dc' }]
+  },
+  {
+    featureType: 'poi',
+    elementType: 'labels.text.fill',
+    stylers: [{ color: '#82715d' }]
+  },
+  {
+    featureType: 'poi.park',
+    elementType: 'geometry',
+    stylers: [{ color: '#dfebd4' }]
+  },
+  {
+    featureType: 'road',
+    elementType: 'geometry',
+    stylers: [{ color: '#ffffff' }]
+  },
+  {
+    featureType: 'road.arterial',
+    elementType: 'geometry',
+    stylers: [{ color: '#fdfbf7' }]
+  },
+  {
+    featureType: 'road.highway',
+    elementType: 'geometry',
+    stylers: [{ color: '#ecdcb9' }]
+  },
+  {
+    featureType: 'road.highway',
+    elementType: 'geometry.stroke',
+    stylers: [{ color: '#d9be85' }]
+  },
+  {
+    featureType: 'transit.station',
+    elementType: 'labels.text.fill',
+    stylers: [{ color: '#887560' }]
+  },
+  {
+    featureType: 'water',
+    elementType: 'geometry',
+    stylers: [{ color: '#c7dcdd' }]
+  },
+  {
+    featureType: 'water',
+    elementType: 'labels.text.fill',
+    stylers: [{ color: '#688288' }]
+  }
 ];
 
 export default function Booking() {
@@ -139,6 +209,7 @@ export default function Booking() {
   // Submission & Result States
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [doneResult, setDoneResult] = useState(null); // { success: true, reference: '', pay: null }
+  const [simulatedCheckoutData, setSimulatedCheckoutData] = useState(null);
   const [errFields, setErrFields] = useState({});
 
   // Fallback Autocomplete Suggestions
@@ -147,15 +218,25 @@ export default function Booking() {
   const [showPuAc, setShowPuAc] = useState(false);
   const [showDrAc, setShowDrAc] = useState(false);
 
-  // Map Refs
+  // Map & Autocomplete Refs & States
   const mapElementRef = useRef(null);
   const map2ElementRef = useRef(null);
+  const puInputRef = useRef(null);
+  const drInputRef = useRef(null);
   const gmapRef = useRef(null);
   const dirSvcRef = useRef(null);
   const dirRenRef = useRef(null);
   const gmap2Ref = useRef(null);
   const dirRen2Ref = useRef(null);
+  const puMarkerRef = useRef(null);
+  const drMarkerRef = useRef(null);
+  const puAcRef = useRef(null);
+  const drAcRef = useRef(null);
   const [directionsData, setDirectionsData] = useState(null);
+  const [mapLoaded, setMapLoaded] = useState(false);
+  const [mapLoading, setMapLoading] = useState(false);
+  const [mapError, setMapError] = useState(null);
+  const [routeError, setRouteError] = useState(null);
 
   // Vienna Landmarks for quick suggestion
   const popularLocations = [
@@ -213,42 +294,219 @@ export default function Booking() {
       const found = S.CARS.find((c) => c.id === qv || c.name.toLowerCase().includes(qv.toLowerCase()));
       if (found) setCar(found);
     }
+
+    // Handle Stripe Payment Return Redirects
+    const paymentStatus = q.get('payment_status');
+    const bookingId = q.get('booking_id');
+    const sessionId = q.get('session_id');
+
+    if (paymentStatus === 'success' && bookingId) {
+      setIsSubmitting(true);
+      fetchBookingPaymentStatus(bookingId).then((res) => {
+        setIsSubmitting(false);
+        if (res.success && res.paymentStatus === 'PAID') {
+          setDoneResult({
+            success: true,
+            reference: res.reference,
+            pay: {
+              stripeSessionId: res.stripeSessionId || sessionId,
+              paymentIntentId: res.stripePaymentIntentId,
+              amount: res.amount,
+              currency: res.currency || 'EUR'
+            },
+            summaryText: `Vienna Day Trip Booking - Reference ${res.reference} (PAID via Stripe)`
+          });
+          setStep(4);
+        } else {
+          // Awaiting final webhook confirmation
+          setDoneResult({
+            success: true,
+            reference: res.reference || `VDT-${bookingId.slice(-6)}`,
+            pay: {
+              stripeSessionId: sessionId,
+              amount: res.amount,
+              currency: res.currency || 'EUR'
+            },
+            summaryText: `Vienna Day Trip Booking - Reference ${res.reference} (Payment Processing)`
+          });
+          setStep(4);
+        }
+      });
+    } else if (paymentStatus === 'cancelled') {
+      setAlertState({
+        bad: true,
+        text: 'Your Stripe payment was cancelled. Your booking details and entered preferences have been preserved. You can try again with Stripe or select "Request only".'
+      });
+      setStep(4);
+    }
   }, [location.search]);
 
-  // Load Google Maps Script if Key is provided
+  const VIENNA_CENTER = { lat: 48.2082, lng: 16.3738 };
+
+  // Load Google Maps Script if Key is provided and integration is enabled
   useEffect(() => {
-    if (S.MAPS_KEY && !window.google) {
-      const script = document.createElement('script');
-      script.async = true;
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(
-        S.MAPS_KEY
-      )}&libraries=places&v=weekly`;
-      script.onload = () => initMaps();
-      document.head.appendChild(script);
-    } else if (window.google) {
+    if (!ENABLE_GOOGLE_MAPS) {
+      setMapLoading(false);
+      setMapLoaded(false);
+      setMapError(null);
+      return;
+    }
+
+    // Intercept Google Maps authentication failure (InvalidKeyMapError, ApiNotActivated, etc.)
+    window.gm_authFailure = () => {
+      console.warn('[Google Maps] Authentication failure: gm_authFailure fired');
+      setMapError({
+        type: 'auth_failure',
+        title: 'Google Maps Authentication Notice',
+        message: 'The configured Google Maps API key failed authentication (InvalidKeyMapError).',
+        detail:
+          'Please verify that VITE_GOOGLE_MAPS_API_KEY in .env is an active Google Cloud Maps JavaScript API key (typically beginning with AIzaSy) with active billing and required APIs enabled.'
+      });
+      setMapLoading(false);
+    };
+
+    if (!S.MAPS_KEY) {
+      setMapError({
+        type: 'missing_key',
+        title: 'Google Maps API Key Not Configured',
+        message: 'No Google Maps API key was found in VITE_GOOGLE_MAPS_API_KEY.',
+        detail: 'Please configure your Google Cloud Maps API key in .env to activate live interactive route preview.'
+      });
+      setMapLoading(false);
+      return;
+    }
+
+    if (window.google?.maps) {
       initMaps();
+    } else {
+      setMapLoading(true);
+      const existingScript = document.getElementById('vdt-google-maps-script');
+      if (!existingScript) {
+        const script = document.createElement('script');
+        script.id = 'vdt-google-maps-script';
+        script.async = true;
+        script.defer = true;
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(
+          S.MAPS_KEY
+        )}&libraries=places&v=weekly`;
+        script.onload = () => {
+          initMaps();
+        };
+        script.onerror = () => {
+          setMapError({
+            type: 'load_error',
+            title: 'Failed to Load Google Maps SDK',
+            message: 'Unable to reach Google Maps servers (maps.googleapis.com).',
+            detail: 'Please check your internet connection or firewall/adblocker settings.'
+          });
+          setMapLoading(false);
+        };
+        document.head.appendChild(script);
+      } else {
+        existingScript.addEventListener('load', () => initMaps());
+      }
     }
   }, []);
 
   const initMaps = () => {
-    if (!window.google || !mapElementRef.current) return;
+    if (!ENABLE_GOOGLE_MAPS || !window.google?.maps || !mapElementRef.current) return;
     try {
-      const map = new window.google.maps.Map(mapElementRef.current, {
-        center: { lat: 48.2082, lng: 16.3738 },
-        zoom: 7,
-        disableDefaultUI: false
-      });
-      const dirSvc = new window.google.maps.DirectionsService();
-      const dirRen = new window.google.maps.DirectionsRenderer({ map });
-      gmapRef.current = map;
-      dirSvcRef.current = dirSvc;
-      dirRenRef.current = dirRen;
+      if (!gmapRef.current) {
+        const map = new window.google.maps.Map(mapElementRef.current, {
+          center: VIENNA_CENTER,
+          zoom: 12,
+          styles: LUXURY_MAP_STYLES,
+          disableDefaultUI: false,
+          zoomControl: true,
+          mapTypeControl: false,
+          streetViewControl: false,
+          fullscreenControl: true
+        });
+
+        const dirSvc = new window.google.maps.DirectionsService();
+        const dirRen = new window.google.maps.DirectionsRenderer({
+          map,
+          suppressMarkers: false,
+          polylineOptions: {
+            strokeColor: '#c9a04f',
+            strokeWeight: 5,
+            strokeOpacity: 0.95
+          }
+        });
+
+        gmapRef.current = map;
+        dirSvcRef.current = dirSvc;
+        dirRenRef.current = dirRen;
+        setMapLoaded(true);
+        setMapLoading(false);
+        setMapError(null);
+      }
+
+      attachAutocomplete();
+      calcRoute();
     } catch (e) {
       console.warn('[Maps] Init note:', e.message);
+      setMapError({
+        type: 'init_error',
+        title: 'Google Maps Initialization Error',
+        message: e.message || 'Error initializing Google Maps.',
+        detail: 'Please check browser console for detailed logs.'
+      });
+      setMapLoading(false);
     }
   };
 
-  // Autocomplete fallback handler
+  const attachAutocomplete = () => {
+    if (!ENABLE_GOOGLE_MAPS || !window.google?.maps?.places) return;
+
+    if (puInputRef.current && !puAcRef.current) {
+      try {
+        const puAc = new window.google.maps.places.Autocomplete(puInputRef.current, {
+          componentRestrictions: { country: ['at', 'sk', 'cz', 'hu', 'de'] },
+          fields: ['formatted_address', 'geometry', 'name']
+        });
+        puAc.addListener('place_changed', () => {
+          const place = puAc.getPlace();
+          if (place && (place.formatted_address || place.name)) {
+            const val = place.formatted_address || place.name;
+            setPu(val);
+            setShowPuAc(false);
+          }
+        });
+        puAcRef.current = puAc;
+      } catch (err) {
+        console.warn('[Places] Pickup autocomplete error:', err);
+      }
+    }
+
+    if (drInputRef.current && !drAcRef.current) {
+      try {
+        const drAc = new window.google.maps.places.Autocomplete(drInputRef.current, {
+          componentRestrictions: { country: ['at', 'sk', 'cz', 'hu', 'de'] },
+          fields: ['formatted_address', 'geometry', 'name']
+        });
+        drAc.addListener('place_changed', () => {
+          const place = drAc.getPlace();
+          if (place && (place.formatted_address || place.name)) {
+            const val = place.formatted_address || place.name;
+            setDr(val);
+            setShowDrAc(false);
+          }
+        });
+        drAcRef.current = drAc;
+      } catch (err) {
+        console.warn('[Places] Dropoff autocomplete error:', err);
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (mapLoaded && ENABLE_GOOGLE_MAPS) {
+      attachAutocomplete();
+    }
+  }, [mapLoaded, mode]);
+
+  // Autocomplete fallback handler for popular locations
   const handleLocationSearch = (val, isPickup) => {
     if (isPickup) {
       setPu(val);
@@ -275,43 +533,84 @@ export default function Booking() {
     }
   };
 
-  // Route calculation (Google Directions or Distance Estimator)
+  // Route calculation (Google Directions live route)
   const calcRoute = () => {
     if (mode === 'hourly') {
       setMin(hr * 60);
       setKm(0);
+      setRouteError(null);
+      if (dirRenRef.current) dirRenRef.current.set('directions', null);
+      if (ENABLE_GOOGLE_MAPS && pu && window.google?.maps?.Geocoder && gmapRef.current) {
+        const geocoder = new window.google.maps.Geocoder();
+        geocoder.geocode({ address: pu }, (results, status) => {
+          if (status === 'OK' && results[0] && gmapRef.current) {
+            const loc = results[0].geometry.location;
+            if (!puMarkerRef.current) {
+              puMarkerRef.current = new window.google.maps.Marker({
+                map: gmapRef.current,
+                title: `Pickup: ${pu}`,
+                label: { text: 'P', color: '#fff', fontWeight: 'bold' }
+              });
+            }
+            puMarkerRef.current.setPosition(loc);
+            puMarkerRef.current.setMap(gmapRef.current);
+            gmapRef.current.panTo(loc);
+            gmapRef.current.setZoom(13);
+          }
+        });
+      }
       return;
     }
+
+    if (!ENABLE_GOOGLE_MAPS || !window.google?.maps) {
+      setKm(0);
+      setMin(0);
+      setRouteError(null);
+      return;
+    }
+
     if (mode === 'daytrip') {
       const tour = S.TOURS[tr];
-      const tourName = tour ? tour[0] : '';
-      if (tourName.includes('Bratislava')) {
-        setKm(80);
-        setMin(60);
-      } else if (tourName.includes('Wachau')) {
-        setKm(190);
-        setMin(150);
-      } else if (tourName.includes('Hallstatt')) {
-        setKm(580);
-        setMin(360);
-      } else if (tourName.includes('Salzburg')) {
-        setKm(600);
-        setMin(360);
-      } else if (tourName.includes('Budapest')) {
-        setKm(490);
-        setMin(300);
-      } else if (tourName.includes('Prague')) {
-        setKm(660);
-        setMin(420);
-      } else {
-        setKm(45);
-        setMin(180);
+      const TOUR_DESTINATIONS = {
+        0: 'Hallstatt, 4830, Austria',
+        1: 'Salzburg, Austria',
+        2: 'Melk Abbey, Wachau Valley, Austria',
+        3: 'Bratislava, Slovakia',
+        4: 'Budapest, Hungary',
+        5: 'Prague, Czech Republic',
+        6: 'Schönbrunn Palace, Vienna, Austria'
+      };
+      const dest = TOUR_DESTINATIONS[tr] || 'Hallstatt, Austria';
+      const origin = pu.trim() || 'Vienna City Center, Austria';
+
+      if (dirSvcRef.current && window.google?.maps) {
+        dirSvcRef.current.route(
+          {
+            origin,
+            destination: dest,
+            travelMode: window.google.maps.TravelMode.DRIVING
+          },
+          (res, status) => {
+            if (status === 'OK' && res?.routes?.[0]?.legs?.[0]) {
+              setDirectionsData(res);
+              if (dirRenRef.current) dirRenRef.current.setDirections(res);
+              const leg = res.routes[0].legs[0];
+              setKm(leg.distance.value / 1000);
+              setMin(leg.duration.value / 60);
+              setRouteError(null);
+              if (puMarkerRef.current) puMarkerRef.current.setMap(null);
+              if (drMarkerRef.current) drMarkerRef.current.setMap(null);
+            } else {
+              setRouteError(`Google Directions status: ${status}`);
+            }
+          }
+        );
       }
       return;
     }
 
     // Transfer mode
-    if (dirSvcRef.current && pu && dr) {
+    if (dirSvcRef.current && pu && dr && window.google?.maps) {
       dirSvcRef.current.route(
         { origin: pu, destination: dr, travelMode: window.google.maps.TravelMode.DRIVING },
         (res, status) => {
@@ -321,45 +620,66 @@ export default function Booking() {
             const leg = res.routes[0].legs[0];
             setKm(leg.distance.value / 1000);
             setMin(leg.duration.value / 60);
+            setRouteError(null);
+            if (puMarkerRef.current) puMarkerRef.current.setMap(null);
+            if (drMarkerRef.current) drMarkerRef.current.setMap(null);
           } else {
-            fallbackEstimate();
+            setRouteError(`Directions could not find a driving route between these locations (${status}).`);
           }
         }
       );
     } else {
-      fallbackEstimate();
-    }
-  };
-
-  const fallbackEstimate = () => {
-    const text = `${pu} ${dr}`.toLowerCase();
-    if (text.includes('bratislava')) {
-      setKm(78);
-      setMin(55);
-    } else if (text.includes('budapest')) {
-      setKm(243);
-      setMin(160);
-    } else if (text.includes('salzburg')) {
-      setKm(298);
-      setMin(190);
-    } else if (text.includes('hallstatt')) {
-      setKm(288);
-      setMin(210);
-    } else if (text.includes('prague')) {
-      setKm(333);
-      setMin(220);
-    } else if (text.includes('graz')) {
-      setKm(200);
-      setMin(135);
-    } else if (text.includes('airport') || text.includes('schwechat')) {
-      setKm(22);
-      setMin(25);
-    } else if (pu && dr) {
-      setKm(18);
-      setMin(30);
-    } else {
+      // Clear route line if both locations are not set
+      if (dirRenRef.current) dirRenRef.current.set('directions', null);
       setKm(0);
       setMin(0);
+
+      if (pu && !dr && window.google?.maps?.Geocoder && gmapRef.current) {
+        const geocoder = new window.google.maps.Geocoder();
+        geocoder.geocode({ address: pu }, (results, status) => {
+          if (status === 'OK' && results[0] && gmapRef.current) {
+            const loc = results[0].geometry.location;
+            if (!puMarkerRef.current) {
+              puMarkerRef.current = new window.google.maps.Marker({
+                map: gmapRef.current,
+                title: `Pickup: ${pu}`,
+                label: { text: 'A', color: '#fff', fontWeight: 'bold' }
+              });
+            }
+            puMarkerRef.current.setPosition(loc);
+            puMarkerRef.current.setMap(gmapRef.current);
+            gmapRef.current.panTo(loc);
+            gmapRef.current.setZoom(14);
+          }
+        });
+        if (drMarkerRef.current) drMarkerRef.current.setMap(null);
+      } else if (!pu && dr && window.google?.maps?.Geocoder && gmapRef.current) {
+        const geocoder = new window.google.maps.Geocoder();
+        geocoder.geocode({ address: dr }, (results, status) => {
+          if (status === 'OK' && results[0] && gmapRef.current) {
+            const loc = results[0].geometry.location;
+            if (!drMarkerRef.current) {
+              drMarkerRef.current = new window.google.maps.Marker({
+                map: gmapRef.current,
+                title: `Drop-off: ${dr}`,
+                label: { text: 'B', color: '#fff', fontWeight: 'bold' }
+              });
+            }
+            drMarkerRef.current.setPosition(loc);
+            drMarkerRef.current.setMap(gmapRef.current);
+            gmapRef.current.panTo(loc);
+            gmapRef.current.setZoom(14);
+          }
+        });
+        if (puMarkerRef.current) puMarkerRef.current.setMap(null);
+      } else {
+        if (puMarkerRef.current) puMarkerRef.current.setMap(null);
+        if (drMarkerRef.current) drMarkerRef.current.setMap(null);
+        if (gmapRef.current) {
+          gmapRef.current.panTo(VIENNA_CENTER);
+          gmapRef.current.setZoom(12);
+        }
+      }
     }
   };
 
@@ -369,20 +689,28 @@ export default function Booking() {
 
   // Second Map in Step 4
   useEffect(() => {
-    if (step === 4 && window.google && map2ElementRef.current && directionsData) {
+    if (step === 4 && window.google?.maps && map2ElementRef.current && directionsData) {
       if (!gmap2Ref.current) {
         gmap2Ref.current = new window.google.maps.Map(map2ElementRef.current, {
-          center: { lat: 48.2, lng: 16.37 },
+          center: { lat: 48.2082, lng: 16.3738 },
           zoom: 7,
+          styles: LUXURY_MAP_STYLES,
           disableDefaultUI: true,
           zoomControl: true,
           fullscreenControl: true
         });
         dirRen2Ref.current = new window.google.maps.DirectionsRenderer({
-          map: gmap2Ref.current
+          map: gmap2Ref.current,
+          polylineOptions: {
+            strokeColor: '#c9a04f',
+            strokeWeight: 4,
+            strokeOpacity: 0.95
+          }
         });
       }
-      dirRen2Ref.current.setDirections(directionsData);
+      if (dirRen2Ref.current) {
+        dirRen2Ref.current.setDirections(directionsData);
+      }
     }
   }, [step, directionsData]);
 
@@ -413,12 +741,21 @@ export default function Booking() {
     return b === null ? null : b + e;
   }, [mode, hr, tr, ex, pu, dr, km, ty]);
 
+  const CHILD_SEAT_RATE = 10; // EUR per child seat
+
   const totals = useMemo(() => {
     if (basePrice === null || !car) return null;
     const s = basePrice * car.mult;
+    const childSeatCharge = Number(cs) * CHILD_SEAT_RATE;
+    const subtotalWithChildSeats = s + childSeatCharge;
     const d = disc ? (s * disc.p) / 100 : 0;
-    return { s, d, t: s - d };
-  }, [basePrice, car, disc]);
+    return {
+      s,                    // vehicle subtotal (before child seats & discount)
+      childSeatCharge,      // €10 * number of child seats
+      d,                    // discount applied to vehicle subtotal only
+      t: subtotalWithChildSeats - d  // final total
+    };
+  }, [basePrice, car, disc, cs]);
 
   const serviceLabel = () => {
     return { transfer: 'Transfer', hourly: 'Hourly Chauffeur', daytrip: 'Day Trip' }[mode];
@@ -499,6 +836,9 @@ export default function Booking() {
       ['Vehicle', car ? car.name : 'Mercedes-Benz'],
       ['Passengers / bags / child seats', `${px} / ${bg} / ${cs}`]
     );
+    if (cs > 0) {
+      L.push(['Child seat charge', `${cs} × €${CHILD_SEAT_RATE} = €${cs * CHILD_SEAT_RATE}`]);
+    }
     if (fl) L.push(['Flight', fl]);
     L.push(
       ['Water', wt],
@@ -508,22 +848,48 @@ export default function Booking() {
     );
     if (nt) L.push(['Notes', nt]);
     if (disc) L.push(['Discount code', `${disc.c} (-${disc.p}%)`]);
+    if (tVal) {
+      L.push(['Vehicle price', money(tVal.s)]);
+      if (tVal.childSeatCharge > 0) L.push(['Child seats charge', money(tVal.childSeatCharge)]);
+      if (tVal.d > 0) L.push(['Discount', `-${money(tVal.d)}`]);
+    }
     L.push(['Total', tVal ? money(tVal.t) : 'Quote on request']);
     return L;
   };
 
-  // Final Submission to Neon Database + Razorpay
-  const finish = async (pay) => {
+  // Final Submission to Neon Database + Stripe Payment Flow
+  const handleConfirmSubmit = async () => {
+    // 1. Validate the required agreement checkboxes
+    if (!a1 || !a2) {
+      setAlertState({
+        bad: true,
+        text: 'Please accept both required agreements to complete your booking.'
+      });
+      document.getElementById('al')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+
+    // 2. Validate all booking and customer details
+    if (!fn.trim() || !ln.trim() || !em.trim() || !ph.trim() || !pu.trim() || !d || !t) {
+      setAlertState({
+        bad: true,
+        text: 'Please ensure all required contact and journey fields (Name, Email, Phone, Pickup, Date, Time) are filled.'
+      });
+      document.getElementById('al')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+
+    setAlertState({
+      bad: false,
+      text: 'Processing your booking...'
+    });
+
     setIsSubmitting(true);
     const L = buildLines();
-    const summaryText =
-      'New booking - Vienna Day Trip\n' +
-      L.map((r) => `${r[0]}: ${r[1]}`).join('\n') +
-      (pay
-        ? `\nPayment: PAID via Razorpay\nPayment ID: ${pay.razorpay_payment_id}${
-            pay.razorpay_order_id ? `\nOrder ID: ${pay.razorpay_order_id}` : ''
-          }`
-        : '\nPayment: Pay later / on board');
+    const isOnline = paymentMethod === 'online' && totals;
+
+    const childSeatCount = Number(cs);
+    const childSeatCharge = childSeatCount * CHILD_SEAT_RATE;
 
     const bookingPayload = {
       customerName: `${fn} ${ln}`.trim(),
@@ -551,129 +917,85 @@ export default function Booking() {
       pickupDate: d,
       pickupTime: t,
       passengerCount: `${px} Passengers`,
-      luggageDetails: `${bg} Suitcases${cs > 0 ? `, ${cs} Child Seat(s)` : ''}`,
+      luggageDetails: `${bg} Suitcases${childSeatCount > 0 ? `, ${childSeatCount} Child Seat(s)` : ''}`,
       preferredVehicle: car.name,
+      childSeatCount,
+      childSeatCharge,
       specialRequests: [
         nt ? `Notes: ${nt}` : '',
         fl ? `Flight: ${fl}` : '',
         wt ? `Water: ${wt}` : '',
         disc ? `Discount: ${disc.c} (-${disc.p}%)` : '',
-        pay
-          ? `Paid via Razorpay (ID: ${pay.razorpay_payment_id})`
-          : 'Payment method: Pay later / on board'
+        childSeatCount > 0 ? `Child seats: ${childSeatCount} × €${CHILD_SEAT_RATE} = €${childSeatCharge}` : '',
+        isOnline
+          ? 'Payment method: Pay Online (Stripe)'
+          : 'Payment method: Request only (Pay later / on board)'
       ]
         .filter(Boolean)
         .join(' | ')
     };
 
     try {
+      // 3. Send booking details to backend to securely create/store booking record
       const res = await submitBookingEnquiry(bookingPayload);
-      const reference = res.booking?.reference || res.reference || `VDT-${Date.now().toString().slice(-6)}`;
+      const booking = res.booking || res;
+      const bookingId = booking.id || booking.reference;
+      const reference = booking.reference || `VDT-${Date.now().toString().slice(-6)}`;
+
+      if (isOnline) {
+        // 4 & 5. Backend calculates EUR payable amount and creates Stripe Checkout Session
+        const stripeRes = await createStripeCheckoutSession({
+          bookingId,
+          discountCode: disc?.c,
+          childSeatCount: Number(cs)
+        });
+
+        if (!stripeRes.success || !stripeRes.url) {
+          throw new Error(stripeRes.error || 'Failed to create Stripe Checkout session. Please try again or choose Request only.');
+        }
+
+        // Test mode simulation handler (if in local simulated test mode)
+        if (stripeRes.isSimulation) {
+          setIsSubmitting(false);
+          setSimulatedCheckoutData({
+            bookingId,
+            sessionId: stripeRes.sessionId,
+            amount: stripeRes.amount,
+            bookingReference: reference
+          });
+          return;
+        }
+
+        // 6. Redirect the customer to Stripe's secure hosted checkout
+        window.location.href = stripeRes.url;
+        return;
+      }
+
+      // Request only flow
+      const summaryText =
+        'New booking request - Vienna Day Trip\n' +
+        L.map((r) => `${r[0]}: ${r[1]}`).join('\n') +
+        '\nPayment: Pay later / on board';
 
       setDoneResult({
         success: true,
         reference,
-        pay,
+        pay: null,
         summaryText
       });
+
       setTimeout(() => {
         document.getElementById('done')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }, 100);
     } catch (error) {
-      // Graceful fallback display
-      setDoneResult({
-        success: true,
-        reference: `VDT-${Date.now().toString().slice(-6)}`,
-        pay,
-        summaryText
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  // Razorpay Checkout Trigger
-  const triggerRazorpay = (tVal) => {
-    if (!window.Razorpay) {
-      alert('Payment SDK could not be loaded. Please check your connection or choose "Request only".');
-      return;
-    }
-    const amount = Math.round(tVal.t * 100);
-    const options = {
-      key: S.RAZORPAY_KEY,
-      amount,
-      currency: S.CURRENCY,
-      name: 'Vienna Day Trip',
-      description: `Private chauffeur: ${serviceLabel()}, ${car.name}`,
-      prefill: {
-        name: `${fn} ${ln}`,
-        email: em,
-        contact: ph
-      },
-      notes: {
-        pickup: pu,
-        drop: dr,
-        date: `${d} ${t}`
-      },
-      theme: { color: '#c9a04f' },
-      handler: function (response) {
-        finish(response);
-      },
-      modal: {
-        ondismiss: function () {
-          setIsSubmitting(false);
-        }
-      }
-    };
-    try {
-      const rz = new window.Razorpay(options);
-      rz.on('payment.failed', function () {
-        setIsSubmitting(false);
-        setAlertState({
-          bad: true,
-          text: 'Your payment could not be completed. No amount has been charged. Please try again or choose "Request only".'
-        });
-        document.getElementById('al')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      });
-      rz.open();
-    } catch (e) {
-      setIsSubmitting(false);
-      alert('Payment gateway initialization note. Proceeding with booking request.');
-      finish(null);
-    }
-  };
-
-  const handleConfirmSubmit = () => {
-    if (!a1 || !a2) {
+      console.error('[Booking Submit Error]:', error);
       setAlertState({
         bad: true,
-        text: 'Please accept both agreements to complete your booking.'
+        text: error.message || 'An error occurred while submitting your booking. Please try again.'
       });
       document.getElementById('al')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      return;
-    }
-    setAlertState({
-      bad: false,
-      text: 'Please accept the agreements below to continue.'
-    });
-
-    const tVal = totals;
-    if (paymentMethod === 'online' && tVal) {
-      // Load Razorpay script dynamically if not present
-      if (!window.Razorpay) {
-        const script = document.createElement('script');
-        script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-        script.onload = () => triggerRazorpay(tVal);
-        script.onerror = () => {
-          alert('Razorpay script could not be loaded. Completing as Request Only booking.');
-          finish(null);
-        };
-        document.body.appendChild(script);
-      } else {
-        triggerRazorpay(tVal);
-      }
-    } else {
-      finish(null);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -711,7 +1033,7 @@ export default function Booking() {
             </a>
           </div>
           <img
-            src="https://tourlytransfer.com/assets/s_class.webp"
+            src="/cars/hero-s-class-car.webp"
             alt="Mercedes-Benz S-Class private chauffeur car in Vienna"
             width="1600"
             height="900"
@@ -813,6 +1135,7 @@ export default function Booking() {
                     <label htmlFor="pu">Pickup location</label>
                     <input
                       id="pu"
+                      ref={ENABLE_GOOGLE_MAPS ? puInputRef : null}
                       placeholder="Enter a location (e.g. Vienna Airport VIE or Hotel Sacher)"
                       autoComplete="off"
                       value={pu}
@@ -846,6 +1169,7 @@ export default function Booking() {
                       <label htmlFor="dr">Drop-off location</label>
                       <input
                         id="dr"
+                        ref={ENABLE_GOOGLE_MAPS ? drInputRef : null}
                         placeholder="Enter a location (e.g. Vienna City Center or Stephansplatz)"
                         autoComplete="off"
                         value={dr}
@@ -938,31 +1262,169 @@ export default function Booking() {
 
               {/* Map & Stats Column */}
               <div>
-                <div className="map" id="map" ref={mapElementRef}>
-                  {S.MAPS_KEY ? (
-                    'Loading Google Maps...'
+                <div className="map" id="map-container">
+                  {ENABLE_GOOGLE_MAPS ? (
+                    <>
+                      <div ref={mapElementRef} className="map-canvas" id="map" />
+                      {mapLoading && (
+                        <div className="map-notice-overlay">
+                          <div style={{ textAlign: 'center', color: '#c9a04f' }}>
+                            <div
+                              style={{
+                                width: '28px',
+                                height: '28px',
+                                border: '3px solid rgba(201, 160, 79, 0.25)',
+                                borderTopColor: '#c9a04f',
+                                borderRadius: '50%',
+                                animation: 'spin 0.8s linear infinite',
+                                margin: '0 auto 10px'
+                              }}
+                            />
+                            <b style={{ display: 'block', fontSize: '13px', color: '#2b251f' }}>
+                              Loading Google Maps...
+                            </b>
+                            <span style={{ fontSize: '11px', color: '#888' }}>
+                              Initializing Vienna Route Engine
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                      {mapError && (
+                        <div className="map-notice-overlay">
+                          <div className="map-notice-card" id="map-notice">
+                            <div className="map-notice-badge">
+                              <svg
+                                width="14"
+                                height="14"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2.2"
+                              >
+                                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                                <line x1="12" y1="9" x2="12" y2="13" />
+                                <line x1="12" y1="17" x2="12.01" y2="17" />
+                              </svg>
+                              <span>Google Maps API Notice</span>
+                            </div>
+                            <h4>{mapError.title || 'Google Maps Authentication Notice'}</h4>
+                            <p className="map-notice-desc">
+                              {mapError.message || 'Google Maps failed to initialize with the configured key.'}
+                            </p>
+                            <div className="map-notice-details">
+                              <div className="map-notice-row">
+                                <b>Configured Key:</b>{' '}
+                                <code>{S.MAPS_KEY ? `${S.MAPS_KEY.substring(0, 10)}...` : 'Not Set'}</code>
+                              </div>
+                              <div className="map-notice-row">
+                                <b>Required Google Cloud Settings:</b>
+                                <ul>
+                                  <li>Valid Google Cloud Maps Key (begins with <code>AIzaSy</code>)</li>
+                                  <li><b>Maps JavaScript API</b> enabled</li>
+                                  <li><b>Places API</b> &amp; <b>Directions API</b> enabled</li>
+                                  <li>Active Google Cloud Billing Account linked</li>
+                                </ul>
+                              </div>
+                            </div>
+                            <div className="map-notice-route">
+                              <small>Vienna Chauffeur Route Preview</small>
+                              <span>
+                                {pu || 'Pickup location'} →{' '}
+                                {dr ||
+                                  (mode === 'daytrip'
+                                    ? S.TOURS[tr][0]
+                                    : mode === 'hourly'
+                                    ? `${hr} Hours Chauffeur`
+                                    : 'Drop-off location')}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </>
                   ) : (
-                    <div>
-                      <b style={{ color: '#c9a04f', display: 'block', marginBottom: '6px' }}>
-                        Vienna Chauffeur Route Preview
+                    <div style={{ textAlign: 'center', padding: '24px 20px', maxWidth: '360px', margin: '0 auto' }}>
+                      <div
+                        style={{
+                          width: '46px',
+                          height: '46px',
+                          borderRadius: '50%',
+                          background: 'rgba(201, 160, 79, 0.14)',
+                          border: '1px solid rgba(201, 160, 79, 0.35)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          margin: '0 auto 14px',
+                          color: '#b88636'
+                        }}
+                      >
+                        <svg
+                          width="22"
+                          height="22"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <polygon points="3 11 22 2 13 21 11 13 3 11" />
+                        </svg>
+                      </div>
+                      <b
+                        style={{
+                          color: '#c9a04f',
+                          display: 'block',
+                          marginBottom: '6px',
+                          fontSize: '13px',
+                          fontWeight: 700,
+                          letterSpacing: '0.08em',
+                          textTransform: 'uppercase'
+                        }}
+                      >
+                        VIENNA CHAUFFEUR ROUTE PREVIEW
                       </b>
-                      <span>
+                      <p style={{ margin: '0 0 14px', fontSize: '13px', color: '#635b50', lineHeight: 1.5 }}>
+                        Interactive route preview temporarily unavailable.
+                      </p>
+                      <div
+                        style={{
+                          background: '#ffffff',
+                          border: '1px solid #e8dec8',
+                          borderRadius: '10px',
+                          padding: '10px 14px',
+                          fontSize: '13px',
+                          fontWeight: 600,
+                          color: '#171411',
+                          boxShadow: '0 4px 12px rgba(0,0,0,0.03)'
+                        }}
+                      >
                         {pu && dr
                           ? `${pu} → ${dr}`
-                          : 'Enter pickup and drop-off locations to calculate distance & duration'}
-                      </span>
+                          : mode === 'hourly'
+                          ? `${pu || 'Vienna'} → ${hr} Hours As Directed`
+                          : mode === 'daytrip'
+                          ? `${pu || 'Vienna'} → ${S.TOURS[tr] ? S.TOURS[tr][0] : 'Day Trip'}`
+                          : pu
+                          ? `${pu}`
+                          : 'Vienna City Center / Airport'}
+                      </div>
                     </div>
                   )}
                 </div>
                 <div className="stats">
                   <div>
                     <span>Total distance</span>
-                    <b id="km">{Math.round(km)} km</b>
+                    <b id="km">
+                      {km > 0 ? `${Math.round(km)} km` : '—'}
+                    </b>
                   </div>
                   <div>
                     <span>Total time</span>
                     <b id="mn">
-                      {Math.floor(min / 60)}h {Math.round(min % 60)}m
+                      {min > 0
+                        ? `${Math.floor(min / 60)}h ${Math.round(min % 60)}m`
+                        : '—'}
                     </b>
                   </div>
                 </div>
@@ -1120,12 +1582,12 @@ export default function Booking() {
 
               <div className="two">
                 <div className="f">
-                  <label htmlFor="cs">Child seats</label>
+                  <label htmlFor="cs">Child seats <span style={{ color: '#c9a04f', fontWeight: 600, fontSize: '12px' }}>(€10 per seat)</span></label>
                   <select id="cs" value={cs} onChange={(e) => setCs(Number(e.target.value))}>
-                    <option value="0">0</option>
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option value="3">3</option>
+                    <option value="0">0 — No child seat</option>
+                    <option value="1">1 — +€10</option>
+                    <option value="2">2 — +€20</option>
+                    <option value="3">3 — +€30</option>
                   </select>
                 </div>
                 <div className="f">
@@ -1228,8 +1690,8 @@ export default function Booking() {
                       onChange={(e) => setPaymentMethod(e.target.value)}
                     />
                     <span>
-                      Pay online (Razorpay)
-                      <small>Pay securely by card, UPI, netbanking or wallet.</small>
+                      Pay Online (Stripe)
+                      <small>Pay securely with Visa, Mastercard, AMEX, Apple Pay, Klarna, EPS or iDEAL in EUR.</small>
                     </span>
                   </label>
                   <label>
@@ -1253,15 +1715,66 @@ export default function Booking() {
 
               {/* Column 2: Map & Ride Details */}
               <div className="col">
-                <div id="map2" ref={map2ElementRef}>
-                  {directionsData ? (
-                    'Route Map'
-                  ) : (
-                    <div>
-                      <b style={{ color: '#c9a04f', display: 'block' }}>Route Details</b>
-                      <span>
-                        {pu} → {dr || (mode === 'hourly' ? 'Vienna As Directed' : 'Day Trip')}
-                      </span>
+                <div
+                  id="map2"
+                  style={{
+                    position: 'relative',
+                    height: '200px',
+                    borderRadius: '16px',
+                    overflow: 'hidden',
+                    border: '1px solid var(--line)',
+                    background: '#fdfbf7',
+                    marginBottom: '20px'
+                  }}
+                >
+                  {ENABLE_GOOGLE_MAPS && directionsData && (
+                    <div
+                      ref={map2ElementRef}
+                      className="map-canvas"
+                      style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }}
+                    />
+                  )}
+                  {(!ENABLE_GOOGLE_MAPS || !directionsData) && (
+                    <div
+                      style={{
+                        height: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        textAlign: 'center',
+                        padding: '16px',
+                        background: 'linear-gradient(135deg, var(--soft), #efe4cc)',
+                        border: '1px dashed var(--gold)',
+                        borderRadius: '16px'
+                      }}
+                    >
+                      <div>
+                        <b
+                          style={{
+                            color: '#c9a04f',
+                            display: 'block',
+                            marginBottom: '4px',
+                            fontSize: '12px',
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.08em',
+                            fontWeight: 700
+                          }}
+                        >
+                          VIENNA CHAUFFEUR ROUTE PREVIEW
+                        </b>
+                        <p style={{ margin: '0 0 6px', fontSize: '11px', color: '#635b50' }}>
+                          Interactive route preview temporarily unavailable.
+                        </p>
+                        <span style={{ fontSize: '12px', fontWeight: 600, color: '#171411' }}>
+                          {pu || 'Vienna'} →{' '}
+                          {dr ||
+                            (mode === 'hourly'
+                              ? `${hr} Hours As Directed`
+                              : S.TOURS[tr]
+                              ? S.TOURS[tr][0]
+                              : 'Day Trip')}
+                        </span>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -1374,9 +1887,15 @@ export default function Booking() {
                   {totals ? (
                     <>
                       <div className="pr">
-                        <span>Selected vehicle</span>
+                        <span>Vehicle price</span>
                         <span>{money(totals.s)}</span>
                       </div>
+                      {totals.childSeatCharge > 0 && (
+                        <div className="pr">
+                          <span>Child seat{cs > 1 ? 's' : ''} ({cs} × €{CHILD_SEAT_RATE})</span>
+                          <span>+{money(totals.childSeatCharge)}</span>
+                        </div>
+                      )}
                       {totals.d > 0 && (
                         <div className="pr">
                           <span>Discount ({disc.c})</span>
@@ -1463,14 +1982,15 @@ export default function Booking() {
               {doneResult && (
                 <div className="ok">
                   <h3 className="serif">
-                    {doneResult.pay ? 'Payment successful' : 'Booking request received'}
+                    {doneResult.pay ? 'Payment Confirmed' : 'Booking Request Received'}
                   </h3>
                   <p>
                     {doneResult.pay ? (
                       <>
                         Thank you, {fn}. Your booking is confirmed with reference{' '}
-                        <b>{doneResult.reference}</b> and payment ID{' '}
-                        <b>{doneResult.pay.razorpay_payment_id}</b>. A confirmation email has been
+                        <b>{doneResult.reference}</b> and Stripe payment reference{' '}
+                        <b>{doneResult.pay.stripeSessionId || doneResult.pay.paymentIntentId || 'STRIPE_PAID'}</b>
+                        {doneResult.pay.amount ? ` (€${Number(doneResult.pay.amount).toFixed(2)} EUR)` : ''}. A confirmation email has been
                         sent to {em}.
                       </>
                     ) : (
@@ -1709,15 +2229,100 @@ export default function Booking() {
         </div>
       </section>
 
-      {/* Floating WhatsApp CTA Button */}
-      <a
-        className="wa"
-        href={`https://wa.me/${S.WHATSAPP}`}
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        WhatsApp
-      </a>
+      {/* =========================================================================
+          STRIPE TEST MODE SIMULATION MODAL
+          ========================================================================= */}
+      {simulatedCheckoutData && (
+        <div className="vdt-stripe-modal-overlay" onClick={() => setSimulatedCheckoutData(null)}>
+          <div className="vdt-stripe-modal-card" onClick={(e) => e.stopPropagation()}>
+            <div className="vdt-stripe-header">
+              <span className="vdt-stripe-tag">STRIPE TEST MODE CHECKOUT</span>
+              <h3>Vienna Day Trip Luxury Chauffeur</h3>
+              <p>Booking Reference: <b>{simulatedCheckoutData.bookingReference}</b></p>
+            </div>
+
+            <div className="vdt-stripe-body">
+              <div className="vdt-stripe-row">
+                <span>Journey</span>
+                <b>{pu} ➔ {dr || (mode === 'hourly' ? 'Vienna (As Directed)' : 'Day Trip')}</b>
+              </div>
+              <div className="vdt-stripe-row">
+                <span>Vehicle &amp; Date</span>
+                <b>{car.name} • {d} at {t}</b>
+              </div>
+              <div className="vdt-stripe-row total">
+                <span>Total Payable (EUR)</span>
+                <em>€{Number(simulatedCheckoutData.amount).toFixed(2)}</em>
+              </div>
+
+              <div className="vdt-stripe-badge-box">
+                <p>
+                  🔒 <b>Secure Hosted Checkout (Test Mode)</b><br />
+                  This interactive session simulates Stripe’s server-side hosted checkout and signed webhook confirmation for local test verification.
+                </p>
+              </div>
+
+              <div className="vdt-stripe-actions">
+                <button
+                  type="button"
+                  className="vdt-stripe-pay-btn"
+                  disabled={isSubmitting}
+                  onClick={async () => {
+                    setIsSubmitting(true);
+                    try {
+                      const confirmRes = await simulatePaymentSuccess({
+                        bookingId: simulatedCheckoutData.bookingId,
+                        sessionId: simulatedCheckoutData.sessionId
+                      });
+                      setIsSubmitting(false);
+                      setSimulatedCheckoutData(null);
+
+                      if (confirmRes.success) {
+                        setDoneResult({
+                          success: true,
+                          reference: simulatedCheckoutData.bookingReference,
+                          pay: {
+                            stripeSessionId: simulatedCheckoutData.sessionId,
+                            paymentIntentId: confirmRes.paymentMeta?.paymentIntentId,
+                            amount: simulatedCheckoutData.amount,
+                            currency: 'EUR'
+                          },
+                          summaryText: `Vienna Day Trip Booking - ${simulatedCheckoutData.bookingReference} (PAID via Stripe)`
+                        });
+                        setTimeout(() => {
+                          document.getElementById('done')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }, 100);
+                      } else {
+                        alert(confirmRes.error || 'Payment simulation failed.');
+                      }
+                    } catch (err) {
+                      setIsSubmitting(false);
+                      alert('Could not complete simulated payment.');
+                    }
+                  }}
+                >
+                  {isSubmitting ? 'Verifying with Stripe Webhook...' : `PAY €${Number(simulatedCheckoutData.amount).toFixed(2)} WITH STRIPE`}
+                </button>
+
+                <button
+                  type="button"
+                  className="vdt-stripe-cancel-btn"
+                  onClick={() => {
+                    setSimulatedCheckoutData(null);
+                    setAlertState({
+                      bad: true,
+                      text: 'Your Stripe payment was cancelled. Your booking details and selections have been preserved. You can try again or choose "Request only".'
+                    });
+                    document.getElementById('al')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  }}
+                >
+                  Cancel &amp; Return to Booking Summary
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

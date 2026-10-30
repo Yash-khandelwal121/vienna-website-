@@ -466,7 +466,7 @@ export default function RichTextEditor({ value, onChange, token }) {
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', marginTop: '1rem' }}>
               <div>
-                <label style={labelStyle}>Upload From Computer (Sanity CDN Persistent Storage)</label>
+                <label style={labelStyle}>Upload From Computer</label>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
                   <label
                     style={{

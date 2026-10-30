@@ -112,7 +112,26 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-app.use(express.json({ limit: '20mb' }));
+// Preserve raw body buffer for Stripe webhook signature verification
+app.use(
+  ['/api/v1/public/payments/webhook', '/api/public/payments/webhook'],
+  express.raw({ type: '*/*', limit: '10mb' }),
+  (req, res, next) => {
+    if (Buffer.isBuffer(req.body)) {
+      req.rawBody = req.body;
+    }
+    next();
+  }
+);
+
+app.use(
+  express.json({
+    limit: '20mb',
+    verify: (req, res, buf) => {
+      req.rawBody = buf;
+    }
+  })
+);
 app.use(express.urlencoded({ extended: true, limit: '20mb' }));
 app.use(cookieParser(process.env.COOKIE_SECRET || 'vienna_luxury_cookie_secret_dev_2026'));
 

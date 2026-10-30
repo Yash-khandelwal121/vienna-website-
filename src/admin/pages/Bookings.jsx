@@ -158,6 +158,7 @@ export default function Bookings() {
                 <th>Service & Vehicle</th>
                 <th>Route (Pickup ➔ Dropoff)</th>
                 <th>Date & Time</th>
+                <th>Payment</th>
                 <th>Status</th>
                 <th>Actions</th>
               </tr>
@@ -190,6 +191,16 @@ export default function Bookings() {
                       <div className="vdt-cell-sub">{b.pickupTime}</div>
                     </td>
                     <td>
+                      <span className={`vdt-badge vdt-badge-${(b.paymentStatus || 'UNPAID').toLowerCase() === 'paid' ? 'confirmed' : 'new'}`}>
+                        {b.paymentStatus || 'UNPAID'}
+                      </span>
+                      {b.paymentAmount > 0 && (
+                        <div className="vdt-cell-sub" style={{ fontWeight: 600, color: '#c9a04f', marginTop: '2px' }}>
+                          €{Number(b.paymentAmount).toFixed(2)} EUR
+                        </div>
+                      )}
+                    </td>
+                    <td>
                       <span className={`vdt-badge vdt-badge-${b.status?.toLowerCase()}`}>
                         {b.status?.replace('_', ' ')}
                       </span>
@@ -209,7 +220,7 @@ export default function Bookings() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="7" className="vdt-empty-state">
+                  <td colSpan="8" className="vdt-empty-state">
                     {loading ? 'Loading bookings...' : 'No bookings found matching current criteria.'}
                   </td>
                 </tr>
@@ -257,6 +268,46 @@ export default function Bookings() {
                   <span className="vdt-detail-label">Pickup & Drop-off</span>
                   <p className="vdt-detail-value">{selectedBooking.pickupLocation} ➔ {selectedBooking.dropoffLocation}</p>
                 </div>
+
+                {/* Stripe Payment Details */}
+                <div style={{ gridColumn: 'span 2', background: '#fcfaf6', padding: '12px 14px', borderRadius: '8px', border: '1px solid #ebdcc5' }}>
+                  <span className="vdt-detail-label" style={{ color: '#c9a04f', fontWeight: 700 }}>STRIPE PAYMENT INFORMATION</span>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '8px 12px', marginTop: '6px' }}>
+                    <div>
+                      <span className="vdt-detail-label">Payment Status</span>
+                      <p className="vdt-detail-value" style={{ fontWeight: 700, color: (selectedBooking.paymentStatus || 'UNPAID') === 'PAID' ? '#166534' : '#854d0e' }}>
+                        {selectedBooking.paymentStatus || 'UNPAID'}
+                      </p>
+                    </div>
+                    <div>
+                      <span className="vdt-detail-label">Final Amount Charged</span>
+                      <p className="vdt-detail-value" style={{ fontWeight: 700, color: '#c9a04f' }}>
+                        €{Number(selectedBooking.paymentAmount || 0).toFixed(2)} {selectedBooking.currency || 'EUR'}
+                      </p>
+                    </div>
+                    {selectedBooking.childSeatCount > 0 && (
+                      <div>
+                        <span className="vdt-detail-label">Child Seats</span>
+                        <p className="vdt-detail-value">
+                          {selectedBooking.childSeatCount} × €10 = <strong>€{Number(selectedBooking.childSeatCharge || selectedBooking.childSeatCount * 10).toFixed(2)}</strong>
+                        </p>
+                      </div>
+                    )}
+                    <div>
+                      <span className="vdt-detail-label">Stripe Session ID</span>
+                      <p className="vdt-detail-value" style={{ fontSize: '11px', wordBreak: 'break-all' }}>
+                        {selectedBooking.stripeSessionId || 'N/A'}
+                      </p>
+                    </div>
+                    <div>
+                      <span className="vdt-detail-label">PaymentIntent Reference</span>
+                      <p className="vdt-detail-value" style={{ fontSize: '11px', wordBreak: 'break-all' }}>
+                        {selectedBooking.stripePaymentIntentId || 'N/A'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
                 {selectedBooking.specialRequests && (
                   <div style={{ gridColumn: 'span 2' }}>
                     <span className="vdt-detail-label">Special Requests</span>

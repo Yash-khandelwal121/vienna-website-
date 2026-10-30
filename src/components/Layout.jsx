@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import Navbar from './Navbar';
-import Footer from './Footer';
+import ViennaFooter from './ViennaFooter';
 import FloatingWhatsApp from './FloatingWhatsApp';
 import useScrollReveal from '../hooks/useScrollReveal';
 
@@ -21,7 +21,7 @@ export default function Layout() {
       <main style={{ flex: '1 0 auto' }}>
         <Outlet />
       </main>
-      <Footer />
+      <ViennaFooter />
       <FloatingWhatsApp />
     </div>
   );

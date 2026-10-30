@@ -1435,6 +1435,24 @@ export default function Fleet() {
           grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr));
           gap: 1rem;
         }
+        @media (max-width: 768px) {
+          .fleet-tabs-grid {
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            gap: 0.75rem;
+            padding: 4px 4px 10px;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+          }
+          .fleet-tabs-grid::-webkit-scrollbar {
+            display: none;
+          }
+          .fleet-tabs-grid > button {
+            flex: 0 0 215px !important;
+            scroll-snap-align: start;
+          }
+        }
 
         .fleet-showroom-grid {
           display: grid;

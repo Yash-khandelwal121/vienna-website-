@@ -19,7 +19,9 @@ export async function createBooking(req, res) {
       passengerCount,
       luggageDetails,
       preferredVehicle,
-      specialRequests
+      specialRequests,
+      childSeatCount,
+      childSeatCharge
     } = req.body;
 
     const resolvedDropoff =
@@ -54,6 +56,8 @@ export async function createBooking(req, res) {
         luggageDetails: sanitizeText(luggageDetails || ''),
         preferredVehicle: sanitizeText(preferredVehicle || 'Mercedes-Benz E-Class'),
         specialRequests: sanitizeText(specialRequests || ''),
+        childSeatCount: Math.min(3, Math.max(0, Number(childSeatCount || 0))),
+        childSeatCharge: Math.round(Math.max(0, Number(childSeatCharge || 0)) * 100) / 100,
         status: 'NEW',
         internalNotes: ''
       }
@@ -69,6 +73,22 @@ export async function createBooking(req, res) {
     console.error('[Create Booking Error]:', error);
     res.status(500).json({ success: false, error: 'Failed to submit booking enquiry.' });
   }
+}
+
+import { extractPaymentMeta } from './paymentController.js';
+
+function enrichBooking(b) {
+  if (!b) return b;
+  const meta = extractPaymentMeta(b);
+  return {
+    ...b,
+    paymentStatus: b.paymentStatus || meta.status || 'UNPAID',
+    paymentAmount: b.paymentAmount !== undefined ? b.paymentAmount : meta.amount || 0,
+    currency: b.currency || meta.currency || 'EUR',
+    stripeSessionId: b.stripeSessionId || meta.sessionId || null,
+    stripePaymentIntentId: b.stripePaymentIntentId || meta.paymentIntentId || null,
+    paymentTimestamp: b.paymentTimestamp || meta.timestamp || null
+  };
 }
 
 /**
@@ -92,13 +112,15 @@ export async function getAdminBookings(req, res) {
           b.email?.toLowerCase().includes(q) ||
           b.phone?.includes(q) ||
           b.pickupLocation?.toLowerCase().includes(q) ||
-          b.dropoffLocation?.toLowerCase().includes(q)
+          b.dropoffLocation?.toLowerCase().includes(q) ||
+          b.stripeSessionId?.toLowerCase().includes(q) ||
+          b.stripePaymentIntentId?.toLowerCase().includes(q)
       );
     }
 
     const total = bookings.length;
     const startIndex = (Number(page) - 1) * Number(limit);
-    const paginated = bookings.slice(startIndex, startIndex + Number(limit));
+    const paginated = bookings.slice(startIndex, startIndex + Number(limit)).map(enrichBooking);
 
     res.json({
       success: true,
@@ -121,7 +143,7 @@ export async function getBookingById(req, res) {
     if (!booking) {
       return res.status(404).json({ success: false, error: 'Booking not found.' });
     }
-    res.json({ success: true, booking });
+    res.json({ success: true, booking: enrichBooking(booking) });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Error fetching booking details.' });
   }

@@ -52,302 +52,58 @@ export function formatSanityBlogPost(post) {
 }
 
 /**
- * Fetch published blog articles from Sanity CMS with fallback
+ * Fetch published blog articles from Sanity CMS (Safely disabled - returns null to route to PostgreSQL / backend)
  */
-export async function fetchSanityBlogs({ page = 1, limit = 9, category = 'All', search = '' } = {}) {
-  try {
-    const start = (page - 1) * limit;
-    const end = start + limit;
-
-    // GROQ query for matching posts
-    let filter = `_type == "blogPost" && isPublished == true`;
-    const params = {};
-
-    if (category && category !== 'All') {
-      filter += ` && (categoryName == $cat || category->title == $cat)`;
-      params.cat = category;
-    }
-
-    if (search && search.trim()) {
-      filter += ` && (title match $search || excerpt match $search)`;
-      params.search = `*${search.trim()}*`;
-    }
-
-    const query = `{
-      "total": count(*[${filter}]),
-      "items": *[${filter}] | order(publishedAt desc) [${start}...${end}] {
-        _id,
-        title,
-        slug,
-        excerpt,
-        categoryName,
-        "category": category->title,
-        author,
-        publishedAt,
-        readTime,
-        isPublished,
-        coverImage,
-        seo
-      }
-    }`;
-
-    const res = await sanityClient.fetch(query, params);
-    if (res && res.items && res.items.length > 0) {
-      return {
-        success: true,
-        source: 'sanity',
-        total: res.total,
-        page,
-        limit,
-        totalPages: Math.ceil(res.total / limit) || 1,
-        blogs: res.items.map(formatSanityBlogPost),
-      };
-    }
-  } catch (err) {
-    console.warn('[Sanity CMS] Blogs query notice:', err.message);
-  }
-  return null; // Return null so caller can fallback seamlessly
-}
-
-/**
- * Fetch a single blog article by slug from Sanity CMS with related posts
- */
-export async function fetchSanityBlogBySlug(slug) {
-  try {
-    const query = `{
-      "blog": *[_type == "blogPost" && slug.current == $slug][0] {
-        _id,
-        title,
-        slug,
-        excerpt,
-        content,
-        body,
-        categoryName,
-        "category": category->title,
-        author,
-        publishedAt,
-        modifiedAt,
-        readTime,
-        keywords,
-        isPublished,
-        coverImage,
-        seo
-      },
-      "related": *[_type == "blogPost" && slug.current != $slug && isPublished == true][0...3] {
-        _id,
-        title,
-        slug,
-        excerpt,
-        categoryName,
-        "category": category->title,
-        author,
-        publishedAt,
-        readTime,
-        coverImage
-      }
-    }`;
-
-    const res = await sanityClient.fetch(query, { slug });
-    if (res && res.blog) {
-      return {
-        blog: formatSanityBlogPost(res.blog),
-        related: (res.related || []).map(formatSanityBlogPost),
-        source: 'sanity',
-      };
-    }
-  } catch (err) {
-    console.warn('[Sanity CMS] Single blog query notice:', err.message);
-  }
+export async function fetchSanityBlogs() {
   return null;
 }
 
 /**
- * Fetch published vehicles from Sanity CMS
+ * Fetch a single blog article by slug from Sanity CMS (Safely disabled)
+ */
+export async function fetchSanityBlogBySlug() {
+  return null;
+}
+
+/**
+ * Fetch published vehicles from Sanity CMS (Safely disabled)
  */
 export async function fetchSanityFleet() {
-  try {
-    const query = `*[_type == "luxuryFleet" && isAvailable == true] | order(sortOrder asc) {
-      _id,
-      name,
-      model,
-      category,
-      tagline,
-      capacityPassengers,
-      capacityLuggage,
-      features,
-      hourlyRate,
-      dayRate,
-      image,
-      sortOrder
-    }`;
-    const items = await sanityClient.fetch(query);
-    if (items && items.length > 0) {
-      return items.map((v) => {
-        let imageUrl = v.image?.imageUrl;
-        if (v.image?.asset) {
-          imageUrl = urlForImage(v.image) || imageUrl;
-        }
-        if (!imageUrl || typeof imageUrl !== 'string' || !imageUrl.trim()) {
-          const key = (v.model || v.name || '').toLowerCase();
-          if (key.includes('e-class')) imageUrl = '/cars/e-class.png';
-          else if (key.includes('v-class')) imageUrl = '/cars/v-class.png';
-          else if (key.includes('sprinter')) imageUrl = '/cars/sprinter.png';
-          else if (key.includes('armored')) imageUrl = '/cars/armored.png';
-          else imageUrl = '/cars/s-class.png';
-        }
-        return {
-          id: v._id,
-          name: v.name,
-          model: v.model,
-          class: v.category,
-          passengers: v.capacityPassengers || 3,
-          luggage: v.capacityLuggage || 2,
-          description: v.tagline || '',
-          image: imageUrl,
-          features: v.features || [],
-          hourlyRate: v.hourlyRate,
-          dayRate: v.dayRate,
-          _source: 'sanity',
-        };
-      });
-    }
-  } catch (err) {
-    console.warn('[Sanity CMS] Fleet query notice:', err.message);
-  }
   return null;
 }
 
 /**
- * Fetch day trips from Sanity CMS
+ * Fetch day trips from Sanity CMS (Safely disabled)
  */
 export async function fetchSanityDayTrips() {
-  try {
-    const query = `*[_type == "dayTrip" && isActive == true] | order(sortOrder asc) {
-      _id,
-      title,
-      slug,
-      destination,
-      duration,
-      distance,
-      price,
-      shortDescription,
-      itinerary,
-      included,
-      heroImage
-    }`;
-    const items = await sanityClient.fetch(query);
-    if (items && items.length > 0) {
-      return items.map((t) => {
-        let heroImage = t.heroImage?.imageUrl;
-        if (t.heroImage?.asset) {
-          heroImage = urlForImage(t.heroImage) || heroImage;
-        }
-        return {
-          id: t._id,
-          title: t.title,
-          slug: t.slug?.current || '',
-          destination: t.destination,
-          duration: t.duration,
-          price: t.price,
-          shortDescription: t.shortDescription,
-          itinerary: t.itinerary,
-          included: t.included,
-          heroImage: (typeof heroImage === 'string' && heroImage.trim()) ? heroImage.trim() : '',
-          _source: 'sanity',
-        };
-      });
-    }
-  } catch (err) {
-    console.warn('[Sanity CMS] Day trips query notice:', err.message);
-  }
   return null;
 }
 
 /**
- * Fetch services from Sanity CMS
+ * Fetch services from Sanity CMS (Safely disabled)
  */
 export async function fetchSanityServices() {
-  try {
-    const query = `*[_type == "chauffeurService" && isActive == true] | order(sortOrder asc) {
-      _id,
-      title,
-      slug,
-      subtitle,
-      shortDescription,
-      fullDescription,
-      icon,
-      startingPrice,
-      priceUnit,
-      highlights,
-      heroImage
-    }`;
-    const items = await sanityClient.fetch(query);
-    if (items && items.length > 0) {
-      return items.map((s) => {
-        let heroImage = s.heroImage?.imageUrl;
-        if (s.heroImage?.asset) {
-          heroImage = urlForImage(s.heroImage) || heroImage;
-        }
-        return {
-          id: s._id,
-          title: s.title,
-          slug: s.slug?.current || '',
-          subtitle: s.subtitle,
-          description: s.shortDescription,
-          fullDescription: s.fullDescription,
-          icon: s.icon,
-          startingPrice: s.startingPrice,
-          priceUnit: s.priceUnit,
-          highlights: s.highlights,
-          heroImage: (typeof heroImage === 'string' && heroImage.trim()) ? heroImage.trim() : '',
-          _source: 'sanity',
-        };
-      });
-    }
-  } catch (err) {
-    console.warn('[Sanity CMS] Services query notice:', err.message);
-  }
   return null;
 }
 
 /**
- * Fetch Homepage content from Sanity CMS
+ * Fetch Homepage content from Sanity CMS (Safely disabled)
  */
 export async function fetchSanityHomepage() {
-  try {
-    const query = `*[_type == "homepageContent"][0]`;
-    const doc = await sanityClient.fetch(query);
-    if (doc) return { ...doc, _source: 'sanity' };
-  } catch (err) {
-    console.warn('[Sanity CMS] Homepage query notice:', err.message);
-  }
   return null;
 }
 
 /**
- * Fetch About Us content from Sanity CMS
+ * Fetch About Us content from Sanity CMS (Safely disabled)
  */
 export async function fetchSanityAbout() {
-  try {
-    const query = `*[_type == "aboutContent"][0]`;
-    const doc = await sanityClient.fetch(query);
-    if (doc) return { ...doc, _source: 'sanity' };
-  } catch (err) {
-    console.warn('[Sanity CMS] About query notice:', err.message);
-  }
   return null;
 }
 
 /**
- * Fetch SEO settings for route
+ * Fetch SEO settings for route (Safely disabled)
  */
-export async function fetchSanitySEO(route) {
-  try {
-    const query = `*[_type == "seoSettings" && pageRoute == $route][0]`;
-    const doc = await sanityClient.fetch(query, { route });
-    if (doc) return { ...doc, _source: 'sanity' };
-  } catch (err) {
-    console.warn('[Sanity CMS] SEO query notice:', err.message);
-  }
+export async function fetchSanitySEO() {
   return null;
 }
+

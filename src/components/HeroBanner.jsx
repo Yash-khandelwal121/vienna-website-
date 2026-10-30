@@ -1593,34 +1593,38 @@ export default function HeroBanner() {
           }
         }
 
-        /* Mobile (<= 768px): Stacked layout below hero */
+        /* Mobile (<= 768px): Compact luxury hero and streamlined booking form */
         @media (max-width: 768px) {
           .hero-master-wrapper {
-            padding-top: 78px;
+            padding-top: 64px;
           }
           .hero-rounded-banner {
-            margin: 12px 12px 0 12px;
+            margin: 10px 12px 0 12px;
             border-radius: 18px;
-            min-height: 520px;
+            min-height: auto;
             flex-direction: column;
             justify-content: flex-start;
             align-items: stretch;
-            padding-bottom: 22px;
+            padding: 0;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
           }
           .hero-palace-img {
-            object-position: center;
+            object-position: 72% center;
           }
           .hero-palace-gradient {
             background: linear-gradient(
               180deg,
-              rgba(250, 247, 242, 0.95) 0%,
-              rgba(250, 247, 242, 0.88) 50%,
-              rgba(250, 247, 242, 0.50) 75%,
-              transparent 100%
+              rgba(250, 247, 242, 0.94) 0%,
+              rgba(250, 247, 242, 0.88) 55%,
+              rgba(250, 247, 242, 0.65) 80%,
+              rgba(250, 247, 242, 0.35) 100%
             );
           }
           .hero-content-stage {
-            padding: 20px 16px;
+            padding: 22px 18px 24px 18px;
+          }
+          .hero-left-col {
+            max-width: 100%;
           }
           .hero-text-cream-backdrop {
             padding: 0;
@@ -1629,33 +1633,79 @@ export default function HeroBanner() {
             border: none;
             box-shadow: none;
           }
+          .hero-eyebrow-container {
+            margin-bottom: 0.45rem;
+          }
+          .hero-eyebrow-text {
+            font-size: 0.7rem;
+            letter-spacing: 0.14em;
+          }
+          .hero-eyebrow-line {
+            width: 32px;
+          }
           .hero-heading {
-            font-size: clamp(26px, 6.5vw, 32px);
+            font-size: clamp(23px, 6vw, 30px);
             line-height: 1.18;
+            margin: 0 0 0.5rem 0;
+            max-width: 100%;
+          }
+          .hero-subtitle {
+            font-size: clamp(14px, 3.8vw, 17px);
+            line-height: 1.25;
+            margin: 0 0 0.55rem 0;
+            max-width: 100%;
           }
           .hero-description {
-            font-size: 0.88rem;
-            line-height: 1.52;
+            font-size: clamp(12.5px, 3.2vw, 13.5px);
+            line-height: 1.5;
+            margin: 0 0 0.85rem 0;
+            max-width: 100%;
           }
           .hero-highlights-wrap {
-            flex-direction: column;
-            gap: 0.45rem;
-            margin-bottom: 1.15rem;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.35rem 0.65rem;
+            margin-bottom: 1rem;
+            max-width: 100%;
+          }
+          .hero-highlight-item {
+            gap: 0.35rem;
+          }
+          .hero-gold-checkmark {
+            font-size: 0.82rem;
+          }
+          .hero-highlight-label {
+            font-size: 0.74rem;
+            white-space: normal;
+            line-height: 1.25;
+          }
+          .hero-cta-btn {
+            padding: 0.65rem 1.45rem;
+            font-size: 0.76rem;
+            letter-spacing: 0.06em;
           }
 
-          /* Booking form stacked cleanly below hero */
+          /* Compact, aligned booking form */
           .hero-booking-panel-container {
-            margin-top: 14px;
+            margin-top: 12px;
             padding: 0 12px;
           }
           .vdt-ref-tabs {
-            gap: 8px;
+            gap: 6px;
+            margin-bottom: 10px;
           }
           .vdt-ref-tab-btn {
             flex: 1;
-            padding: 11px 10px;
-            font-size: 11px;
+            padding: 10px 4px;
+            font-size: clamp(10.5px, 2.8vw, 12px);
+            letter-spacing: 0.04em;
             text-align: center;
+            border-radius: 10px;
+            white-space: nowrap;
+          }
+          .vdt-ref-form-card {
+            border-radius: 14px;
+            box-shadow: 0 8px 30px rgba(23, 25, 28, 0.06);
           }
           .vdt-ref-grid-3,
           .vdt-ref-grid-hourly-2,
@@ -1667,29 +1717,122 @@ export default function HeroBanner() {
             border-bottom: 1px solid #ECE7DE;
           }
           .vdt-ref-cell {
-            padding: 14px 18px;
-            min-height: 72px;
+            padding: 11px 16px;
+            min-height: 60px;
+          }
+          .vdt-ref-cell-label {
+            font-size: 10px;
+            letter-spacing: 0.05em;
+            margin-bottom: 3px;
+          }
+          .vdt-ref-cell-input,
+          .vdt-ref-cell-select {
+            font-size: 14px;
           }
           .vdt-ref-bottom-bar {
             flex-direction: column;
             align-items: stretch;
+            gap: 10px;
+            margin-top: 12px;
           }
           .vdt-ref-quote-btn {
             width: 100%;
             justify-content: center;
+            padding: 13px 24px;
+            font-size: 12.5px;
+            letter-spacing: 0.06em;
           }
+          .vdt-ref-error-message {
+            width: 100%;
+            justify-content: center;
+            font-size: 12.5px;
+            padding: 6px 14px;
+          }
+
+          /* Compact 2x2 Trust Bar */
           .hero-trust-container {
             padding: 0 12px;
-            margin: 1.8rem auto;
+            margin: 1.25rem auto 1.75rem auto;
+          }
+          .hero-trust-inner-card {
+            border-radius: 14px;
+            padding: 0.9rem 1rem;
           }
           .hero-trust-grid {
-            grid-template-columns: 1fr;
-            gap: 1rem;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.85rem;
+          }
+          .hero-trust-item {
+            gap: 0.65rem;
+            padding: 0;
           }
           .hero-trust-bordered {
             border-left: none;
-            border-top: 1px solid #E8E4DC;
-            padding-top: 0.85rem;
+            border-top: none;
+            padding-top: 0;
+          }
+          .hero-trust-icon-box {
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+          }
+          .hero-trust-icon-box svg {
+            width: 17px;
+            height: 17px;
+          }
+          .hero-trust-title {
+            font-size: 0.78rem;
+          }
+          .hero-trust-sub {
+            font-size: 0.68rem;
+            line-height: 1.25;
+          }
+        }
+
+        /* Extra Compact Phones (<= 360px & 320px) */
+        @media (max-width: 360px) {
+          .hero-rounded-banner {
+            margin: 8px 8px 0 8px;
+            border-radius: 14px;
+          }
+          .hero-content-stage {
+            padding: 18px 14px;
+          }
+          .hero-heading {
+            font-size: 21px;
+          }
+          .hero-subtitle {
+            font-size: 13.5px;
+          }
+          .hero-description {
+            font-size: 12px;
+          }
+          .hero-highlights-wrap {
+            grid-template-columns: 1fr;
+            gap: 0.25rem;
+          }
+          .hero-booking-panel-container {
+            padding: 0 8px;
+          }
+          .vdt-ref-tab-btn {
+            padding: 8px 2px;
+            font-size: 9.5px;
+            letter-spacing: 0.02em;
+          }
+          .vdt-ref-cell {
+            padding: 9px 12px;
+            min-height: 54px;
+          }
+          .hero-trust-container {
+            padding: 0 8px;
+          }
+          .hero-trust-grid {
+            grid-template-columns: 1fr;
+            gap: 0.65rem;
+          }
+          .hero-trust-bordered {
+            border-top: 1px solid #ECE7DE;
+            padding-top: 0.65rem;
           }
         }
       `}</style>

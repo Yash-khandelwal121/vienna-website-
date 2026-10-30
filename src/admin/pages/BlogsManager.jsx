@@ -454,7 +454,7 @@ export default function BlogsManager() {
     );
   };
 
-  // Upload Featured Image directly to Sanity CDN with persistent cloud storage
+  // Upload Featured Image with persistent media storage
   const handleFeaturedImageUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -972,14 +972,14 @@ export default function BlogsManager() {
                       Upload High-Resolution Featured Image
                     </h4>
                     <p style={{ margin: '0 0 1.25rem', color: '#62666D', fontSize: '0.88rem' }}>
-                      Persisted to Sanity Cloud CDN. Compatible with embedded text without aggressive cropping.
+                      Persisted to secure media storage. Compatible with embedded text without aggressive cropping.
                     </p>
                     <label
                       className="vdt-btn-primary"
                       style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', padding: '0.65rem 1.4rem' }}
                     >
                       <Upload size={16} />
-                      <span>{uploadingImage ? 'Uploading to Sanity CDN...' : 'Select File From Computer'}</span>
+                      <span>{uploadingImage ? 'Uploading Image...' : 'Select File From Computer'}</span>
                       <input
                         type="file"
                         accept="image/*"

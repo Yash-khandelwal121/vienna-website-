@@ -99,7 +99,6 @@ export default function Navbar() {
           top: 0,
           left: 0,
           right: 0,
-          height: '74px',
           zIndex: 1000,
           backgroundColor: scrolled ? 'rgba(250, 248, 244, 0.98)' : '#FAF8F4',
           backdropFilter: 'blur(12px)',
@@ -111,7 +110,7 @@ export default function Navbar() {
           transition: 'background-color 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease'
         }}
       >
-        <div className="container-wide" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', height: '100%', gap: '1.5rem' }}>
+        <div className="container-wide main-header-inner" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', height: '100%', gap: '0.75rem' }}>
           {/* Brand Logo (LEFT) */}
           <Link
             to="/"
@@ -119,15 +118,15 @@ export default function Navbar() {
               display: 'flex',
               alignItems: 'center',
               textDecoration: 'none',
-              gap: '0.85rem',
-              flexShrink: 0
+              gap: '0.65rem',
+              flexShrink: 0,
+              minWidth: 0
             }}
           >
             {/* Official Brand Logo */}
             <div
+              className="brand-logo-frame"
               style={{
-                width: '46px',
-                height: '46px',
                 borderRadius: '50%',
                 overflow: 'hidden',
                 border: '1.5px solid #C69C50',
@@ -137,7 +136,7 @@ export default function Navbar() {
                 justifyContent: 'center',
                 boxShadow: '0 2px 10px rgba(198, 156, 80, 0.22)',
                 flexShrink: 0,
-                padding: '3px'
+                padding: '2px'
               }}
             >
               <img
@@ -156,14 +155,13 @@ export default function Navbar() {
               className="brand-logo-text-main"
               style={{
                 fontFamily: 'var(--font-heading)',
-                fontSize: '1.25rem',
                 fontWeight: 800,
-                letterSpacing: '0.08em',
                 color: '#17191C',
                 textTransform: 'uppercase',
                 lineHeight: 1,
                 display: 'inline-flex',
-                alignItems: 'center'
+                alignItems: 'center',
+                whiteSpace: 'nowrap'
               }}
             >
               VIENNA DAY TRIP
@@ -526,14 +524,13 @@ export default function Navbar() {
       {/* Mobile Drawer Menu */}
       {mobileOpen && (
         <div
+          className="mobile-nav-drawer"
           style={{
             position: 'fixed',
             inset: 0,
-            top: '74px',
             backgroundColor: '#FAF8F4',
             zIndex: 999,
             overflowY: 'auto',
-            padding: '2rem 1.5rem 4rem',
             display: 'flex',
             flexDirection: 'column',
             gap: '1.25rem',
@@ -764,6 +761,26 @@ export default function Navbar() {
       )}
 
       <style>{`
+        .main-header {
+          height: 74px;
+        }
+        .main-header-inner {
+          padding-left: clamp(14px, 3vw, 2.5rem);
+          padding-right: clamp(14px, 3vw, 2.5rem);
+        }
+        .brand-logo-frame {
+          width: 44px;
+          height: 44px;
+        }
+        .brand-logo-text-main {
+          font-size: 1.22rem;
+          letter-spacing: 0.08em;
+        }
+        .mobile-nav-drawer {
+          top: 74px;
+          padding: 1.75rem 1.5rem calc(3.5rem + env(safe-area-inset-bottom, 20px));
+        }
+
         .desktop-nav {
           display: none;
         }
@@ -773,6 +790,7 @@ export default function Navbar() {
         .mobile-menu-toggle {
           display: flex;
         }
+
         @media (min-width: 1060px) {
           .desktop-nav {
             display: flex !important;
@@ -804,34 +822,96 @@ export default function Navbar() {
           gap: 8px;
         }
 
-        /* Mobile Header Responsive Tuning */
-        @media (max-width: 600px) {
-          .header-book-btn {
-            padding: 0.5rem 1rem !important;
-            font-size: 0.78rem !important;
+        /* Mobile Header Responsive Tuning (<= 768px) */
+        @media (max-width: 768px) {
+          .main-header {
+            height: 64px !important;
           }
-        }
-        @media (max-width: 440px) {
-          .header-controls {
-            gap: 0.5rem !important;
+          .mobile-nav-drawer {
+            top: 64px !important;
+            padding: 1.25rem 1rem calc(3rem + env(safe-area-inset-bottom, 20px)) !important;
           }
-          .brand-logo-text-sub {
-            display: none !important;
+          .brand-logo-frame {
+            width: 38px !important;
+            height: 38px !important;
           }
           .brand-logo-text-main {
             font-size: 1.05rem !important;
+            letter-spacing: 0.05em !important;
           }
           .header-book-btn {
-            padding: 0.45rem 0.65rem !important;
-            font-size: 0.72rem !important;
+            padding: 0.48rem 1rem !important;
+            font-size: 0.76rem !important;
+          }
+          .mobile-menu-toggle {
+            width: 40px !important;
+            height: 40px !important;
           }
         }
+
+        /* Small Phones (<= 430px) */
+        @media (max-width: 430px) {
+          .header-controls {
+            gap: 0.5rem !important;
+          }
+          .brand-logo-frame {
+            width: 34px !important;
+            height: 34px !important;
+          }
+          .brand-logo-text-main {
+            font-size: 0.94rem !important;
+            letter-spacing: 0.03em !important;
+          }
+          .header-book-btn {
+            padding: 0.42rem 0.65rem !important;
+            font-size: 0.7rem !important;
+            gap: 0.3rem !important;
+          }
+          .header-book-btn svg {
+            width: 12px !important;
+            height: 12px !important;
+          }
+          .mobile-menu-toggle {
+            width: 38px !important;
+            height: 38px !important;
+            border-radius: 8px !important;
+          }
+          .mobile-menu-toggle svg {
+            width: 19px !important;
+            height: 19px !important;
+          }
+        }
+
+        /* Extra Compact Phones (<= 360px & 320px) */
         @media (max-width: 360px) {
+          .brand-logo-frame {
+            width: 30px !important;
+            height: 30px !important;
+          }
+          .brand-logo-text-main {
+            font-size: 0.82rem !important;
+            letter-spacing: 0.02em !important;
+          }
+          .header-book-btn {
+            padding: 0.4rem 0.55rem !important;
+            font-size: 0.68rem !important;
+          }
+          .header-book-btn span {
+            display: none !important;
+          }
+          .header-book-btn svg {
+            width: 14px !important;
+            height: 14px !important;
+            margin: 0 !important;
+          }
+        }
+
+        @media (max-width: 330px) {
           .header-book-btn {
             display: none !important;
           }
           .brand-logo-text-main {
-            font-size: 0.96rem !important;
+            font-size: 0.8rem !important;
           }
         }
       `}</style>

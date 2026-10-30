@@ -11,33 +11,8 @@ export async function uploadMedia(req, res) {
     const { category = 'general', altText = '' } = req.body;
     let url = `/uploads/${req.file.filename}`;
 
-    // Upload to persistent Sanity Cloud CDN when API token is configured
-    if (process.env.SANITY_API_TOKEN) {
-      try {
-        const { createClient } = await import('@sanity/client');
-        const sanity = createClient({
-          projectId: process.env.SANITY_PROJECT_ID || process.env.VITE_SANITY_PROJECT_ID || 'lwp5b4fm',
-          dataset: process.env.SANITY_DATASET || process.env.VITE_SANITY_DATASET || 'production',
-          apiVersion: '2024-01-01',
-          token: process.env.SANITY_API_TOKEN,
-          useCdn: false
-        });
-        const filePath = req.file.path;
-        if (fs.existsSync(filePath)) {
-          const stream = fs.createReadStream(filePath);
-          const sanityAsset = await sanity.assets.upload('image', stream, {
-            filename: req.file.originalname,
-            contentType: req.file.mimetype
-          });
-          if (sanityAsset?.url) {
-            url = sanityAsset.url;
-            console.log(`[Media Upload] Successfully persisted to Sanity CDN: ${url}`);
-          }
-        }
-      } catch (sanityErr) {
-        console.warn('[Sanity CDN Upload Warning]: Falling back to local upload:', sanityErr.message);
-      }
-    }
+    // Sanity CDN Upload: Safely disabled. Media persists via local storage & database
+    // (Local file stored at req.file.path and served via /uploads)
 
     const asset = await db.media.create({
       data: {

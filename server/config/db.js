@@ -502,8 +502,10 @@ async function loadSeedData() {
   console.log('[DB] Store initialized and persisted to server/data/store.json.');
 }
 
-// Hydrate newly created and published articles from Sanity Cloud CMS
+// Hydrate newly created and published articles from Sanity Cloud CMS (Safely Disabled)
 export async function hydrateFromSanity() {
+  // Sanity background synchronization disabled: Express operates authoritatively on PostgreSQL & persistent store
+  return;
   const sanityToken = process.env.SANITY_API_TOKEN;
   const projectId = process.env.SANITY_PROJECT_ID || process.env.VITE_SANITY_PROJECT_ID || 'lwp5b4fm';
   const dataset = process.env.SANITY_DATASET || process.env.VITE_SANITY_DATASET || 'production';
@@ -719,17 +721,45 @@ export const db = {
 
   // BOOKINGS
   bookings: {
-    async findMany({ where, orderBy, take, skip } = {}) {
-      if (isPostgresConnected) {
-        try { return await prisma.booking.findMany({ where, orderBy, take, skip }); } catch (e) {}
+    _hydrateBooking(b) {
+      if (!b) return b;
+      const notes = b.internalNotes || '';
+      const match = notes.match(/\[PAYMENT_META\]([\s\S]*?)\[\/PAYMENT_META\]/);
+      let meta = null;
+      if (match) {
+        try { meta = JSON.parse(match[1]); } catch {}
       }
-      let result = [...memoryStore.bookings];
+      return {
+        ...b,
+        paymentStatus: b.paymentStatus || meta?.status || (notes.includes('PAID via') ? 'PAID' : 'UNPAID'),
+        paymentAmount: b.paymentAmount !== undefined ? b.paymentAmount : (meta?.amount ?? 0),
+        currency: b.currency || meta?.currency || 'EUR',
+        stripeSessionId: b.stripeSessionId || meta?.sessionId || null,
+        stripePaymentIntentId: b.stripePaymentIntentId || meta?.paymentIntentId || null,
+        paymentTimestamp: b.paymentTimestamp || meta?.timestamp || null
+      };
+    },
+
+    async findMany({ where, orderBy, take, skip } = {}) {
+      let result = [];
+      if (isPostgresConnected) {
+        try {
+          const pgBookings = await prisma.booking.findMany({ where, orderBy, take, skip });
+          if (Array.isArray(pgBookings)) {
+            return pgBookings.map((b) => this._hydrateBooking(b));
+          }
+        } catch (e) {
+          console.warn('[DB] Prisma findMany bookings note:', e.message);
+        }
+      }
+      result = [...memoryStore.bookings];
       if (where?.status) result = result.filter((b) => b.status === where.status);
       result.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
       if (skip) result = result.slice(skip);
       if (take) result = result.slice(0, take);
-      return result;
+      return result.map((b) => this._hydrateBooking(b));
     },
+
     async count({ where } = {}) {
       if (isPostgresConnected) {
         try { return await prisma.booking.count({ where }); } catch (e) {}
@@ -738,39 +768,201 @@ export const db = {
       if (where?.status) result = result.filter((b) => b.status === where.status);
       return result.length;
     },
+
     async findUnique({ where }) {
       if (isPostgresConnected) {
-        try { return await prisma.booking.findUnique({ where }); } catch (e) {}
+        try {
+          const found = await prisma.booking.findUnique({ where });
+          if (found) return this._hydrateBooking(found);
+        } catch (e) {
+          console.warn('[DB] Prisma findUnique booking note:', e.message);
+        }
       }
-      return memoryStore.bookings.find((b) => b.id === where.id || b.reference === where.reference) || null;
+      const mem = memoryStore.bookings.find((b) => b.id === where.id || b.reference === where.reference || (where.id && b.id === where.id)) || null;
+      return this._hydrateBooking(mem);
     },
+
     async create({ data }) {
-      if (isPostgresConnected) {
-        try { return await prisma.booking.create({ data }); } catch (e) {}
+      const validPrismaKeys = new Set([
+        'reference', 'customerName', 'email', 'phone', 'serviceType',
+        'pickupLocation', 'dropoffLocation', 'pickupDate', 'pickupTime',
+        'passengerCount', 'luggageDetails', 'preferredVehicle', 'specialRequests',
+        'status', 'internalNotes', 'source',
+        // Payment fields — now native columns on Booking
+        'paymentStatus', 'paymentAmount', 'currency',
+        'stripeSessionId', 'stripePaymentIntentId', 'paymentTimestamp',
+        'promoCode', 'childSeatCount'
+      ]);
+
+      const prismaData = {};
+      for (const [k, v] of Object.entries(data)) {
+        if (validPrismaKeys.has(k)) prismaData[k] = v;
       }
+
+      // Ensure Prisma-compatible types
+      if (prismaData.passengerCount !== undefined) {
+        prismaData.passengerCount = String(prismaData.passengerCount);
+      }
+      if (!prismaData.phone) {
+        prismaData.phone = '+43 664 000 0000';
+      }
+
+      // Embed payment metadata into internalNotes if present
+      if (data.paymentStatus || data.paymentAmount !== undefined || data.stripeSessionId) {
+        const paymentMeta = {
+          status: data.paymentStatus || 'UNPAID',
+          amount: data.paymentAmount !== undefined ? data.paymentAmount : 0,
+          currency: data.currency || 'EUR',
+          sessionId: data.stripeSessionId || null,
+          paymentIntentId: data.stripePaymentIntentId || null,
+          timestamp: data.paymentTimestamp || new Date().toISOString()
+        };
+        const metaTag = `[PAYMENT_META]${JSON.stringify(paymentMeta)}[/PAYMENT_META]`;
+        const currentNotes = (prismaData.internalNotes || '').replace(/\[PAYMENT_META\][\s\S]*?\[\/PAYMENT_META\]/, '').trim();
+        prismaData.internalNotes = currentNotes ? `${currentNotes}\n${metaTag}` : metaTag;
+      }
+
+      let created = null;
+      if (isPostgresConnected) {
+        try {
+          created = await prisma.booking.create({ data: prismaData });
+        } catch (e) {
+          console.warn('[DB] Prisma create booking error:', e.message);
+        }
+      }
+
       const newBooking = {
-        id: `bk_${Date.now()}`,
-        status: 'NEW',
-        source: 'WEBSITE_FORM',
+        id: created?.id || `bk_${Date.now()}`,
+        status: data.status || 'NEW',
+        source: data.source || 'WEBSITE_FORM',
         ...data,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        passengerCount: String(data.passengerCount || '1-3'),
+        phone: data.phone || prismaData.phone,
+        internalNotes: prismaData.internalNotes || data.internalNotes || '',
+        createdAt: created?.createdAt || new Date().toISOString(),
+        updatedAt: created?.updatedAt || new Date().toISOString()
       };
-      memoryStore.bookings.unshift(newBooking);
+
+      // Always keep memoryStore in sync
+      const existingIdx = memoryStore.bookings.findIndex((b) => b.id === newBooking.id || b.reference === newBooking.reference);
+      if (existingIdx !== -1) {
+        memoryStore.bookings[existingIdx] = newBooking;
+      } else {
+        memoryStore.bookings.unshift(newBooking);
+      }
       persistStore();
-      return newBooking;
+      return this._hydrateBooking(newBooking);
     },
+
     async update({ where, data }) {
-      if (isPostgresConnected) {
-        try { return await prisma.booking.update({ where, data }); } catch (e) {}
+      const validPrismaKeys = new Set([
+        'reference', 'customerName', 'email', 'phone', 'serviceType',
+        'pickupLocation', 'dropoffLocation', 'pickupDate', 'pickupTime',
+        'passengerCount', 'luggageDetails', 'preferredVehicle', 'specialRequests',
+        'status', 'internalNotes', 'source',
+        // Payment fields — now native columns on Booking
+        'paymentStatus', 'paymentAmount', 'currency',
+        'stripeSessionId', 'stripePaymentIntentId', 'paymentTimestamp',
+        'promoCode', 'childSeatCount'
+      ]);
+
+      const prismaData = {};
+      for (const [k, v] of Object.entries(data)) {
+        if (validPrismaKeys.has(k)) prismaData[k] = v;
       }
-      const idx = memoryStore.bookings.findIndex((b) => b.id === where.id || b.reference === where.reference);
+
+      if (prismaData.passengerCount !== undefined) {
+        prismaData.passengerCount = String(prismaData.passengerCount);
+      }
+
+      // Embed payment metadata into internalNotes so payment status persists in PostgreSQL
+      if (data.paymentStatus || data.paymentAmount !== undefined || data.stripeSessionId) {
+        const paymentMeta = {
+          status: data.paymentStatus || 'UNPAID',
+          amount: data.paymentAmount !== undefined ? data.paymentAmount : 0,
+          currency: data.currency || 'EUR',
+          sessionId: data.stripeSessionId || null,
+          paymentIntentId: data.stripePaymentIntentId || null,
+          timestamp: data.paymentTimestamp || new Date().toISOString()
+        };
+        const metaTag = `[PAYMENT_META]${JSON.stringify(paymentMeta)}[/PAYMENT_META]`;
+        const currentNotes = (data.internalNotes || prismaData.internalNotes || '').replace(/\[PAYMENT_META\][\s\S]*?\[\/PAYMENT_META\]/, '').trim();
+        prismaData.internalNotes = currentNotes ? `${currentNotes}\n${metaTag}` : metaTag;
+      }
+
+      let updated = null;
+      if (isPostgresConnected && Object.keys(prismaData).length > 0) {
+        try {
+          updated = await prisma.booking.update({ where, data: prismaData });
+        } catch (e) {
+          console.warn('[DB] Prisma update booking note:', e.message);
+        }
+      }
+
+      const idx = memoryStore.bookings.findIndex((b) => b.id === where.id || b.reference === where.reference || (updated && b.id === updated.id));
       if (idx !== -1) {
-        memoryStore.bookings[idx] = { ...memoryStore.bookings[idx], ...data, updatedAt: new Date().toISOString() };
+        memoryStore.bookings[idx] = {
+          ...memoryStore.bookings[idx],
+          ...(updated || {}),
+          ...data,
+          internalNotes: prismaData.internalNotes || data.internalNotes || memoryStore.bookings[idx].internalNotes,
+          updatedAt: new Date().toISOString()
+        };
         persistStore();
-        return memoryStore.bookings[idx];
+        return this._hydrateBooking(memoryStore.bookings[idx]);
+      } else if (updated) {
+        const hydrated = { ...updated, ...data, internalNotes: prismaData.internalNotes };
+        memoryStore.bookings.unshift(hydrated);
+        persistStore();
+        return this._hydrateBooking(hydrated);
       }
-      return null;
+      return updated ? this._hydrateBooking(updated) : null;
+    }
+  },
+
+  // WEBHOOK EVENT IDEMPOTENCY — database-backed to survive Vercel cold starts
+  // Falls back to in-memory Set if PostgreSQL is unavailable
+  webhookEvents: {
+    _memCache: new Set(),
+
+    async hasProcessed(eventId) {
+      if (!eventId) return false;
+      // Check in-memory cache first (fast path)
+      if (this._memCache.has(eventId)) return true;
+      // Check PostgreSQL
+      if (isPostgresConnected) {
+        try {
+          const existing = await prisma.processedWebhookEvent.findUnique({ where: { eventId } });
+          if (existing) {
+            this._memCache.add(eventId); // Warm the cache
+            return true;
+          }
+        } catch (e) {
+          console.warn('[DB] webhookEvents.hasProcessed error:', e.message);
+        }
+      }
+      return false;
+    },
+
+    async markProcessed(eventId, eventType, bookingRef) {
+      if (!eventId) return;
+      this._memCache.add(eventId);
+      // Prune in-memory cache if too large
+      if (this._memCache.size > 2000) {
+        const oldest = Array.from(this._memCache).slice(0, 500);
+        oldest.forEach((id) => this._memCache.delete(id));
+      }
+      if (isPostgresConnected) {
+        try {
+          await prisma.processedWebhookEvent.upsert({
+            where: { eventId },
+            update: { eventType, bookingRef: bookingRef || null },
+            create: { eventId, eventType, bookingRef: bookingRef || null }
+          });
+        } catch (e) {
+          console.warn('[DB] webhookEvents.markProcessed error:', e.message);
+        }
+      }
     }
   },
 

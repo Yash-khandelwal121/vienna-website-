@@ -7,11 +7,24 @@ import { getPublicDayTrips, getPublicDayTripBySlug } from '../controllers/dayTri
 import { getPublicBlogs, getPublicBlogBySlug } from '../controllers/blogController.js';
 import { getSettings, getReviewsSettings } from '../controllers/settingsController.js';
 
+import {
+  createStripeCheckoutSession,
+  handleStripeWebhook,
+  getPaymentStatus,
+  simulatePaymentConfirmation
+} from '../controllers/paymentController.js';
+
 const router = Router();
 
 // Public Enquiries & Bookings
 router.post('/bookings', createBooking);
 router.post('/contact', createContactEnquiry);
+
+// Stripe Payment Gateway Endpoints
+router.post('/payments/create-checkout-session', createStripeCheckoutSession);
+router.post('/payments/webhook', handleStripeWebhook);
+router.get('/payments/status/:id', getPaymentStatus);
+router.post('/payments/simulate-confirmation', simulatePaymentConfirmation);
 
 // Public Content Endpoints (Only published items)
 router.get('/vehicles', getPublicVehicles);

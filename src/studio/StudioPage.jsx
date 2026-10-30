@@ -1,23 +1,10 @@
 import React from 'react';
-import { Studio } from 'sanity';
-import sanityConfig from '../../sanity.config';
+import { Navigate } from 'react-router-dom';
 
+/**
+ * Sanity Studio has been disabled in favor of the integrated Express + PostgreSQL Admin Console.
+ */
 export default function StudioPage() {
-  return (
-    <div
-      id="sanity-studio-container"
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        width: '100vw',
-        height: '100vh',
-        zIndex: 999999,
-        overflow: 'hidden',
-        backgroundColor: '#101112',
-      }}
-    >
-      <Studio config={sanityConfig} />
-    </div>
-  );
+  return <Navigate to="/admin" replace />;
 }
+
