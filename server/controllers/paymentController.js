@@ -5,25 +5,40 @@ import { db } from '../config/db.js';
 const stripeSecretKey = process.env.STRIPE_SECRET_KEY || '';
 const stripeWebhookSecret = process.env.STRIPE_WEBHOOK_SECRET || '';
 
+// Recognize valid-looking Stripe secret key prefixes (standard and restricted keys)
+const hasValidTestPrefix = stripeSecretKey.startsWith('sk_test_') || stripeSecretKey.startsWith('rk_test_');
+const hasValidLivePrefix = stripeSecretKey.startsWith('sk_live_') || stripeSecretKey.startsWith('rk_live_');
+
+// Identify placeholder or unconfigured keys safely without treating genuine test keys as placeholders
 const isPlaceholderKey =
   !stripeSecretKey ||
   stripeSecretKey.includes('ViennaDayTripChauffeurTestKey') ||
   stripeSecretKey.includes('XXXXXXXX') ||
-  stripeSecretKey.startsWith('sk_test_'); // treat test-mode keys as simulation mode
+  stripeSecretKey.includes('placeholder') ||
+  (!hasValidTestPrefix && !hasValidLivePrefix);
 
-const isLiveMode = stripeSecretKey.startsWith('sk_live_');
+// Mode recognition based on key prefix format
+// NOTE: Key prefix recognition indicates intended mode, not proof that runtime authentication succeeds.
+const isLiveMode = hasValidLivePrefix && !isPlaceholderKey;
+const isTestMode = hasValidTestPrefix && !isPlaceholderKey;
 
 let stripe = null;
 try {
-  stripe = new Stripe(stripeSecretKey || 'sk_test_placeholder', {
-    apiVersion: '2024-06-20'
-  });
-  if (isLiveMode) {
-    console.log('✅ [Stripe] Initialized Stripe Client — LIVE MODE active.');
-  } else if (!isPlaceholderKey) {
-    console.log('ℹ️ [Stripe] Initialized Stripe Client — TEST MODE active.');
+  if (stripeSecretKey && !isPlaceholderKey) {
+    stripe = new Stripe(stripeSecretKey, {
+      apiVersion: '2024-06-20'
+    });
+    if (isLiveMode) {
+      console.log('✅ [Stripe] Initialized Stripe Client — LIVE MODE active (runtime auth verified on request).');
+    } else if (isTestMode) {
+      console.log('ℹ️ [Stripe] Initialized Stripe Client — TEST MODE active (runtime auth verified on request).');
+    }
   } else {
-    console.log('⚠️ [Stripe] Configured with placeholder/simulation key. Webhook signature engine active.');
+    // Fallback client for local dev without Stripe credentials
+    stripe = new Stripe('sk_test_placeholder', {
+      apiVersion: '2024-06-20'
+    });
+    console.log('⚠️ [Stripe] Configured with placeholder/unconfigured key. Webhook signature engine active.');
   }
 } catch (err) {
   console.warn('⚠️ [Stripe] Note initializing Stripe SDK:', err.message);
@@ -255,9 +270,8 @@ export async function createStripeCheckoutSession(req, res) {
     ].filter(Boolean).join(' | ');
 
     // 1. If real Stripe client is configured, create live/test hosted session
-    if (stripe) {
-      const session = await stripe.checkout.sessions.create({
-        payment_method_types: ['card', 'ideal', 'bancontact', 'sofort', 'klarna', 'eps'],
+    if (stripe && !isPlaceholderKey) {
+      const sessionConfig = {
         mode: 'payment',
         customer_email: booking.email,
         client_reference_id: booking.id,
@@ -288,6 +302,11 @@ export async function createStripeCheckoutSession(req, res) {
         },
         success_url: `${origin}/booking?session_id={CHECKOUT_SESSION_ID}&booking_id=${booking.id}&payment_status=success`,
         cancel_url: `${origin}/booking?booking_id=${booking.id}&payment_status=cancelled`
+      };
+
+      const session = await stripe.checkout.sessions.create({
+        ...sessionConfig,
+        payment_method_types: ['card']
       });
 
       // Save session info with PENDING status in database
@@ -388,7 +407,8 @@ export async function createStripeCheckoutSession(req, res) {
       }
     });
   } catch (error) {
-    console.error('[Stripe Session Creation Error]:', error);
+    const safeMsg = (error.message || '').replace(/(sk|rk)_(test|live)_[a-zA-Z0-9]+/g, '$1_$2_***REDACTED***');
+    console.error('[Stripe Session Creation Error]:', safeMsg || 'Unknown Stripe error');
     res.status(500).json({
       success: false,
       error: 'Failed to initiate secure Stripe checkout session.'
@@ -449,17 +469,17 @@ export async function handleStripeWebhook(req, res) {
     });
   }
 
-  // 5. DB-backed Idempotency Check: Prevent duplicate webhook processing across cold starts
-  if (event.id && await db.webhookEvents.hasProcessed(event.id)) {
-    console.log(`ℹ️ [Stripe Webhook] Duplicate event detected (${event.id}) — already in PostgreSQL. Skipping.`);
-    return res.status(200).json({
-      received: true,
-      duplicate: true,
-      eventId: event.id
-    });
-  }
-
   try {
+    // 5. DB-backed Idempotency Check: Prevent duplicate webhook processing across cold starts
+    if (event.id && (await db.webhookEvents.hasProcessed(event.id))) {
+      console.log(`ℹ️ [Stripe Webhook] Duplicate event detected (${event.id}) — already in PostgreSQL. Skipping.`);
+      return res.status(200).json({
+        received: true,
+        duplicate: true,
+        eventId: event.id
+      });
+    }
+
     // 6. Handle checkout.session.completed
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object;
@@ -654,7 +674,8 @@ export async function handleStripeWebhook(req, res) {
     await db.webhookEvents.markProcessed(event.id, event.type, null);
     return res.status(200).json({ received: true, event: event.type });
   } catch (error) {
-    console.error('[Stripe Webhook Processing Error]:', error);
+    const safeMsg = (error.message || '').replace(/(sk|rk)_(test|live)_[a-zA-Z0-9]+/g, '$1_$2_***REDACTED***');
+    console.error('[Stripe Webhook Processing Error]:', safeMsg || 'Unknown error');
     return res.status(500).json({ error: 'Internal server error processing Stripe webhook.' });
   }
 }

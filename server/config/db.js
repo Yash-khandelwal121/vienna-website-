@@ -741,54 +741,39 @@ export const db = {
     },
 
     async findMany({ where, orderBy, take, skip } = {}) {
-      let result = [];
-      if (isPostgresConnected) {
-        try {
-          const pgBookings = await prisma.booking.findMany({ where, orderBy, take, skip });
-          if (Array.isArray(pgBookings)) {
-            return pgBookings.map((b) => this._hydrateBooking(b));
-          }
-        } catch (e) {
-          console.warn('[DB] Prisma findMany bookings note:', e.message);
-        }
+      if (!isPostgresConnected || !prisma) {
+        throw new Error('[DB] Database unavailable: PostgreSQL connection required to query bookings.');
       }
-      result = [...memoryStore.bookings];
-      if (where?.status) result = result.filter((b) => b.status === where.status);
-      result.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-      if (skip) result = result.slice(skip);
-      if (take) result = result.slice(0, take);
-      return result.map((b) => this._hydrateBooking(b));
+      const pgBookings = await prisma.booking.findMany({ where, orderBy, take, skip });
+      return Array.isArray(pgBookings) ? pgBookings.map((b) => this._hydrateBooking(b)) : [];
     },
 
     async count({ where } = {}) {
-      if (isPostgresConnected) {
-        try { return await prisma.booking.count({ where }); } catch (e) {}
+      if (!isPostgresConnected || !prisma) {
+        throw new Error('[DB] Database unavailable: PostgreSQL connection required to count bookings.');
       }
-      let result = memoryStore.bookings;
-      if (where?.status) result = result.filter((b) => b.status === where.status);
-      return result.length;
+      return await prisma.booking.count({ where });
     },
 
     async findUnique({ where }) {
-      if (isPostgresConnected) {
-        try {
-          const found = await prisma.booking.findUnique({ where });
-          if (found) return this._hydrateBooking(found);
-        } catch (e) {
-          console.warn('[DB] Prisma findUnique booking note:', e.message);
-        }
+      if (!isPostgresConnected || !prisma) {
+        throw new Error('[DB] Database unavailable: PostgreSQL connection required to find booking.');
       }
-      const mem = memoryStore.bookings.find((b) => b.id === where.id || b.reference === where.reference || (where.id && b.id === where.id)) || null;
-      return this._hydrateBooking(mem);
+      const found = await prisma.booking.findUnique({ where });
+      return found ? this._hydrateBooking(found) : null;
     },
 
     async create({ data }) {
+      if (!isPostgresConnected || !prisma) {
+        throw new Error('[DB] Database unavailable: PostgreSQL connection required to persist bookings.');
+      }
+
       const validPrismaKeys = new Set([
         'reference', 'customerName', 'email', 'phone', 'serviceType',
         'pickupLocation', 'dropoffLocation', 'pickupDate', 'pickupTime',
         'passengerCount', 'luggageDetails', 'preferredVehicle', 'specialRequests',
         'status', 'internalNotes', 'source',
-        // Payment fields — now native columns on Booking
+        // Payment fields — native columns on Booking
         'paymentStatus', 'paymentAmount', 'currency',
         'stripeSessionId', 'stripePaymentIntentId', 'paymentTimestamp',
         'promoCode', 'childSeatCount'
@@ -806,8 +791,14 @@ export const db = {
       if (!prismaData.phone) {
         prismaData.phone = '+43 664 000 0000';
       }
+      if (prismaData.paymentStatus === undefined) {
+        prismaData.paymentStatus = 'UNPAID';
+      }
+      if (prismaData.currency === undefined) {
+        prismaData.currency = 'EUR';
+      }
 
-      // Embed payment metadata into internalNotes if present
+      // Embed payment metadata into internalNotes for audit trail
       if (data.paymentStatus || data.paymentAmount !== undefined || data.stripeSessionId) {
         const paymentMeta = {
           status: data.paymentStatus || 'UNPAID',
@@ -822,45 +813,21 @@ export const db = {
         prismaData.internalNotes = currentNotes ? `${currentNotes}\n${metaTag}` : metaTag;
       }
 
-      let created = null;
-      if (isPostgresConnected) {
-        try {
-          created = await prisma.booking.create({ data: prismaData });
-        } catch (e) {
-          console.warn('[DB] Prisma create booking error:', e.message);
-        }
-      }
-
-      const newBooking = {
-        id: created?.id || `bk_${Date.now()}`,
-        status: data.status || 'NEW',
-        source: data.source || 'WEBSITE_FORM',
-        ...data,
-        passengerCount: String(data.passengerCount || '1-3'),
-        phone: data.phone || prismaData.phone,
-        internalNotes: prismaData.internalNotes || data.internalNotes || '',
-        createdAt: created?.createdAt || new Date().toISOString(),
-        updatedAt: created?.updatedAt || new Date().toISOString()
-      };
-
-      // Always keep memoryStore in sync
-      const existingIdx = memoryStore.bookings.findIndex((b) => b.id === newBooking.id || b.reference === newBooking.reference);
-      if (existingIdx !== -1) {
-        memoryStore.bookings[existingIdx] = newBooking;
-      } else {
-        memoryStore.bookings.unshift(newBooking);
-      }
-      persistStore();
-      return this._hydrateBooking(newBooking);
+      const created = await prisma.booking.create({ data: prismaData });
+      return this._hydrateBooking(created);
     },
 
     async update({ where, data }) {
+      if (!isPostgresConnected || !prisma) {
+        throw new Error('[DB] Database unavailable: PostgreSQL connection required to update bookings.');
+      }
+
       const validPrismaKeys = new Set([
         'reference', 'customerName', 'email', 'phone', 'serviceType',
         'pickupLocation', 'dropoffLocation', 'pickupDate', 'pickupTime',
         'passengerCount', 'luggageDetails', 'preferredVehicle', 'specialRequests',
         'status', 'internalNotes', 'source',
-        // Payment fields — now native columns on Booking
+        // Payment fields — native columns on Booking
         'paymentStatus', 'paymentAmount', 'currency',
         'stripeSessionId', 'stripePaymentIntentId', 'paymentTimestamp',
         'promoCode', 'childSeatCount'
@@ -875,7 +842,7 @@ export const db = {
         prismaData.passengerCount = String(prismaData.passengerCount);
       }
 
-      // Embed payment metadata into internalNotes so payment status persists in PostgreSQL
+      // Embed payment metadata into internalNotes so payment status persists in PostgreSQL audit
       if (data.paymentStatus || data.paymentAmount !== undefined || data.stripeSessionId) {
         const paymentMeta = {
           status: data.paymentStatus || 'UNPAID',
@@ -890,78 +857,54 @@ export const db = {
         prismaData.internalNotes = currentNotes ? `${currentNotes}\n${metaTag}` : metaTag;
       }
 
-      let updated = null;
-      if (isPostgresConnected && Object.keys(prismaData).length > 0) {
-        try {
-          updated = await prisma.booking.update({ where, data: prismaData });
-        } catch (e) {
-          console.warn('[DB] Prisma update booking note:', e.message);
-        }
-      }
+      const updated = await prisma.booking.update({ where, data: prismaData });
+      return this._hydrateBooking(updated);
+    },
 
-      const idx = memoryStore.bookings.findIndex((b) => b.id === where.id || b.reference === where.reference || (updated && b.id === updated.id));
-      if (idx !== -1) {
-        memoryStore.bookings[idx] = {
-          ...memoryStore.bookings[idx],
-          ...(updated || {}),
-          ...data,
-          internalNotes: prismaData.internalNotes || data.internalNotes || memoryStore.bookings[idx].internalNotes,
-          updatedAt: new Date().toISOString()
-        };
-        persistStore();
-        return this._hydrateBooking(memoryStore.bookings[idx]);
-      } else if (updated) {
-        const hydrated = { ...updated, ...data, internalNotes: prismaData.internalNotes };
-        memoryStore.bookings.unshift(hydrated);
-        persistStore();
-        return this._hydrateBooking(hydrated);
+    async delete({ where }) {
+      if (!isPostgresConnected || !prisma) {
+        throw new Error('[DB] Database unavailable: PostgreSQL connection required to delete bookings.');
       }
-      return updated ? this._hydrateBooking(updated) : null;
+      return await prisma.booking.delete({ where });
     }
   },
 
   // WEBHOOK EVENT IDEMPOTENCY — database-backed to survive Vercel cold starts
-  // Falls back to in-memory Set if PostgreSQL is unavailable
+  // Database-backed idempotency table: ProcessedWebhookEvent
   webhookEvents: {
     _memCache: new Set(),
 
     async hasProcessed(eventId) {
       if (!eventId) return false;
-      // Check in-memory cache first (fast path)
+      // Fast path: Check in-memory cache for events already processed in current process
       if (this._memCache.has(eventId)) return true;
-      // Check PostgreSQL
-      if (isPostgresConnected) {
-        try {
-          const existing = await prisma.processedWebhookEvent.findUnique({ where: { eventId } });
-          if (existing) {
-            this._memCache.add(eventId); // Warm the cache
-            return true;
-          }
-        } catch (e) {
-          console.warn('[DB] webhookEvents.hasProcessed error:', e.message);
-        }
+      // Database verification: PostgreSQL connection strictly required
+      if (!isPostgresConnected || !prisma) {
+        throw new Error('[DB] Database unavailable: PostgreSQL connection required for webhook idempotency check.');
+      }
+      const existing = await prisma.processedWebhookEvent.findUnique({ where: { eventId } });
+      if (existing) {
+        this._memCache.add(eventId); // Warm the cache
+        return true;
       }
       return false;
     },
 
     async markProcessed(eventId, eventType, bookingRef) {
       if (!eventId) return;
+      if (!isPostgresConnected || !prisma) {
+        throw new Error('[DB] Database unavailable: PostgreSQL connection required to record processed webhook event.');
+      }
+      await prisma.processedWebhookEvent.upsert({
+        where: { eventId },
+        update: { eventType, bookingRef: bookingRef || null },
+        create: { eventId, eventType, bookingRef: bookingRef || null }
+      });
       this._memCache.add(eventId);
       // Prune in-memory cache if too large
       if (this._memCache.size > 2000) {
         const oldest = Array.from(this._memCache).slice(0, 500);
         oldest.forEach((id) => this._memCache.delete(id));
-      }
-      if (isPostgresConnected) {
-        try {
-          await prisma.processedWebhookEvent.upsert({
-            where: { eventId },
-            update: { eventType, bookingRef: bookingRef || null },
-            create: { eventId, eventType, bookingRef: bookingRef || null }
-          });
-        } catch (e) {
-          console.warn('[DB] webhookEvents.markProcessed error:', e.message);
-        }
       }
     }
   },

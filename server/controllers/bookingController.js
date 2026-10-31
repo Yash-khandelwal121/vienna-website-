@@ -62,6 +62,8 @@ export async function createBooking(req, res) {
         childSeatCharge: Math.round(Math.max(0, Number(childSeatCharge || 0)) * 100) / 100,
         paymentAmount: Number(paymentAmount) > 0 ? Number(paymentAmount) : undefined,
         promoCode: promoCode ? sanitizeText(promoCode) : undefined,
+        paymentStatus: 'UNPAID',
+        currency: 'EUR',
         status: 'NEW',
         internalNotes: ''
       }
@@ -75,7 +77,12 @@ export async function createBooking(req, res) {
     });
   } catch (error) {
     console.error('[Create Booking Error]:', error);
-    res.status(500).json({ success: false, error: 'Failed to submit booking enquiry.' });
+    res.status(500).json({
+      success: false,
+      error: error.message?.includes('Database')
+        ? 'Database service unavailable. Please try again shortly.'
+        : 'Failed to submit booking enquiry.'
+    });
   }
 }
 
