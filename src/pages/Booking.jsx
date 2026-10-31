@@ -11,7 +11,7 @@ import './Booking.css';
 /* =========================================================================
    SETTINGS & CONFIGURATION (matching exact supplied code)
    ========================================================================= */
-const ENABLE_GOOGLE_MAPS = import.meta.env.VITE_ENABLE_GOOGLE_MAPS === 'true';
+const ENABLE_GOOGLE_MAPS = String(import.meta.env.VITE_ENABLE_GOOGLE_MAPS || '').toLowerCase() === 'true';
 
 const S = {
   ENABLE_MAPS: ENABLE_GOOGLE_MAPS,
