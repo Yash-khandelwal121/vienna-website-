@@ -246,7 +246,7 @@ export const toursData = {
     eyebrow: "WINE & UNESCO HERITAGE",
     metaTitle: "Wachau Valley Day Trip from Vienna | Wine & Villages",
     metaDescription: "Discover Austria's scenic Wachau Valley on a guided day trip from Vienna. Cruise the Danube, visit Melk Abbey, Dürnstein castle & taste local wines. Book today.",
-    heroImage: "https://viennadaytrip.com/wp-content/uploads/2026/03/pexels-jana-259137194-22601739-scaled.jpg",
+    heroImage: "/images/wachauvalley.jpg",
     stats: [
       { label: "Duration", value: "8.5–9 Hours" },
       { label: "Distance", value: "330 km Roundtrip" },
@@ -430,7 +430,7 @@ export const toursData = {
     eyebrow: "MOZART & SOUND OF MUSIC",
     metaTitle: "Salzburg Day Trip from Vienna | Guided Tour",
     metaDescription: "Explore Mozart's birthplace on a guided Salzburg day trip from Vienna. See the Old Town, Hohensalzburg Fortress & Sound of Music locations. Book now.",
-    heroImage: "https://viennadaytrip.com/wp-content/uploads/2026/03/St.-Gilgen-–-Coffee-Stop-by-the-Lake.jpg",
+    heroImage: "/images/salzburg.jpg",
     stats: [
       { label: "Duration", value: "11–12 Hours" },
       { label: "Distance", value: "595 km Roundtrip" },
@@ -517,7 +517,7 @@ export const toursData = {
     eyebrow: "QUEEN OF THE DANUBE",
     metaTitle: "Budapest Day Trip from Vienna | Full Day Tour",
     metaDescription: "Discover Budapest on a guided day trip from Vienna. Visit Parliament, Buda Castle & the Great Market Hall with an expert local guide. Free cancellation.",
-    heroImage: "https://viennadaytrip.com/wp-content/uploads/2026/03/Hungarian-Parliament-scaled.jpg",
+    heroImage: "/images/budapest.jpg",
     stats: [
       { label: "Duration", value: "11–12 Hours" },
       { label: "Distance", value: "485 km Roundtrip" },
@@ -615,7 +615,7 @@ export const toursData = {
     eyebrow: "CITY OF A HUNDRED SPIRES",
     metaTitle: "Prague Day Trip from Vienna | Full Day Guided Tour",
     metaDescription: "Discover Prague on a full-day guided trip from Vienna. Explore the Old Town Square, Charles Bridge & Prague Castle with an expert guide. Free cancellation. Book now.",
-    heroImage: "https://viennadaytrip.com/wp-content/uploads/2026/03/extra.webp",
+    heroImage: "/images/parague.jpg",
     stats: [
       { label: "Duration", value: "12–13 Hours" },
       { label: "Distance", value: "660 km Roundtrip" },
@@ -698,7 +698,7 @@ export const toursData = {
     eyebrow: "TWO CAPITALS IN ONE DAY",
     metaTitle: "Bratislava Day Trip from Vienna | Guided Tour",
     metaDescription: "Explore Bratislava's charming Old Town on a guided day trip from Vienna. Just 1 hour away, discover the castle, cobblestone streets & local cuisine. Book now.",
-    heroImage: "https://viennadaytrip.com/wp-content/uploads/2026/03/Bratislava-Castle.jpg",
+    heroImage: "/images/bratislava.jpg",
     stats: [
       { label: "Duration", value: "6–8 Hours" },
       { label: "Distance", value: "130 km Roundtrip" },
@@ -791,7 +791,7 @@ export const toursData = {
     eyebrow: "BESPOKE EUROPEAN ITINERARIES",
     metaTitle: "Customized Day Trips from Vienna | Private Tours",
     metaDescription: "Design your perfect private day trip from Vienna. Choose your destination, duration and pace — our expert guides create a personalised tour just for you. Book now.",
-    heroImage: "https://viennadaytrip.com/wp-content/uploads/2026/03/vienna-road-trip.jpeg",
+    heroImage: "/images/customized.jpg",
     stats: [
       { label: "Itinerary", value: "100% Tailored" },
       { label: "Coverage", value: "Austria & Central Europe" },

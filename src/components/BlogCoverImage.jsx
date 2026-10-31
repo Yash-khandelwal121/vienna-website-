@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 /**
  * Heuristic to detect whether an image is an infographic / poster-style cover
@@ -7,12 +7,21 @@ import React, { useState } from 'react';
 export function isPosterCover(src) {
   if (!src) return false;
   const s = src.toLowerCase();
-  // Photographic assets
-  if (s.includes('vienna-hero') || s.includes('gallery-') || s.includes('about-') || s.includes('cars/')) {
+  // Photographic assets and formats are always photos (fit-cover)
+  if (
+    s.endsWith('.jpg') ||
+    s.endsWith('.jpeg') ||
+    s.endsWith('.webp') ||
+    s.includes('/images/') ||
+    s.includes('vienna-hero') ||
+    s.includes('gallery-') ||
+    s.includes('about-') ||
+    s.includes('cars/')
+  ) {
     return false;
   }
-  // Sanity & local blog featured posters
-  if (s.includes('feat-') || s.endsWith('.png') || s.includes('blog-images')) {
+  // Sanity & local blog featured posters (only PNG infographic posters)
+  if (s.includes('feat-') && s.endsWith('.png')) {
     return true;
   }
   return false;
@@ -36,9 +45,15 @@ export default function BlogCoverImage({
   eager = false,
 }) {
   const [hasError, setHasError] = useState(false);
+
+  // Reset error state whenever the image src changes (e.g. pagination, filter, API sync)
+  useEffect(() => {
+    setHasError(false);
+  }, [src]);
+
   const poster = explicitIsPoster !== undefined ? explicitIsPoster : isPosterCover(src);
 
-  // Fallbacks
+  // High-reliability fallbacks
   const fallbackSrc = poster
     ? '/blog-images/feat-duernstein-day-trip.png'
     : '/images/gallery-hallstatt.webp';

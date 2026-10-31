@@ -264,7 +264,7 @@ export const pricingData = {
       slug: "salzburg-day-trip",
       duration: "11–12 Hours",
       capacity: "1–7 Guests",
-      image: "https://viennadaytrip.com/wp-content/uploads/2026/03/St.-Gilgen-–-Coffee-Stop-by-the-Lake.jpg"
+      image: "/images/salzburg.jpg"
     },
     {
       title: "Budapest Day Trip",
@@ -273,7 +273,7 @@ export const pricingData = {
       slug: "budapest-day-trip",
       duration: "11–12 Hours",
       capacity: "1–7 Guests",
-      image: "https://viennadaytrip.com/wp-content/uploads/2026/03/Hungarian-Parliament-scaled.jpg"
+      image: "/images/budapest.jpg"
     },
     {
       title: "Prague Day Trip",
@@ -282,7 +282,7 @@ export const pricingData = {
       slug: "prague-day-trip",
       duration: "12–13 Hours",
       capacity: "1–7 Guests",
-      image: "https://viennadaytrip.com/wp-content/uploads/2026/03/extra.webp"
+      image: "/images/parague.jpg"
     },
     {
       title: "Bratislava Day Trip",
@@ -291,7 +291,7 @@ export const pricingData = {
       slug: "bratislava-day-trip",
       duration: "6–8 Hours",
       capacity: "1–7 Guests",
-      image: "https://viennadaytrip.com/wp-content/uploads/2026/03/Bratislava-Castle.jpg"
+      image: "/images/bratislava.jpg"
     },
     {
       title: "Wachau Valley Day Trip",
@@ -300,7 +300,7 @@ export const pricingData = {
       slug: "wachau-valley-trip",
       duration: "8.5–9 Hours",
       capacity: "1–7 Guests",
-      image: "https://viennadaytrip.com/wp-content/uploads/2026/03/pexels-jana-259137194-22601739-scaled.jpg"
+      image: "/images/wachauvalley.jpg"
     },
     {
       title: "Customized Private Trip – Your Way",
@@ -309,7 +309,7 @@ export const pricingData = {
       slug: "customized-day-trips",
       duration: "Flexible",
       capacity: "1–16 Guests",
-      image: "https://viennadaytrip.com/wp-content/uploads/2026/03/vienna-road-trip.jpeg"
+      image: "/images/customized.jpg"
     },
     {
       title: "Secure Transportation",

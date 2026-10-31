@@ -26,13 +26,13 @@ export {
 
 export const CANONICAL_DAY_TRIP_IMAGES = {
   'hallstatt-day-trip-from-vienna': '/images/Hallstatt.jpg',
-  'salzburg-day-trip': 'https://viennadaytrip.com/wp-content/uploads/2026/03/St.-Gilgen-–-Coffee-Stop-by-the-Lake.jpg',
-  'wachau-valley-trip': '/images/gallery-wachau.webp',
-  'budapest-day-trip': '/images/gallery-budapest.webp',
-  'prague-day-trip': 'https://viennadaytrip.com/wp-content/uploads/2026/03/extra.webp',
-  'bratislava-day-trip': '/images/gallery-bratislava.webp',
+  'salzburg-day-trip': '/images/salzburg.jpg',
+  'wachau-valley-trip': '/images/wachauvalley.jpg',
+  'budapest-day-trip': '/images/budapest.jpg',
+  'prague-day-trip': '/images/parague.jpg',
+  'bratislava-day-trip': '/images/bratislava.jpg',
   'vienna-sightseeing-tour': 'https://viennadaytrip.com/wp-content/uploads/2026/03/vienna-day-teip.jpeg',
-  'customized-day-trips': 'https://viennadaytrip.com/wp-content/uploads/2026/03/vienna-road-trip.jpeg',
+  'customized-day-trips': '/images/customized.jpg',
   'airport-transfer-vienna': 'https://viennadaytrip.com/wp-content/uploads/2026/03/Vienna-Airport-Schwechat-Terminal-Gate-Check-in-Guide-1024x576-1.webp',
   'hourly-chauffeur-service': 'https://viennadaytrip.com/wp-content/uploads/2026/03/your-professional-chauffeur.jpg',
   'secure-transportation': 'https://viennadaytrip.com/wp-content/uploads/2026/05/Armored-Vehicle-.jpeg',
@@ -56,13 +56,14 @@ export const CANONICAL_FLEET_IMAGES = {
 };
 
 export const CANONICAL_SERVICE_IMAGES = {
-  'airport-transfers': 'https://viennadaytrip.com/wp-content/uploads/2026/03/Vienna-Airport-Schwechat-Terminal-Gate-Check-in-Guide-1024x576-1.webp',
-  'airport-transfer-vienna': 'https://viennadaytrip.com/wp-content/uploads/2026/03/Vienna-Airport-Schwechat-Terminal-Gate-Check-in-Guide-1024x576-1.webp',
-  'hourly-chauffeur': 'https://viennadaytrip.com/wp-content/uploads/2026/03/your-professional-chauffeur.jpg',
-  'hourly-chauffeur-service': 'https://viennadaytrip.com/wp-content/uploads/2026/03/your-professional-chauffeur.jpg',
-  'private-day-trips': '/images/Hallstatt.jpg',
-  'day-trips': '/images/Hallstatt.jpg',
-  'secure-transportation': 'https://viennadaytrip.com/wp-content/uploads/2026/05/Armored-Vehicle-.jpeg'
+  // Local bundled assets — Git-tracked, served via Vercel CDN, no external dependency
+  'airport-transfers':       '/images/airport-transfer.webp',
+  'airport-transfer-vienna': '/images/airport-transfer.webp',
+  'hourly-chauffeur':        '/images/hourly-chauffeur.webp',
+  'hourly-chauffeur-service':'/images/hourly-chauffeur.webp',
+  'private-day-trips':       '/images/private-day-trips.webp',
+  'day-trips':               '/images/private-day-trips.webp',
+  'secure-transportation':   '/images/secure-transportation.webp',
 };
 
 export function sanitizeImageUrl(url, fallbackUrl = '') {
@@ -142,10 +143,13 @@ export async function fetchPublicServices() {
         const data = await res.json();
         if (data.success && Array.isArray(data.services) && data.services.length > 0) {
           return data.services.map((s) => {
-            const fallback = CANONICAL_SERVICE_IMAGES[s.slug] || '/images/vienna-palace-backdrop.webp';
+            // Prefer the canonical image (stable, bundled/external) over a DB-stored
+            // /uploads/ path, which is ephemeral on Vercel serverless and may 404.
+            const canonical = CANONICAL_SERVICE_IMAGES[s.slug];
+            const fallback = canonical || '/images/vienna-palace-backdrop.webp';
             return {
               ...s,
-              image: sanitizeImageUrl(s.image, fallback)
+              image: canonical || sanitizeImageUrl(s.image, fallback)
             };
           });
         }
@@ -216,8 +220,9 @@ export async function fetchPublicDayTrips() {
     backendTrips.forEach((bt) => {
       if (bt.slug) {
         const prev = map.get(bt.slug) || {};
-        const fallback = CANONICAL_DAY_TRIP_IMAGES[bt.slug] || prev.image || '/images/vienna-palace-backdrop.webp';
-        const resolvedImg = sanitizeImageUrl(bt.image, fallback);
+        const canonical = CANONICAL_DAY_TRIP_IMAGES[bt.slug];
+        const fallback = canonical || prev.image || '/images/vienna-palace-backdrop.webp';
+        const resolvedImg = canonical || sanitizeImageUrl(bt.image, fallback);
         map.set(bt.slug, {
           ...prev,
           ...bt,
@@ -243,7 +248,11 @@ export async function fetchPublicDayTripBySlug(slug) {
     if (res.ok) {
       const data = await res.json();
       if (data.success && data.tour) {
-        return data.tour;
+        const tour = data.tour;
+        if (CANONICAL_DAY_TRIP_IMAGES[clean]) {
+          tour.image = CANONICAL_DAY_TRIP_IMAGES[clean];
+        }
+        return tour;
       }
     }
   } catch (err) {}
@@ -255,49 +264,63 @@ export async function fetchPublicDayTripBySlug(slug) {
  * Fetch published blog articles with pagination, category filter & search
  * Backed authoritatively by Node.js Backend API (PostgreSQL / local store)
  */
+/**
+ * Stable in-memory cache for all published blog posts.
+ * Fetched once per session (or after CACHE_TTL_MS), then filtered/paginated in memory.
+ * Using a single stable cache key avoids race conditions where parallel
+ * category/search requests return different intermediate states.
+ */
+const ALL_BLOGS_CACHE_KEY = 'all_blogs_v1';
+
 export async function fetchPublicBlogs({ page = 1, limit = 9, category = 'All', search = '' } = {}) {
-  const cacheKey = `blogs_${page}_${limit}_${category}_${search}`;
-  return dedupeRequest(cacheKey, async () => {
+  // Always fetch the full unfiltered list under a single stable key.
+  // Filtering and pagination are applied in-memory so the cache is shared across
+  // all category/search combinations — eliminating image flicker between navigations.
+  return dedupeRequest(ALL_BLOGS_CACHE_KEY, async () => {
     let backendBlogs = [];
 
-    // 1. Fetch from Node.js Backend API (PostgreSQL / store.json)
+    // 1. Fetch ALL published blogs from Node.js Backend API (Neon PostgreSQL / store.json)
+    //    Use a large limit so we get everything in one round-trip.
     try {
-      const url = `/api/v1/public/blogs?limit=500&category=${encodeURIComponent(category)}&search=${encodeURIComponent(search)}`;
-      const res = await fetch(url);
+      const res = await fetch('/api/v1/public/blogs?limit=1000');
       if (res.ok) {
         const data = await res.json();
-        if (data.success && Array.isArray(data.blogs)) {
+        if (data.success && Array.isArray(data.blogs) && data.blogs.length > 0) {
           backendBlogs = data.blogs;
         }
       }
     } catch (err) {}
 
-    // 2. Fallback to local static dataset if backend is unreachable
-    const baseList = backendBlogs.length > 0 ? [] : allBlogPosts;
+    // 2. If backend is unreachable, fall back to the bundled static dataset.
+    //    We never merge both sources together — this prevents duplicate entries
+    //    and ensures the authoritative Neon image field is never overridden by
+    //    stale local data.
+    let combined = backendBlogs.length > 0
+      ? backendBlogs.filter((b) => b.isPublished !== false)
+      : allBlogPosts.filter((b) => b.isPublished !== false);
 
-    const map = new Map();
-    baseList.forEach((b) => map.set(b.slug, b));
-    backendBlogs.forEach((b) => map.set(b.slug, { ...map.get(b.slug), ...b }));
+    combined.sort((a, b) => new Date(b.rawDate || b.publishedAt || b.createdAt || 0) - new Date(a.rawDate || a.publishedAt || a.createdAt || 0));
 
-    let combined = Array.from(map.values()).filter((b) => b.isPublished !== false);
+    return combined;
+  }).then((combined) => {
+    // Apply category and search filters in memory after the cached fetch.
+    let filtered = combined;
 
     if (category && category !== 'All') {
-      combined = combined.filter((b) => b.category?.toLowerCase() === category.toLowerCase());
+      filtered = filtered.filter((b) => b.category?.toLowerCase() === category.toLowerCase());
     }
     if (search && search.trim()) {
       const q = search.toLowerCase().trim();
-      combined = combined.filter((b) =>
+      filtered = filtered.filter((b) =>
         b.title?.toLowerCase().includes(q) ||
         b.excerpt?.toLowerCase().includes(q) ||
         b.content?.toLowerCase().includes(q)
       );
     }
 
-    combined.sort((a, b) => new Date(b.rawDate || b.publishedAt || b.createdAt || 0) - new Date(a.rawDate || a.publishedAt || a.createdAt || 0));
-
-    const total = combined.length;
+    const total = filtered.length;
     const startIndex = (page - 1) * limit;
-    const paginated = combined.slice(startIndex, startIndex + limit);
+    const paginated = filtered.slice(startIndex, startIndex + limit);
 
     return {
       success: true,

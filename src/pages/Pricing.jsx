@@ -40,7 +40,7 @@ export default function Pricing() {
             duration: t.duration || 'Full Day (10-12h)',
             capacity: '1–7 Guests',
             price: t.price || 'From €550',
-            image: sanitizeImageUrl(t.image, CANONICAL_DAY_TRIP_IMAGES[t.slug] || '/images/vienna-palace-backdrop.webp')
+            image: CANONICAL_DAY_TRIP_IMAGES[t.slug] || sanitizeImageUrl(t.image, '/images/vienna-palace-backdrop.webp')
           }));
           setTours(formatted);
         }
@@ -145,7 +145,7 @@ export default function Pricing() {
                   <img
                     src={tour.image}
                     alt={tour.title}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' }}
                     loading="lazy"
                   />
                   <div style={{ position: 'absolute', top: '1rem', right: '1rem' }}>

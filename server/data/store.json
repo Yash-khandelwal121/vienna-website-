@@ -161,6 +161,30 @@
   ],
   "bookings": [
     {
+      "id": "bk_1793430888257",
+      "status": "NEW",
+      "source": "WEBSITE_FORM",
+      "reference": "VDT-BK-2026-82A7",
+      "customerName": "Yash Khandelwal",
+      "email": "yashkhandelwal274@gmail.com",
+      "phone": "+91 7417416461",
+      "serviceType": "One Way Transfer",
+      "pickupLocation": "Vienna International Airport (VIE), Schwechat",
+      "dropoffLocation": "Vienna City Center (Innere Stadt / Stephansplatz)",
+      "pickupDate": "2026-10-31",
+      "pickupTime": "13:00",
+      "passengerCount": "1 Passengers",
+      "luggageDetails": "1 Suitcases, 1 Child Seat(s)",
+      "preferredVehicle": "Mercedes-Benz EQS",
+      "specialRequests": "Water: Still Water | Child seats: 1 × €10 = €10 | Vehicle Price: €96.00 | Total: €106.00 | Payment method: Pay Online (Stripe)",
+      "childSeatCount": 1,
+      "childSeatCharge": 10,
+      "paymentAmount": 106,
+      "internalNotes": "[PAYMENT_META]{\"status\":\"UNPAID\",\"amount\":106,\"currency\":\"EUR\",\"sessionId\":null,\"paymentIntentId\":null,\"timestamp\":\"2026-10-31T07:14:47.890Z\"}[/PAYMENT_META]",
+      "createdAt": "2026-10-31T07:14:48.257Z",
+      "updatedAt": "2026-10-31T07:14:48.257Z"
+    },
+    {
       "id": "bk_1792837309365",
       "status": "NEW",
       "source": "WEBSITE_FORM",
@@ -479,7 +503,7 @@
       "shortDesc": "Explore Mozart’s birthplace, Mirabell Gardens, Hohensalzburg Fortress, and Sound of Music filming locations.",
       "fullDesc": "Travel through the Austrian countryside to the Baroque jewel of Salzburg. Walk through the Getreidegasse and visit the iconic fortress.",
       "duration": "12 Hours",
-      "image": "https://viennadaytrip.com/wp-content/uploads/2026/03/St.-Gilgen-–-Coffee-Stop-by-the-Lake.jpg",
+      "image": "/images/salzburg.jpg",
       "price": "From €680",
       "isPublished": true,
       "displayOrder": 2,
@@ -495,7 +519,7 @@
       "shortDesc": "Cross the border to Hungary’s majestic capital. Marvel at Buda Castle, the Parliament Building, and Fisherman’s Bastion.",
       "fullDesc": "Experience the grandeur of Budapest with private door-to-door transfer across Hungary.",
       "duration": "11–12 Hours",
-      "image": "/images/gallery-budapest.webp",
+      "image": "/images/budapest.jpg",
       "price": "From €640",
       "isPublished": true,
       "displayOrder": 3,
@@ -511,7 +535,7 @@
       "shortDesc": "Immerse yourself in historic Prague: Charles Bridge, Prague Castle, and the Astronomical Clock.",
       "fullDesc": "A comfortable full-day private journey from Vienna to the historic heart of Bohemia.",
       "duration": "13–14 Hours",
-      "image": "https://viennadaytrip.com/wp-content/uploads/2026/03/extra.webp",
+      "image": "/images/parague.jpg",
       "price": "From €750",
       "isPublished": true,
       "displayOrder": 4,
@@ -527,7 +551,7 @@
       "shortDesc": "A rapid 50-minute private transfer to Slovakia’s charming capital on the Danube.",
       "fullDesc": "Visit Bratislava Castle, the medieval Old Town, and St. Martin’s Cathedral in a relaxed half-day or full-day tour.",
       "duration": "6–8 Hours",
-      "image": "/images/gallery-bratislava.webp",
+      "image": "/images/bratislava.jpg",
       "price": "From €320",
       "isPublished": true,
       "displayOrder": 5,
@@ -543,7 +567,7 @@
       "shortDesc": "Terraced vineyards, Dürnstein Castle ruins, and the breathtaking Baroque Melk Abbey.",
       "fullDesc": "Follow the scenic Danube River through Austria’s most celebrated wine-growing region with wine tasting opportunities.",
       "duration": "8–9 Hours",
-      "image": "/images/gallery-wachau.webp",
+      "image": "/images/wachauvalley.jpg",
       "price": "From €490",
       "isPublished": true,
       "displayOrder": 6,
@@ -741,7 +765,7 @@
         }
       },
       "createdAt": "2026-10-17T13:18:26",
-      "updatedAt": "2026-10-24T07:46:37.830Z"
+      "updatedAt": "2026-10-31T06:48:58.993Z"
     },
     {
       "id": "blog_melk-abbey-for-day-trippers",
@@ -22740,7 +22764,7 @@
       "title": "Hallstatt Salt Mines Tour: Ancient History & Adventure",
       "excerpt": "Read our comprehensive guide on Hallstatt Salt Mines Tour: Ancient History & Adventure with insider tips and luxury chauffeur details.",
       "content": "\n<p class=\"wp-block-paragraph\">Hallstatt&#8217;s salt mines represent 7,000 years of mining history, making them among the world&#8217;s oldest. The tour begins with a funicular ride up the mountain, offering stunning views of the village and lake below. Visitors then don protective clothing before descending into the mines.</p>\n\n\n\n<p class=\"wp-block-paragraph\">The tour includes slides used by miners, an underground lake, and fascinating exhibits about salt mining history. The &#8220;Man in Salt&#8221; discovery, a preserved body from prehistoric times, highlights the mines&#8217; archaeological significance. Modern multimedia presentations bring the ancient history to life.</p>\n\n\n\n<p class=\"wp-block-paragraph\">The mines are accessible year-round, with tours available in multiple languages. The experience combines education, adventure, and history, making it suitable for families and history enthusiasts. The underground temperature remains constant, so dress appropriately for cool conditions.</p>\n\n\n\n<p class=\"wp-block-paragraph\">Combining the salt mine tour with a Hallstatt village visit creates a comprehensive day trip experience. Our chauffeur service from Vienna ensures comfortable transportation, allowing you to fully enjoy both the mines and the village without time constraints or transportation worries.</p>\n",
-      "featuredImage": "/images/vienna-hero-chauffeur.jpg",
+      "featuredImage": "/blog-images/feat-hallstatt-salt-mines-tour-ancient-history.jpg",
       "category": "Uncategorized",
       "categories": [
         "Uncategorized"
@@ -22898,7 +22922,7 @@
         }
       },
       "createdAt": "2026-03-13T05:29:48",
-      "updatedAt": "2026-10-24T07:46:37.830Z"
+      "updatedAt": "2026-10-31T06:48:48.542Z"
     },
     {
       "id": "blog_vienna-historical-sites-must-visit-day-trip-destinations",
@@ -22906,7 +22930,7 @@
       "title": "Vienna Historical Sites: Must-Visit Day Trip Destinations",
       "excerpt": "Read our comprehensive guide on Vienna Historical Sites: Must-Visit Day Trip Destinations with insider tips and luxury chauffeur details.",
       "content": "\n<p class=\"wp-block-paragraph\">Vienna&#8217;s rich history spans over 2,000 years, from Roman settlements to the Habsburg Empire. The city&#8217;s historical sites offer fascinating insights into European history and culture. The Hofburg Palace, once the imperial residence, now houses museums and the Spanish Riding School.</p>\n\n\n\n<p class=\"wp-block-paragraph\">Schönbrunn Palace, a UNESCO World Heritage site, showcases baroque architecture and imperial history. The palace gardens are free to visit and offer beautiful views. St. Stephen&#8217;s Cathedral, with its distinctive Gothic architecture, dominates the city center and offers tower climbs for panoramic views.</p>\n\n\n\n<p class=\"wp-block-paragraph\">The Belvedere Palace complex houses an impressive art collection, including works by Klimt. The Ringstrasse, a grand boulevard, features important buildings like the State Opera, Parliament, and City Hall, all built during the 19th-century expansion.</p>\n\n\n\n<p class=\"wp-block-paragraph\">Our chauffeur service can create a customized historical tour, allowing you to visit multiple sites efficiently. Our drivers know the best routes and can provide historical context, enhancing your understanding of Vienna&#8217;s fascinating past.</p>\n",
-      "featuredImage": "/images/vienna-hero-chauffeur.jpg",
+      "featuredImage": "/blog-images/feat-vienna-historical-sites-destinations.jpg",
       "category": "Uncategorized",
       "categories": [
         "Uncategorized"
@@ -23062,7 +23086,7 @@
         }
       },
       "createdAt": "2026-03-13T05:29:18",
-      "updatedAt": "2026-10-24T07:46:37.830Z"
+      "updatedAt": "2026-10-31T06:48:49.176Z"
     },
     {
       "id": "blog_salzburg-christmas-markets-day-trip-from-vienna",
@@ -23070,7 +23094,7 @@
       "title": "Salzburg Christmas Markets: Day Trip from Vienna",
       "excerpt": "Read our comprehensive guide on Salzburg Christmas Markets: Day Trip from Vienna with insider tips and luxury chauffeur details.",
       "content": "\n<p class=\"wp-block-paragraph\">Salzburg&#8217;s Christmas markets are among Austria&#8217;s most enchanting, creating a festive atmosphere that draws visitors from around the world. The main market in Cathedral Square features traditional crafts, local delicacies, and seasonal decorations. The smaller market at Mirabell Palace offers a more intimate experience.</p>\n\n\n\n<p class=\"wp-block-paragraph\">The markets typically run from late November through December, with opening hours from morning until evening. Sample traditional treats like Lebkuchen (gingerbread), Glühwein (mulled wine), and roasted chestnuts. Shop for handcrafted ornaments, wooden toys, and local specialties.</p>\n\n\n\n<p class=\"wp-block-paragraph\">Combine your market visit with other Salzburg attractions. The historic old town, beautifully decorated for the season, offers excellent shopping and dining. Our chauffeur service ensures you can enjoy the markets without worrying about parking or navigating crowded streets.</p>\n\n\n\n<p class=\"wp-block-paragraph\">Evening visits are particularly magical, with twinkling lights and festive atmosphere. Our flexible scheduling allows you to experience both daytime and evening markets, or combine your visit with other Salzburg attractions for a comprehensive day trip experience.</p>\n",
-      "featuredImage": "/images/vienna-hero-chauffeur.jpg",
+      "featuredImage": "/blog-images/feat-salzburg-christmas-markets-winter.jpg",
       "category": "Uncategorized",
       "categories": [
         "Uncategorized"
@@ -23228,7 +23252,7 @@
         }
       },
       "createdAt": "2026-03-13T05:28:50",
-      "updatedAt": "2026-10-24T07:46:37.830Z"
+      "updatedAt": "2026-10-31T06:48:49.769Z"
     },
     {
       "id": "blog_why-choose-vienna-chauffeur-service-for-day-trips",
@@ -23236,7 +23260,7 @@
       "title": "Why Choose Vienna Chauffeur Service for Day Trips",
       "excerpt": "Read our comprehensive guide on Why Choose Vienna Chauffeur Service for Day Trips with insider tips and luxury chauffeur details.",
       "content": "\n<p class=\"wp-block-paragraph\">Choosing a professional chauffeur service for your Vienna day trips offers numerous advantages over public transportation or self-driving. Our luxury vehicles provide comfort and space, allowing you to relax and enjoy the journey. Professional drivers with local knowledge can navigate efficiently and share insights about destinations.</p>\n\n\n\n<p class=\"wp-block-paragraph\">Flexibility is key &#8211; you can customize your itinerary, make spontaneous stops, and adjust your schedule as needed. No need to worry about parking, navigation, or driving in unfamiliar areas. Our service includes door-to-door pickup, ensuring convenience from start to finish.</p>\n\n\n\n<p class=\"wp-block-paragraph\">Safety and reliability are paramount. Our vehicles are regularly maintained, and our drivers are experienced professionals familiar with Austrian roads and traffic conditions. Whether visiting Salzburg, Hallstatt, Bratislava, or the Wachau Valley, you&#8217;ll travel in comfort and style.</p>\n\n\n\n<p class=\"wp-block-paragraph\">For groups or families, chauffeur service often proves more economical than multiple train tickets, especially when considering the added value of flexibility, comfort, and personalized service.</p>\n",
-      "featuredImage": "/images/vienna-hero-chauffeur.jpg",
+      "featuredImage": "/blog-images/feat-why-choose-vienna-chauffeur-service.jpg",
       "category": "Uncategorized",
       "categories": [
         "Uncategorized"
@@ -23394,7 +23418,7 @@
         }
       },
       "createdAt": "2026-03-13T05:28:21",
-      "updatedAt": "2026-10-24T07:46:37.830Z"
+      "updatedAt": "2026-10-31T06:48:50.365Z"
     },
     {
       "id": "blog_hallstatt-in-winter-a-magical-winter-wonderland-guide",
@@ -23402,7 +23426,7 @@
       "title": "Hallstatt in Winter: A Magical Winter Wonderland Guide",
       "excerpt": "Read our comprehensive guide on Hallstatt in Winter: A Magical Winter Wonderland Guide with insider tips and luxury chauffeur details.",
       "content": "\n<p class=\"wp-block-paragraph\">Hallstatt transforms into a magical winter wonderland from December through February. Snow-covered rooftops, frozen lake reflections, and cozy alpine atmosphere create an unforgettable experience. The village is less crowded in winter, offering a more intimate visit.</p>\n\n\n\n<p class=\"wp-block-paragraph\">Winter activities include visiting the Christmas market (if timing permits), enjoying warm drinks in traditional cafés, and experiencing the salt mines with their year-round underground tours. The surrounding mountains offer skiing opportunities, though Hallstatt itself is primarily a sightseeing destination.</p>\n\n\n\n<p class=\"wp-block-paragraph\">Dress warmly with layers, waterproof boots, and warm accessories. The lake may freeze in particularly cold winters, creating stunning photo opportunities. Our luxury vehicles are equipped with climate control, ensuring a comfortable journey regardless of weather conditions.</p>\n\n\n\n<p class=\"wp-block-paragraph\">Winter day trips require careful planning due to shorter daylight hours and potential weather challenges. Our experienced drivers are familiar with winter driving conditions and ensure safe, reliable transportation throughout the season.</p>\n",
-      "featuredImage": "/images/vienna-hero-chauffeur.jpg",
+      "featuredImage": "/blog-images/feat-hallstatt-in-winter-wonderland.jpg",
       "category": "Uncategorized",
       "categories": [
         "Uncategorized"
@@ -23558,7 +23582,7 @@
         }
       },
       "createdAt": "2026-03-13T05:27:55",
-      "updatedAt": "2026-10-24T07:46:37.830Z"
+      "updatedAt": "2026-10-31T06:48:50.992Z"
     },
     {
       "id": "blog_vienna-to-salzburg-day-trip-perfect-itinerary",
@@ -23566,7 +23590,7 @@
       "title": "Vienna to Salzburg Day Trip: Perfect Itinerary",
       "excerpt": "Read our comprehensive guide on Vienna to Salzburg Day Trip: Perfect Itinerary with insider tips and luxury chauffeur details.",
       "content": "\n<p class=\"wp-block-paragraph\">A day trip from Vienna to Salzburg offers the perfect blend of history, culture, and natural beauty. Start your journey early with a comfortable ride in our luxury vehicle. The drive takes approximately 2.5-3 hours, passing through scenic Austrian countryside.</p>\n\n\n\n<p class=\"wp-block-paragraph\">Upon arrival in Salzburg, begin at Mirabell Palace and Gardens, a baroque masterpiece featured in &#8220;The Sound of Music.&#8221; Then cross the Salzach River to explore the historic old town, a UNESCO World Heritage site. Visit Mozart&#8217;s birthplace on Getreidegasse, the city&#8217;s most famous shopping street.</p>\n\n\n\n<p class=\"wp-block-paragraph\">Climb to Hohensalzburg Fortress for panoramic views, or take the funicular for easier access. The fortress houses museums and offers stunning vistas of the city and surrounding mountains. End your day with a traditional Austrian meal at a local restaurant before the comfortable return journey to Vienna.</p>\n\n\n\n<p class=\"wp-block-paragraph\">Our chauffeur service provides flexibility, allowing you to customize your itinerary based on your interests. Whether you prefer museums, shopping, or simply strolling through historic streets, we ensure you make the most of your Salzburg day trip.</p>\n",
-      "featuredImage": "/images/vienna-hero-chauffeur.jpg",
+      "featuredImage": "/blog-images/feat-vienna-to-salzburg-perfect-itinerary.jpg",
       "category": "Uncategorized",
       "categories": [
         "Uncategorized"
@@ -23724,7 +23748,7 @@
         }
       },
       "createdAt": "2026-03-13T05:27:27",
-      "updatedAt": "2026-10-24T07:46:37.830Z"
+      "updatedAt": "2026-10-31T06:48:51.582Z"
     },
     {
       "id": "blog_hallstatt-day-trip-from-vienna-complete-travel-guide",
@@ -23732,7 +23756,7 @@
       "title": "Hallstatt Day Trip from Vienna: Complete Travel Guide",
       "excerpt": "Read our comprehensive guide on Hallstatt Day Trip from Vienna: Complete Travel Guide with insider tips and luxury chauffeur details.",
       "content": "\n<p class=\"wp-block-paragraph\">Hallstatt, a UNESCO World Heritage site, is one of Austria&#8217;s most photographed destinations. This picturesque village on the shores of Lake Hallstatt offers stunning alpine scenery, ancient salt mines, and charming architecture.</p>\n\n\n\n<p class=\"wp-block-paragraph\">The journey from Vienna takes approximately 3 hours by car, making it perfect for a day trip with our luxury chauffeur service. Upon arrival, explore the historic market square, visit the Bone House with its decorated skulls, and take the funicular to the salt mines for a unique underground experience.</p>\n\n\n\n<p class=\"wp-block-paragraph\">The best viewpoints include the Hallstatt Skywalk, offering panoramic views of the lake and mountains. For photography enthusiasts, early morning or late afternoon provides the best lighting. The village can be crowded during peak season, so consider visiting in spring or autumn for a more peaceful experience.</p>\n\n\n\n<p class=\"wp-block-paragraph\">Our professional drivers ensure a comfortable journey, allowing you to relax and enjoy the scenic Austrian countryside. We can also arrange stops at other attractions along the route, such as the Dachstein Ice Caves or the 5 Fingers viewing platform.</p>\n",
-      "featuredImage": "/images/vienna-hero-chauffeur.jpg",
+      "featuredImage": "/images/hallstatt-premium.webp",
       "category": "Uncategorized",
       "categories": [
         "Uncategorized"
@@ -23890,7 +23914,7 @@
         }
       },
       "createdAt": "2026-03-13T05:26:50",
-      "updatedAt": "2026-10-24T07:46:37.830Z"
+      "updatedAt": "2026-10-31T06:48:52.220Z"
     },
     {
       "id": "blog_salzburg-sound-of-music-tour-complete-guide",
@@ -23898,7 +23922,7 @@
       "title": "Salzburg Sound of Music Tour: Complete Guide",
       "excerpt": "Read our comprehensive guide on Salzburg Sound of Music Tour: Complete Guide with insider tips and luxury chauffeur details.",
       "content": "\n<p class=\"wp-block-paragraph\">Salzburg is forever linked to &#8220;The Sound of Music,&#8221; and visiting the filming locations is a highlight for many travelers. Start at Mirabell Gardens, where Maria and the children sang &#8220;Do-Re-Mi.&#8221; The gardens are free to visit and offer beautiful views of Hohensalzburg Fortress.</p>\n\n\n\n<p class=\"wp-block-paragraph\">Next, visit the Nonnberg Abbey, the oldest nunnery in the German-speaking world, where the real Maria von Trapp was a novice. The abbey is still active, so visitors should be respectful. Then head to the Residenzplatz, featured in the opening scenes, and the Felsenreitschule, an open-air theater carved into the mountain.</p>\n\n\n\n<p class=\"wp-block-paragraph\">For the best experience, book a private chauffeur tour from Vienna. Our expert drivers know all the filming locations and can create a personalized itinerary that includes both Sound of Music sites and Salzburg&#8217;s other attractions like Mozart&#8217;s birthplace and the historic old town.</p>\n",
-      "featuredImage": "/images/vienna-hero-chauffeur.jpg",
+      "featuredImage": "/images/salzburg.jpg",
       "category": "Uncategorized",
       "categories": [
         "Uncategorized"
@@ -24054,7 +24078,7 @@
         }
       },
       "createdAt": "2026-03-13T05:26:23",
-      "updatedAt": "2026-10-24T07:46:37.830Z"
+      "updatedAt": "2026-10-31T06:48:52.799Z"
     },
     {
       "id": "blog_best-time-to-visit-vienna-seasonal-guide-for-day-trips",
@@ -24062,7 +24086,7 @@
       "title": "Best Time to Visit Vienna: Seasonal Guide for Day Trips",
       "excerpt": "Read our comprehensive guide on Best Time to Visit Vienna: Seasonal Guide for Day Trips with insider tips and luxury chauffeur details.",
       "content": "\n<p class=\"wp-block-paragraph\">Vienna offers something special in every season. Spring (March-May) brings blooming gardens and mild weather, perfect for outdoor exploration. Summer (June-August) is peak tourist season with long days and vibrant festivals, though it can be crowded. Autumn (September-November) offers crisp air, golden foliage, and fewer crowds. Winter (December-February) transforms Vienna into a magical wonderland with Christmas markets and cozy cafés.</p>\n\n\n\n<p class=\"wp-block-paragraph\">Each season has its advantages for day trips. Spring and autumn provide comfortable temperatures for visiting Salzburg, Hallstatt, and the Wachau Valley. Summer is ideal for lake activities and outdoor dining. Winter offers unique experiences like Christmas markets and snow-covered alpine villages.</p>\n\n\n\n<p class=\"wp-block-paragraph\">Our professional chauffeur service operates year-round, ensuring comfortable transportation regardless of weather conditions.</p>\n",
-      "featuredImage": "/images/vienna-hero-chauffeur.jpg",
+      "featuredImage": "/images/vienna-hero-clean.jpg",
       "category": "Uncategorized",
       "categories": [
         "Uncategorized"
@@ -24220,7 +24244,7 @@
         }
       },
       "createdAt": "2026-03-13T05:25:52",
-      "updatedAt": "2026-10-24T07:46:37.830Z"
+      "updatedAt": "2026-10-31T06:48:53.399Z"
     },
     {
       "id": "blog_salzburg-in-a-day-a-clean-doable-route",
@@ -24228,7 +24252,7 @@
       "title": "Salzburg in a Day: A Clean, Doable Route",
       "excerpt": "Read our comprehensive guide on Salzburg in a Day: A Clean, Doable Route with insider tips and luxury chauffeur details.",
       "content": "\n<p class=\"wp-block-paragraph\">Start near Mirabell, cross to the Old Town, then climb once and only once.</p>\n\n\n\n<p class=\"wp-block-paragraph\">A simple loop:<br>1) Mirabell Gardens<br>2) Getreidegasse and the market lanes<br>3) Cathedral square<br>4) One viewpoint (Mönchsberg is kind and gives a broad look)</p>\n\n\n\n<p class=\"wp-block-paragraph\">Don&#8217;t zigzag. Pick a side, finish it, then cross. End with a café where you can actually hear your company.<br>It&#8217;s not a race; Salzburg rewards unhurried steps.</p>\n",
-      "featuredImage": "/images/vienna-hero-chauffeur.jpg",
+      "featuredImage": "/images/private-day-trips.webp",
       "category": "Uncategorized",
       "categories": [
         "Uncategorized"
@@ -24386,7 +24410,7 @@
         }
       },
       "createdAt": "2026-03-13T05:25:21",
-      "updatedAt": "2026-10-24T07:46:37.830Z"
+      "updatedAt": "2026-10-31T06:48:54.351Z"
     },
     {
       "id": "blog_hallstatt-or-wachau-pick-the-right-day-trip-for-you",
@@ -24394,7 +24418,7 @@
       "title": "Hallstatt or Wachau? Pick the Right Day Trip for You",
       "excerpt": "Read our comprehensive guide on Hallstatt or Wachau? Pick the Right Day Trip for You with insider tips and luxury chauffeur details.",
       "content": "\n<p class=\"wp-block-paragraph\">Hallstatt is about lake views and postcard corners. Wachau is vines, abbeys, and the river.</p>\n\n\n\n<p class=\"wp-block-paragraph\">Choose Hallstatt if:</p>\n\n\n\n<ul class=\"wp-block-list\">\n<li>You want dramatic scenery in one compact place</li>\n\n\n\n<li>You don&#8217;t mind a bit more driving</li>\n</ul>\n\n\n\n<p class=\"wp-block-paragraph\">Choose Wachau if:</p>\n\n\n\n<ul class=\"wp-block-list\">\n<li>You like easy strolling, tastings, and a slower rhythm</li>\n\n\n\n<li>You prefer short drives and varied stops</li>\n</ul>\n\n\n\n<p class=\"wp-block-paragraph\">In winter, Wachau stays calmer and open. In midsummer, go early to Hallstatt. Either way, build in a quiet coffee somewhere without a queue.</p>\n",
-      "featuredImage": "/images/vienna-hero-chauffeur.jpg",
+      "featuredImage": "/images/wachauvalley.jpg",
       "category": "Uncategorized",
       "categories": [
         "Uncategorized"
@@ -24552,7 +24576,7 @@
         }
       },
       "createdAt": "2026-03-13T05:24:56",
-      "updatedAt": "2026-10-24T07:46:37.830Z"
+      "updatedAt": "2026-10-31T06:48:57.449Z"
     },
     {
       "id": "blog_vienna-day-trip-essentials-pack-smart-travel-easy",
@@ -24560,7 +24584,7 @@
       "title": "Vienna Day Trip Essentials: Pack Smart, Travel Easy",
       "excerpt": "Read our comprehensive guide on Vienna Day Trip Essentials: Pack Smart, Travel Easy with insider tips and luxury chauffeur details.",
       "content": "\r\n<p class=\"wp-block-paragraph\">Small items make a big difference on a long day out of Vienna.</p>\r\n\r\n\r\n\r\n<p class=\"wp-block-paragraph\">Skip: heavy umbrellas, bulky power banks, giant water bottles.<br />Bring: a compact rain shell, slim battery, and a soft tote that tucks away.</p>\r\n\r\n\r\n\r\n<p class=\"wp-block-paragraph\">A few driver notes:</p>\r\n\r\n\r\n\r\n<ul class=\"wp-block-list\">\r\n<li>Mornings can be chilly, even in spring. A light layer saves the first hour.</li>\r\n\r\n\r\n\r\n<li>Cash helps in smaller villages. Not every café takes cards.</li>\r\n\r\n\r\n\r\n<li>Trains and parking vary by season; a flexible plan beats a strict schedule.</li>\r\n</ul>\r\n\r\n\r\n\r\n<p class=\"wp-block-paragraph\">Pack light, move easily, and leave space for a last‑minute stop. It&#8217;s often the best part of the day.</p>\r\n",
-      "featuredImage": "/images/vienna-hero-chauffeur.jpg",
+      "featuredImage": "/images/customized.jpg",
       "category": "Uncategorized",
       "categories": [
         "Uncategorized"
@@ -24718,7 +24742,29 @@
         }
       },
       "createdAt": "2026-03-13T05:15:43",
-      "updatedAt": "2026-10-24T07:46:37.830Z"
+      "updatedAt": "2026-10-31T06:48:58.370Z"
+    },
+    {
+      "id": "2ef0d66f-d0c8-45ae-a13e-dad71cc587ee",
+      "slug": "vienna-luxury-chauffeur-test",
+      "title": "Vienna Luxury Chauffeur Service – Test Article",
+      "excerpt": "Discover our premium private chauffeur services in Vienna, including airport transfers, luxury vehicles and personalized day trips.",
+      "content": "<p>Write your luxury travel i<h2>Welcome to Vienna Day Trip</h2>\n\n<p>This is a test article published through the Vienna Day Trip Admin Panel.</p>\n\n<h2>Our Luxury Chauffeur Services</h2>\n\n<p>Vienna Day Trip offers premium private chauffeur services for travelers visiting Vienna and Austria.</p>\n\n<ul>\n  <li>Vienna Airport Transfers</li>\n  <li>Private Day Trips</li>\n  <li>Hourly Chauffeur Services</li>\n  <li>Luxury Mercedes-Benz Fleet</li>\n</ul>\n\n<h2>Explore Vienna in Comfort</h2>\n\n<p>Enjoy comfortable journeys with professional chauffeurs and personalized travel experiences.</p>\n\n<p><strong>Testing Status:</strong> This article was created to verify the Admin Panel publishing functionality.</p>nsights here...</p>",
+      "featuredImage": "/images/vienna-palace-backdrop.webp",
+      "category": "Travel Guides",
+      "categories": [
+        "Travel Guides"
+      ],
+      "author": "Vienna Day Trip Concierge",
+      "date": "October 2026",
+      "rawDate": "2026-10-28T11:47:06.930Z",
+      "isPublished": false,
+      "seo": {
+        "metaTitle": "Vienna Luxury Chauffeur Service – Test Article",
+        "metaDescription": "Discover our premium private chauffeur services in Vienna, including airport transfers, luxury vehicles and personalized day trips."
+      },
+      "createdAt": "2026-10-28T11:47:06.932Z",
+      "updatedAt": "2026-10-28T11:47:06.932Z"
     }
   ],
   "pageSections": [],

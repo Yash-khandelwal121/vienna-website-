@@ -9,7 +9,7 @@ import FaqAccordion from '../components/FaqAccordion';
 import BookingWidget from '../components/BookingWidget';
 import { siteConfig } from '../data/site';
 import { signatureDestinations } from '../components/DestinationCarousel';
-import { fetchPublicDayTripBySlug } from '../services/api';
+import { fetchPublicDayTripBySlug, CANONICAL_DAY_TRIP_IMAGES } from '../services/api';
 
 export default function TourPage({ tourKey }) {
   const params = useParams();
@@ -64,7 +64,11 @@ export default function TourPage({ tourKey }) {
     return () => { isMounted = false; };
   }, [key]);
 
-  const tour = liveTour || toursData[key] || toursData['hallstatt-day-trip-from-vienna'] || {};
+  const baseTour = liveTour || toursData[key] || toursData['hallstatt-day-trip-from-vienna'] || {};
+  const tour = {
+    ...baseTour,
+    heroImage: CANONICAL_DAY_TRIP_IMAGES[key] || baseTour.heroImage
+  };
 
   const stats = Array.isArray(tour?.stats) ? tour.stats : [];
   const overview = Array.isArray(tour?.overview) ? tour.overview : [];
@@ -194,6 +198,7 @@ export default function TourPage({ tourKey }) {
                     width: '100%',
                     height: '100%',
                     objectFit: 'cover',
+                    objectPosition: 'center',
                     filter: 'contrast(1.05) saturate(1.05)'
                   }}
                 />
@@ -510,7 +515,7 @@ export default function TourPage({ tourKey }) {
                   style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: 0, overflow: 'hidden' }}
                 >
                   <div style={{ height: '200px', position: 'relative', overflow: 'hidden' }}>
-                    <img src={rel.image} alt={rel.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <img src={rel.image} alt={rel.title} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' }} />
                     <div style={{ position: 'absolute', top: '1rem', right: '1rem' }}>
                       <span className="pill-badge">{rel.driveTime}</span>
                     </div>

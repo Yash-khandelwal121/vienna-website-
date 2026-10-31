@@ -35,12 +35,11 @@ export default function DestinationGallery() {
               aria-label="Budapest Danube Riverfront"
             />
             <img
-              src="/images/gallery-budapest.webp"
+              src="/images/budapest.jpg"
               alt="Budapest"
               loading="lazy"
               onError={(e) => {
-                e.currentTarget.src =
-                  'https://viennadaytrip.com/wp-content/uploads/2026/03/Hungarian-Parliament-scaled.jpg';
+                e.currentTarget.src = '/images/budapest.jpg';
               }}
             />
             <div className="vdt-gallery-card-content">
@@ -57,12 +56,11 @@ export default function DestinationGallery() {
               aria-label="Bratislava Hilltop Fortress"
             />
             <img
-              src="/images/gallery-bratislava.webp"
+              src="/images/bratislava.jpg"
               alt="Bratislava"
               loading="lazy"
               onError={(e) => {
-                e.currentTarget.src =
-                  'https://viennadaytrip.com/wp-content/uploads/2026/03/Bratislava-Castle.jpg';
+                e.currentTarget.src = '/images/bratislava.jpg';
               }}
             />
             <div className="vdt-gallery-card-content">
@@ -79,12 +77,11 @@ export default function DestinationGallery() {
               aria-label="Wachau Vineyards"
             />
             <img
-              src="/images/gallery-wachau.webp"
+              src="/images/wachauvalley.jpg"
               alt="Wachau Valley"
               loading="lazy"
               onError={(e) => {
-                e.currentTarget.src =
-                  'https://viennadaytrip.com/wp-content/uploads/2026/03/pexels-jana-259137194-22601739-scaled.jpg';
+                e.currentTarget.src = '/images/wachauvalley.jpg';
               }}
             />
             <div className="vdt-gallery-card-content">

@@ -69,23 +69,20 @@ export default function Blog() {
     metaDesc.content = t('blog_hero_desc');
   }, [language, t]);
 
-  // Sync with Sanity CMS & Backend API
+  // Sync with Backend API & Neon PostgreSQL (authoritative source of truth)
   useEffect(() => {
     let isMounted = true;
     async function loadLiveData() {
       setIsLoading(true);
       try {
-        const res = await fetchPublicBlogs({ limit: 200, category: selectedCategory, search });
+        const res = await fetchPublicBlogs({ limit: 1000, category: 'All', search: '' });
         if (isMounted && res?.blogs?.length > 0) {
-          const mapped = res.blogs.map((b) => {
-            const localMatch = allBlogPosts.find((p) => p.slug === b.slug);
-            return {
-              ...b,
-              featuredImage: b.featuredImage || b.coverImage || localMatch?.featuredImage || '/images/gallery-hallstatt.webp',
-              categories: b.categories || [b.category || 'Our Blog'],
-              primaryCategory: b.category || b.categories?.[0] || 'Our Blog',
-            };
-          });
+          const mapped = res.blogs.map((b) => ({
+            ...b,
+            featuredImage: b.featuredImage || b.coverImage || '/images/gallery-hallstatt.webp',
+            categories: b.categories || [b.category || 'Our Blog'],
+            primaryCategory: b.category || b.categories?.[0] || 'Our Blog',
+          }));
           setLivePosts(mapped);
         }
       } catch (e) {
@@ -98,7 +95,7 @@ export default function Blog() {
     return () => {
       isMounted = false;
     };
-  }, [search, selectedCategory]);
+  }, []);
 
   // Reset page when category or search changes
   useEffect(() => {

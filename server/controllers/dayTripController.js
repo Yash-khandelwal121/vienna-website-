@@ -1,8 +1,21 @@
 import { db } from '../config/db.js';
 
+const DAY_TRIP_IMAGE_OVERRIDES = {
+  'salzburg-day-trip': '/images/salzburg.jpg',
+  'bratislava-day-trip': '/images/bratislava.jpg',
+  'customized-day-trips': '/images/customized.jpg',
+  'wachau-valley-trip': '/images/wachauvalley.jpg',
+  'budapest-day-trip': '/images/budapest.jpg',
+  'prague-day-trip': '/images/parague.jpg',
+};
+
 export async function getPublicDayTrips(req, res) {
   try {
-    const dayTrips = await db.dayTrips.findMany({ where: { isPublished: true } });
+    const rawDayTrips = await db.dayTrips.findMany({ where: { isPublished: true } });
+    const dayTrips = rawDayTrips.map((dt) => ({
+      ...dt,
+      image: DAY_TRIP_IMAGE_OVERRIDES[dt.slug] || dt.image
+    }));
     res.json({ success: true, count: dayTrips.length, dayTrips });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Failed to fetch day trips.' });
@@ -11,10 +24,14 @@ export async function getPublicDayTrips(req, res) {
 
 export async function getPublicDayTripBySlug(req, res) {
   try {
-    const tour = await db.dayTrips.findUnique({ where: { slug: req.params.slug } });
-    if (!tour || !tour.isPublished) {
+    const rawTour = await db.dayTrips.findUnique({ where: { slug: req.params.slug } });
+    if (!rawTour || !rawTour.isPublished) {
       return res.status(404).json({ success: false, error: 'Day trip destination not found.' });
     }
+    const tour = {
+      ...rawTour,
+      image: DAY_TRIP_IMAGE_OVERRIDES[rawTour.slug] || rawTour.image
+    };
     res.json({ success: true, tour });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Error fetching day trip.' });
@@ -23,7 +40,11 @@ export async function getPublicDayTripBySlug(req, res) {
 
 export async function getAdminDayTrips(req, res) {
   try {
-    const dayTrips = await db.dayTrips.findMany();
+    const rawDayTrips = await db.dayTrips.findMany();
+    const dayTrips = rawDayTrips.map((dt) => ({
+      ...dt,
+      image: DAY_TRIP_IMAGE_OVERRIDES[dt.slug] || dt.image
+    }));
     res.json({ success: true, count: dayTrips.length, dayTrips });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Failed to fetch admin day trips.' });
