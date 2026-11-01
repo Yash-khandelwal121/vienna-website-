@@ -135,9 +135,9 @@ export default function TourPage({ tourKey }) {
                     display: 'flex',
                     flexWrap: 'wrap',
                     gap: '1.5rem',
-                    backgroundColor: '#FFFFFF',
-                    boxShadow: '0 10px 30px rgba(0, 0, 0, 0.05)',
-                    border: '1px solid rgba(0, 0, 0, 0.08)',
+                    backgroundColor: 'var(--bg-card)',
+                    boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)',
+                    border: '1px solid var(--border)',
                     borderRadius: 'var(--radius-lg)',
                     padding: '1.25rem 2rem',
                     maxWidth: 'fit-content',
@@ -186,8 +186,8 @@ export default function TourPage({ tourKey }) {
                 style={{
                   borderRadius: 'var(--radius-xl)',
                   overflow: 'hidden',
-                  border: '1px solid rgba(0, 0, 0, 0.08)',
-                  boxShadow: '0 20px 50px rgba(0, 0, 0, 0.08)',
+                  border: '1px solid var(--border)',
+                  boxShadow: '0 20px 50px rgba(0, 0, 0, 0.12)',
                   position: 'relative'
                 }}
               >

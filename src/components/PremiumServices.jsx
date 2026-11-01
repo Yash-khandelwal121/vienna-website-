@@ -509,6 +509,61 @@ export default function PremiumServices() {
             transition: none !important;
           }
         }
+
+        /* Dark Mode Overrides */
+        [data-theme="dark"] .vdt-premium-services {
+          background: #111418 !important;
+        }
+
+        [data-theme="dark"] .vdt-services-heading {
+          color: #F0EDE8 !important;
+        }
+
+        [data-theme="dark"] .vdt-services-description {
+          color: #B8B4AD !important;
+        }
+
+        [data-theme="dark"] .vdt-service-row {
+          border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+        }
+
+        [data-theme="dark"] .vdt-service-row.active {
+          background-color: rgba(201, 160, 79, 0.08) !important;
+        }
+
+        [data-theme="dark"] .vdt-service-number {
+          color: #C9A04F !important;
+        }
+
+        [data-theme="dark"] .vdt-service-icon {
+          background: #1C2026 !important;
+          color: #C9A04F !important;
+          border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        [data-theme="dark"] .vdt-service-row.active .vdt-service-icon {
+          background: #252B33 !important;
+          color: #DFB76C !important;
+          border-color: #C9A04F;
+        }
+
+        [data-theme="dark"] .vdt-service-text h3 {
+          color: #F0EDE8 !important;
+        }
+
+        [data-theme="dark"] .vdt-service-row.active .vdt-service-text h3 {
+          color: #DFB76C !important;
+        }
+
+        [data-theme="dark"] .vdt-service-text p {
+          color: #B8B4AD !important;
+        }
+
+        [data-theme="dark"] .vdt-services-arch {
+          background: #161A20 !important;
+          border-color: #C9A04F !important;
+          box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4) !important;
+        }
       `}</style>
 
       <section className="vdt-premium-services">

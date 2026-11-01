@@ -22,7 +22,7 @@ const S = {
   HOURLY: 52,
   STEP: 15,
   BASE: 35,
-  PER_KM: 1.45,
+  PER_KM: 1.45, // legacy fallback only
   MIN: 55,
   FIX: {
     salzburg: 595,
@@ -42,6 +42,13 @@ const S = {
     ['Vienna Sightseeing Tour', 208]
   ],
   CODES: { WELCOME10: 10 },
+  // KM-based transfer rates per vehicle (EUR per km)
+  VEHICLE_KM_RATES: {
+    sedan_business: 1.80,  // Mercedes-Benz E-Class
+    sedan_first: 2.70,     // Mercedes-Benz S-Class
+    eqs: 2.70,             // Mercedes-Benz EQS (same tier as S-Class)
+    van_business: 2.00     // Mercedes-Benz V-Class
+  },
   CARS: [
     {
       id: 'sedan_business',
@@ -49,7 +56,8 @@ const S = {
       tag: 'Business Class',
       pax: 3,
       bags: 2,
-      mult: 1,
+      mult: 1,       // kept for day-trip/hourly multiplier compatibility
+      kmRate: 1.80,  // €/km for transfers
       img: '/cars/e-class.webp'
     },
     {
@@ -59,6 +67,7 @@ const S = {
       pax: 3,
       bags: 2,
       mult: 1.5,
+      kmRate: 2.70,
       img: '/cars/s-class.webp'
     },
     {
@@ -68,6 +77,7 @@ const S = {
       pax: 3,
       bags: 2,
       mult: 1.5,
+      kmRate: 2.70,
       img: '/cars/s-class.webp'
     },
     {
@@ -77,6 +87,7 @@ const S = {
       pax: 7,
       bags: 7,
       mult: 1.35,
+      kmRate: 2.00,
       img: '/cars/v-class.webp'
     }
   ]
@@ -793,7 +804,24 @@ export default function Booking() {
     }
   }, [step, directionsData]);
 
-  // Pricing (Business Sedan base in EUR)
+  const CHILD_SEAT_RATE = 10; // EUR per child seat
+
+  // Effective KM distance for pricing (live Google Maps value or fallback estimate)
+  const effectiveKm = useMemo(() => {
+    if (mode !== 'transfer') return 0;
+    if (km > 0) return km;
+    return estimateRouteDistance(pu, dr, mode, tr).km;
+  }, [mode, km, pu, dr, tr]);
+
+  // Whether Google Maps could not compute a distance (only for transfer mode without locations)
+  const distanceUnavailable = mode === 'transfer' && effectiveKm === 0 && !pu.trim();
+
+  /**
+   * basePrice – the 'unit price' before vehicle-specific calculation:
+   * • transfer: the effective KM distance (pricing is km × rate per vehicle)
+   * • hourly:   total hours * hourly rate
+   * • daytrip:  fixed tour price
+   */
   const basePrice = useMemo(() => {
     const e = (Number(ex) / 60) * S.HOURLY;
     let b = null;
@@ -803,36 +831,32 @@ export default function Booking() {
     } else if (mode === 'daytrip') {
       b = S.TOURS[tr] ? S.TOURS[tr][1] : 208;
     } else {
-      const tx = `${pu} ${dr}`.toLowerCase();
-      for (const k in S.FIX) {
-        if (tx.indexOf(k) > -1) {
-          b = S.FIX[k];
-          break;
-        }
-      }
-      if (b === null) {
-        const est = estimateRouteDistance(pu, dr, mode, tr);
-        const effectiveKm = km > 0 ? km : est.km;
-        if (effectiveKm > 0) {
-          b = Math.max(S.MIN, S.BASE + effectiveKm * S.PER_KM);
-        } else {
-          b = S.MIN;
-        }
-      }
-      if (b !== null && ty === 'return') {
-        b *= 2;
-      }
+      // Transfer mode: return the km distance as the base (each vehicle applies its own rate)
+      // We store the raw km here; totals() multiplies by the vehicle's kmRate
+      b = effectiveKm > 0 ? effectiveKm : 0;
+      if (ty === 'return') b *= 2;
     }
-    const calculatedBase = (b !== null && !isNaN(b)) ? b : S.MIN;
-    return calculatedBase + e;
-  }, [mode, hr, tr, ex, pu, dr, km, ty]);
+    // For non-transfer modes, add extra-time charge
+    const calculatedBase = (b !== null && !isNaN(b)) ? b : 0;
+    return mode !== 'transfer' ? calculatedBase + e : calculatedBase;
+  }, [mode, hr, tr, ex, pu, dr, km, ty, effectiveKm]);
 
-  const CHILD_SEAT_RATE = 10; // EUR per child seat
-
+  /**
+   * totals – compute the per-vehicle price and final total
+   * Transfer mode uses km × vehicle.kmRate
+   * Other modes use base × vehicle.mult (existing logic)
+   */
   const totals = useMemo(() => {
-    const effectiveBase = (basePrice !== null && !isNaN(basePrice)) ? basePrice : S.MIN;
     const selectedCar = car || S.CARS[0];
-    const s = effectiveBase * selectedCar.mult;
+    let s;
+    if (mode === 'transfer') {
+      const kmDist = basePrice > 0 ? basePrice : effectiveKm;
+      const rate = selectedCar.kmRate || 1.80;
+      s = kmDist > 0 ? kmDist * rate : S.MIN;
+    } else {
+      const effectiveBase = (basePrice !== null && !isNaN(basePrice) && basePrice > 0) ? basePrice : S.MIN;
+      s = effectiveBase * selectedCar.mult;
+    }
     const childSeatCharge = Number(cs || 0) * CHILD_SEAT_RATE;
     const subtotalWithChildSeats = s + childSeatCharge;
     const d = disc ? (s * disc.p) / 100 : 0;
@@ -842,7 +866,7 @@ export default function Booking() {
       d,                            // discount applied to vehicle subtotal only
       t: subtotalWithChildSeats - d // final total in EUR
     };
-  }, [basePrice, car, disc, cs]);
+  }, [basePrice, car, disc, cs, mode, effectiveKm]);
 
   const serviceLabel = () => {
     return { transfer: 'Transfer', hourly: 'Hourly Chauffeur', daytrip: 'Day Trip' }[mode];
@@ -1016,6 +1040,8 @@ export default function Booking() {
         wt ? `Water: ${wt}` : '',
         disc ? `Discount: ${disc.c} (-${disc.p}%)` : '',
         childSeatCount > 0 ? `Child seats: ${childSeatCount} × €${CHILD_SEAT_RATE} = €${childSeatCharge}` : '',
+        // Include distance so backend can verify km-based transfer pricing
+        mode === 'transfer' && effectiveKm > 0 ? `Distance: ${Math.round(effectiveKm)} km` : '',
         totals ? `Vehicle Price: €${totals.s.toFixed(2)} | Total: €${totals.t.toFixed(2)}` : '',
         isOnline
           ? 'Payment method: Pay Online (Stripe)'
@@ -1533,11 +1559,58 @@ export default function Booking() {
               STEP 2: CHOOSE A VEHICLE
               ===================================================================== */}
           <section className={`panel ${step === 2 ? 'on' : ''}`} data-p="2">
+            {/* KM pricing info banner for transfer mode */}
+            {mode === 'transfer' && effectiveKm > 0 && (
+              <div style={{
+                background: 'linear-gradient(135deg, #fffdf8, #fdf8ed)',
+                border: '1px solid #eadfca',
+                borderRadius: '12px',
+                padding: '12px 18px',
+                marginBottom: '16px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                fontSize: '13px',
+                color: '#5a5244'
+              }}>
+                <span style={{ color: '#c9a04f', fontSize: '18px' }}>📍</span>
+                <span>
+                  Route distance: <strong style={{ color: '#1c1a17' }}>{Math.round(effectiveKm)} km</strong>
+                  {ty === 'return' && <span style={{ color: '#c9a04f' }}> (return × 2)</span>}
+                  {' '}— Prices calculated at each vehicle's per-km rate
+                </span>
+              </div>
+            )}
+            {mode === 'transfer' && effectiveKm === 0 && pu.trim() && dr.trim() && (
+              <div style={{
+                background: '#fff8e6',
+                border: '1px solid rgba(201,160,79,0.35)',
+                borderRadius: '12px',
+                padding: '12px 18px',
+                marginBottom: '16px',
+                fontSize: '13px',
+                color: '#8f6b21'
+              }}>
+                ⚠️ Route distance could not be calculated. Prices shown are estimated minimum fares.
+              </div>
+            )}
             <div id="cars">
               {S.CARS.map((vehicle) => {
                 const isSelected = car && car.id === vehicle.id;
-                const vehicleBase = (basePrice !== null && !isNaN(basePrice)) ? basePrice : S.MIN;
-                const calculatedPrice = vehicleBase * vehicle.mult;
+                // Transfer: km × rate; other modes: base × mult
+                let calculatedPrice;
+                let priceSubLabel;
+                if (mode === 'transfer') {
+                  const kmDist = effectiveKm > 0 ? (ty === 'return' ? effectiveKm * 2 : effectiveKm) : 0;
+                  calculatedPrice = kmDist > 0 ? kmDist * vehicle.kmRate : S.MIN;
+                  priceSubLabel = effectiveKm > 0
+                    ? `€${vehicle.kmRate.toFixed(2)}/km · ${Math.round(kmDist)} km`
+                    : `€${vehicle.kmRate.toFixed(2)}/km`;
+                } else {
+                  const vehicleBase = (basePrice !== null && !isNaN(basePrice) && basePrice > 0) ? basePrice : S.MIN;
+                  calculatedPrice = vehicleBase * vehicle.mult;
+                  priceSubLabel = 'fixed, all-inclusive';
+                }
                 const priceFormatted = eur(calculatedPrice);
 
                 return (
@@ -1572,7 +1645,7 @@ export default function Booking() {
                     </div>
                     <div className="price">
                       {priceFormatted}
-                      <small>fixed, all-inclusive</small>
+                      <small>{priceSubLabel}</small>
                     </div>
                   </div>
                 );

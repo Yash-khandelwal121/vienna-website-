@@ -881,3 +881,70 @@
   font-weight: 700;
   color: #C69C50;
 }
+
+/* =========================================================================
+   DARK MODE OVERRIDES — Blog Detail Page
+   ========================================================================= */
+[data-theme="dark"] .vdt-article-page {
+  background-color: #111418 !important;
+  color: #F0EDE8 !important;
+}
+
+[data-theme="dark"] .vdt-article-header {
+  background: linear-gradient(180deg, #111418 0%, #161A20 100%) !important;
+  border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+[data-theme="dark"] .vdt-article-title {
+  color: #F0EDE8 !important;
+}
+
+[data-theme="dark"] .vdt-article-subtitle {
+  color: #B8B4AD !important;
+}
+
+[data-theme="dark"] .vdt-article-share-btn {
+  background-color: #1C2026 !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  color: #B8B4AD !important;
+}
+
+[data-theme="dark"] .vdt-article-content {
+  color: #F0EDE8 !important;
+}
+
+[data-theme="dark"] .vdt-article-content p {
+  color: #B8B4AD !important;
+}
+
+[data-theme="dark"] .vdt-article-content h2,
+[data-theme="dark"] .vdt-article-content h3,
+[data-theme="dark"] .vdt-article-content h4 {
+  color: #F0EDE8 !important;
+}
+
+[data-theme="dark"] .vdt-article-content blockquote {
+  background-color: #1C2026 !important;
+  border-left-color: #C9A04F !important;
+  color: #F0EDE8 !important;
+}
+
+[data-theme="dark"] .vdt-article-author-card,
+[data-theme="dark"] .vdt-article-cta-box {
+  background: #1C2026 !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+[data-theme="dark"] .vdt-article-related-card {
+  background-color: #1C2026 !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.3) !important;
+}
+
+[data-theme="dark"] .vdt-article-related-card-title {
+  color: #F0EDE8 !important;
+}
+
+[data-theme="dark"] .vdt-article-related-card-footer {
+  border-top-color: rgba(255, 255, 255, 0.08) !important;
+}

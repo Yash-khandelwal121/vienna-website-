@@ -57,6 +57,269 @@
   --transition-slow: 0.7s var(--ease-luxury);
 }
 
+/* =====================================================================
+   DARK MODE — Premium Luxury Dark Theme
+   Deep charcoal backgrounds, elegant gold accents, soft white text
+   ===================================================================== */
+[data-theme="dark"] {
+  /* Dark backgrounds: Exact user palette */
+  --bg-main: #111418;
+  --bg-surface: #161A1F;
+  --bg-card: #1C2026;
+  --bg-card-hover: #242931;
+  --bg-card-subtle: #181C22;
+  --bg-input: #1C2026;
+
+  /* Champagne Gold Accents */
+  --accent: #C9A04F;
+  --accent-light: #1F1A10;
+  --accent-hover: #DFB86A;
+  --accent-deep: #E8C87A;
+  --accent-glow: rgba(201, 160, 79, 0.3);
+  --accent-muted: rgba(201, 160, 79, 0.12);
+  --accent-border: rgba(201, 160, 79, 0.4);
+  --accent-subtle: rgba(201, 160, 79, 0.06);
+
+  /* Refined Text Hierarchy */
+  --text-primary: #F0EDE8;
+  --text-secondary: #B8B4AD;
+  --text-muted: #7E828A;
+  --text-inverse: #111418;
+  --text-gold: #C9A04F;
+
+  /* Dark borders */
+  --border: #2E3440;
+  --border-strong: rgba(240, 237, 232, 0.12);
+  --border-accent: rgba(201, 160, 79, 0.4);
+  --border-subtle: rgba(46, 52, 64, 0.6);
+  --border-gold: rgba(201, 160, 79, 0.35);
+}
+
+/* Dark mode base overrides */
+[data-theme="dark"] html,
+[data-theme="dark"] body,
+html[data-theme="dark"],
+html[data-theme="dark"] body {
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+  background-image:
+    radial-gradient(1100px circle at 85% 20%, rgba(201, 160, 79, 0.06), transparent 60%),
+    radial-gradient(900px circle at 15% 65%, rgba(201, 160, 79, 0.04), transparent 55%),
+    radial-gradient(1000px circle at 50% 95%, rgba(17, 20, 24, 0.9), transparent 60%);
+}
+
+/* Dark scrollbar */
+[data-theme="dark"] ::-webkit-scrollbar-track { background: #161A1F; }
+[data-theme="dark"] ::-webkit-scrollbar-thumb { background: #2E3440; }
+
+/* Dark headings */
+[data-theme="dark"] h1,
+[data-theme="dark"] h2,
+[data-theme="dark"] h3,
+[data-theme="dark"] h4,
+[data-theme="dark"] h5,
+[data-theme="dark"] h6 { color: var(--text-primary); }
+
+/* Dark cards */
+[data-theme="dark"] .card-strada {
+  background: var(--bg-card);
+  border-color: var(--border);
+}
+[data-theme="dark"] .card-strada:hover {
+  border-color: var(--accent-border);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4), 0 0 30px rgba(201, 160, 79, 0.15);
+}
+
+/* Dark inputs */
+[data-theme="dark"] .input-strada {
+  background-color: var(--bg-input);
+  border-color: var(--border);
+  color: var(--text-primary);
+}
+[data-theme="dark"] .input-strada:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(201, 160, 79, 0.2);
+}
+[data-theme="dark"] .input-strada::placeholder { color: var(--text-muted); }
+[data-theme="dark"] select.input-strada option {
+  background-color: #1E2228;
+  color: var(--text-primary);
+}
+
+/* Dark buttons */
+[data-theme="dark"] .btn-secondary {
+  background-color: var(--bg-card);
+  color: var(--text-primary);
+  border-color: var(--border);
+}
+[data-theme="dark"] .btn-secondary:hover {
+  border-color: var(--accent);
+  color: var(--text-gold);
+  background-color: var(--accent-light);
+}
+
+/* Dark Navbar */
+[data-theme="dark"] .main-header {
+  background-color: rgba(17, 20, 24, 0.98) !important;
+  border-bottom-color: #2E3440 !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4) !important;
+}
+[data-theme="dark"] .brand-logo-text-main { color: #F0EDE8 !important; }
+[data-theme="dark"] .main-header a { color: #F0EDE8 !important; }
+[data-theme="dark"] .main-header a:hover { color: #C9A04F !important; }
+[data-theme="dark"] .desktop-nav a { color: #BDBFCA !important; }
+[data-theme="dark"] .desktop-nav a:hover { color: #C9A04F !important; }
+
+/* Dark Navbar dropdown */
+[data-theme="dark"] .main-header [role="menu"],
+[data-theme="dark"] .main-header [style*="backgroundColor: '#FFFFFF'"] {
+  background: #1E2228 !important;
+  border-color: #2E3440 !important;
+}
+[data-theme="dark"] .main-header [role="menuitem"]:hover {
+  background-color: #252B33 !important;
+}
+
+/* Dark mobile drawer */
+[data-theme="dark"] .mobile-nav-drawer {
+  background-color: #111418 !important;
+  border-color: #2E3440 !important;
+}
+[data-theme="dark"] .mobile-nav-drawer a { color: #F0EDE8 !important; }
+[data-theme="dark"] .mobile-nav-drawer > div { border-color: #2E3440 !important; }
+
+/* Dark lang selector */
+[data-theme="dark"] .lang-selector-wrapper button {
+  background-color: #1E2228 !important;
+  border-color: #2E3440 !important;
+  color: #F0EDE8 !important;
+}
+
+/* Dark vdt-section */
+[data-theme="dark"] .vdt-section { background: var(--bg-main); }
+[data-theme="dark"] .vdt-card {
+  background: var(--bg-card) !important;
+  border-color: var(--border) !important;
+}
+[data-theme="dark"] .vdt-card h3 { color: var(--text-primary) !important; }
+[data-theme="dark"] .vdt-category { color: var(--text-gold) !important; }
+[data-theme="dark"] .vdt-description { color: var(--text-secondary) !important; }
+[data-theme="dark"] .vdt-outline-btn {
+  color: var(--text-gold) !important;
+  border-color: var(--border-accent) !important;
+}
+[data-theme="dark"] .vdt-outline-btn:hover {
+  background: var(--accent) !important;
+  color: #FFFFFF !important;
+}
+[data-theme="dark"] .vdt-section-heading h2 { color: var(--text-primary); }
+[data-theme="dark"] .vdt-section-heading p { color: var(--text-secondary); }
+[data-theme="dark"] .vdt-gallery { background: var(--bg-surface); }
+
+/* Dark booking form */
+[data-theme="dark"] .booking-vdt-root {
+  --cream: #111418;
+  --ink: #F0EDE8;
+  --mute: #9A9690;
+  --line: #2E3440;
+  --soft: #1A1E24;
+  --gold-s: #1F1A10;
+  background: #111418;
+  color: #F0EDE8;
+}
+[data-theme="dark"] .booking-vdt-root .card { background: #1E2228; border-color: #2E3440; }
+[data-theme="dark"] .booking-vdt-root .box { background: #1E2228; border-color: #2E3440; }
+[data-theme="dark"] .booking-vdt-root .sec { background: #1A1E24; color: #F0EDE8; }
+[data-theme="dark"] .booking-vdt-root .f { border-color: #2E3440; }
+[data-theme="dark"] .booking-vdt-root .f input,
+[data-theme="dark"] .booking-vdt-root .f select,
+[data-theme="dark"] .booking-vdt-root .f textarea {
+  color: #F0EDE8;
+  background: transparent;
+}
+[data-theme="dark"] .booking-vdt-root .f:focus-within { background: #1A1E24; }
+[data-theme="dark"] .booking-vdt-root .hero {
+  background: radial-gradient(600px 300px at 90% 0, rgba(201, 160, 79, 0.15), transparent 70%),
+              linear-gradient(180deg, #111418, #161A1F);
+  border-color: #2E3440;
+}
+[data-theme="dark"] .booking-vdt-root .hero h1 { color: #F0EDE8; }
+[data-theme="dark"] .booking-vdt-root .hero p { color: #A8A4A0; }
+[data-theme="dark"] .booking-vdt-root .eb { background: #1E2228; border-color: #2E3440; color: #C9A04F; }
+[data-theme="dark"] .booking-vdt-root .ticks li { background: #1E2228; border-color: #2E3440; color: #F0EDE8; }
+[data-theme="dark"] .booking-vdt-root .step i { background: #1A1E24; color: #F0EDE8; }
+[data-theme="dark"] .booking-vdt-root .step { color: #A8A4A0; }
+[data-theme="dark"] .booking-vdt-root .step.on { color: #F0EDE8; }
+[data-theme="dark"] .booking-vdt-root .step.on i { background: #C9A04F; color: #111418; }
+[data-theme="dark"] .booking-vdt-root .step.done i { background: #C9A04F; color: #111418; }
+[data-theme="dark"] .booking-vdt-root .car { background: #1E2228; border-color: #2E3440; }
+[data-theme="dark"] .booking-vdt-root .car h3 { color: #F0EDE8; }
+[data-theme="dark"] .booking-vdt-root .car p { color: #A8A4A0; }
+[data-theme="dark"] .booking-vdt-root .sc { background: #1A1E24; }
+[data-theme="dark"] .booking-vdt-root .sh h3 { color: #F0EDE8; }
+[data-theme="dark"] .booking-vdt-root .r { border-color: #2E3440; }
+[data-theme="dark"] .booking-vdt-root .r b { color: #F0EDE8; }
+[data-theme="dark"] .booking-vdt-root .r span { color: #9A9690; }
+[data-theme="dark"] .booking-vdt-root .pr { border-color: #2E3440; }
+[data-theme="dark"] .booking-vdt-root .ed { background: #1E2228; border-color: #2E3440; color: #F0EDE8; }
+[data-theme="dark"] .booking-vdt-root .disc input { background: #1E2228; border-color: #2E3440; color: #F0EDE8; }
+[data-theme="dark"] .booking-vdt-root .disc button { background: #252B33; border-color: #2E3440; color: #F0EDE8; }
+[data-theme="dark"] .booking-vdt-root .trust div { background: #1E2228; border-color: #2E3440; }
+[data-theme="dark"] .booking-vdt-root .trust h3 { color: #F0EDE8; }
+[data-theme="dark"] .booking-vdt-root .trust p { color: #A8A4A0; }
+[data-theme="dark"] .booking-vdt-root .ok { background: #1A1510; border-color: #C9A04F; }
+[data-theme="dark"] .booking-vdt-root .seo { color: #F0EDE8; }
+[data-theme="dark"] .booking-vdt-root .sk { background: #1E2228; border-color: #2E3440; }
+[data-theme="dark"] .booking-vdt-root .stats { background: #1E2228; border-color: #2E3440; }
+[data-theme="dark"] .booking-vdt-root .stats div + div { border-color: #2E3440; }
+[data-theme="dark"] .booking-vdt-root .map { background: linear-gradient(135deg, #1A1E24, #1F1A10); border-color: rgba(201,160,79,0.4); }
+[data-theme="dark"] .booking-vdt-root .map-notice-overlay { background: rgba(17,20,24,0.94); }
+[data-theme="dark"] .booking-vdt-root .map-notice-card { background: #1E2228; border-color: rgba(201,160,79,0.4); }
+[data-theme="dark"] .booking-vdt-root .map-notice-details { background: #1A1E24; border-color: #2E3440; }
+[data-theme="dark"] .booking-vdt-root details { border-color: #2E3440; }
+[data-theme="dark"] .booking-vdt-root summary { color: #F0EDE8; }
+[data-theme="dark"] .booking-vdt-root .rev figure { background: #1E2228; border-color: #2E3440; }
+[data-theme="dark"] .booking-vdt-root .rev blockquote { color: #C8C5C0; }
+[data-theme="dark"] .booking-vdt-root .rev b { color: #F0EDE8; }
+[data-theme="dark"] .booking-vdt-root .lk a { background: #1E2228; border-color: #2E3440; color: #F0EDE8; }
+[data-theme="dark"] .booking-vdt-root .lk a:hover { background: #1A1510; border-color: #C9A04F; }
+[data-theme="dark"] .booking-vdt-root .ttb-ac { background: #1E2228; border-color: #2E3440; }
+[data-theme="dark"] .booking-vdt-root .ttb-ac li { color: #F0EDE8; border-color: #252B33; }
+[data-theme="dark"] .booking-vdt-root .ttb-ac li:hover { background: #252B33; color: #C9A04F; }
+
+/* Google Places autocomplete dark */
+[data-theme="dark"] .pac-container {
+  background: #1E2228 !important;
+  border-color: #2E3440 !important;
+  box-shadow: 0 16px 36px rgba(0,0,0,0.5) !important;
+}
+[data-theme="dark"] .pac-item { color: #F0EDE8 !important; border-color: #252B33 !important; }
+[data-theme="dark"] .pac-item:hover { background: #252B33 !important; }
+[data-theme="dark"] .pac-item-query { color: #F0EDE8 !important; }
+[data-theme="dark"] .pac-matched { color: #C9A04F !important; }
+
+/* Dark blog */
+[data-theme="dark"] .blog-article-content { color: #C8C5C0; }
+[data-theme="dark"] .blog-article-content h2,
+[data-theme="dark"] .blog-article-content h3,
+[data-theme="dark"] .blog-article-content h4 { color: #F0EDE8; border-color: #2E3440; }
+[data-theme="dark"] .blog-article-content p { color: #C0BDB8; }
+[data-theme="dark"] .blog-article-content blockquote { background: #1E2228; border-color: #2E3440; color: #A8A4A0; }
+[data-theme="dark"] .blog-article-content table { background: #1E2228; border-color: #2E3440; }
+[data-theme="dark"] .blog-article-content th { background: #1A1E24; color: #F0EDE8; border-color: #2E3440; }
+[data-theme="dark"] .blog-article-content td { border-color: #2E3440; color: #C0BDB8; }
+[data-theme="dark"] .blog-article-content tr:nth-child(even) td { background: #1A1E24; }
+
+/* Dark marquee */
+[data-theme="dark"] .marquee-container {
+  background-color: var(--bg-surface);
+  border-color: var(--border);
+}
+[data-theme="dark"] .marquee-item { color: var(--text-primary); }
+
+/* Dark vdt-services-hero keeps its own dark theme */
+
+
 /* Base & Reset */
 *, *::before, *::after {
   box-sizing: border-box;
@@ -1528,3 +1791,203 @@ select.input-strada option {
 
 
 
+
+/* =========================================================================
+   VIENNA DAY TRIP — GLOBAL MOBILE RESPONSIVENESS
+   Covers Navbar, Homepage, Fleet, About, Contact, Blog, Footer
+   Breakpoints: 320px | 390px | 430px | 768px | 1024px | 1280px | 1440px
+   ========================================================================= */
+
+/* ────────────────────────────────────────────────
+   NAVBAR / HEADER
+   ──────────────────────────────────────────────── */
+.main-header {
+  height: 66px;
+}
+.main-header-inner {
+  height: 66px;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+/* Hide desktop nav on mobile/tablet */
+@media (max-width: 1024px) {
+  .desktop-nav { display: none !important; }
+  .header-book-btn { display: none !important; }
+  .lang-selector-wrapper { display: none !important; }
+}
+
+/* Show hamburger only on mobile/tablet */
+@media (min-width: 1025px) {
+  .mobile-menu-toggle { display: none !important; }
+  #theme-toggle-btn { display: inline-flex !important; }
+}
+
+@media (max-width: 1024px) {
+  #theme-toggle-btn { display: inline-flex !important; }
+  .brand-logo-frame { width: 40px !important; height: 40px !important; }
+  .brand-logo-text-main { font-size: 0.85rem !important; }
+}
+
+@media (max-width: 430px) {
+  .brand-logo-text-main { display: none !important; }
+  .brand-logo-frame { width: 36px !important; height: 36px !important; }
+}
+
+/* ────────────────────────────────────────────────
+   HERO BANNER (Home page)
+   ──────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .hero-rounded-banner {
+    border-radius: 16px !important;
+    margin: 8px !important;
+    min-height: 70vh !important;
+  }
+  .hero-left-col {
+    padding: 24px 20px !important;
+    max-width: 100% !important;
+  }
+  .hero-eyebrow-container {
+    flex-wrap: wrap;
+  }
+}
+
+/* ────────────────────────────────────────────────
+   CONTAINER / SECTION SPACING
+   ──────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .container, .container-narrow, .container-wide {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+  .section {
+    padding-top: clamp(1.5rem, 4vw, 2.5rem);
+    padding-bottom: clamp(1.5rem, 4vw, 2.5rem);
+  }
+}
+
+/* ────────────────────────────────────────────────
+   GRIDS → Stack on mobile
+   ──────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr !important; }
+}
+@media (max-width: 1024px) {
+  .grid-4 { grid-template-columns: repeat(2, 1fr) !important; }
+  .grid-3 { grid-template-columns: repeat(2, 1fr) !important; }
+}
+
+/* ────────────────────────────────────────────────
+   CARDS / FLEET / SERVICES
+   ──────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .card-strada { padding: 1.25rem !important; border-radius: 18px !important; }
+  .vdt-card h3 { font-size: 22px !important; }
+  .vdt-service-image { height: 180px !important; }
+  .vdt-fleet-image { height: 200px !important; }
+  .vdt-grid { gap: 16px !important; }
+  .vdt-gallery-grid { grid-template-columns: 1fr !important; gap: 14px !important; }
+  .vdt-gallery-card { height: 220px !important; border-radius: 14px !important; }
+  .vdt-gallery-card-content h3 { font-size: 21px !important; }
+}
+
+/* ────────────────────────────────────────────────
+   HEADINGS — prevent overflow on small screens
+   ──────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  h1 { font-size: clamp(1.6rem, 5.5vw, 2.2rem) !important; }
+  h2 { font-size: clamp(1.35rem, 4.5vw, 1.85rem) !important; }
+  h3 { font-size: clamp(1.1rem, 3.5vw, 1.4rem) !important; }
+  .heading-massive { font-size: clamp(1.6rem, 5.5vw, 2.2rem) !important; }
+  .heading-xl { font-size: clamp(1.4rem, 5vw, 2rem) !important; }
+  .heading-lg { font-size: clamp(1.2rem, 4vw, 1.6rem) !important; }
+}
+
+/* ────────────────────────────────────────────────
+   BUTTONS — full-width on very small screens
+   ──────────────────────────────────────────────── */
+@media (max-width: 390px) {
+  .btn { padding: 0.85rem 1.4rem !important; font-size: 0.88rem !important; }
+}
+
+/* ────────────────────────────────────────────────
+   SERVICES CINEMATIC HERO
+   ──────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .vdt-services-hero {
+    width: calc(100% - 24px) !important;
+    height: 420px !important;
+    margin: 10px auto 24px !important;
+    border-radius: 14px !important;
+  }
+  .vdt-services-hero-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    grid-template-rows: repeat(2, 1fr) !important;
+  }
+  .vdt-services-center h1,
+  .vdt-services-center h2 { font-size: 30px !important; }
+}
+
+/* ────────────────────────────────────────────────
+   FLEET PAGE
+   ──────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .fleet-hero-content { padding: 20px !important; }
+  .fleet-vehicle-grid { grid-template-columns: 1fr !important; }
+}
+
+/* ────────────────────────────────────────────────
+   ABOUT / CONTACT PAGES
+   ──────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .about-grid, .contact-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ────────────────────────────────────────────────
+   BLOG
+   ──────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .blog-article-content { font-size: 1rem !important; }
+  .blog-article-content h2 { font-size: clamp(1.35rem, 4.5vw, 1.8rem) !important; }
+  .blog-article-content h3 { font-size: clamp(1.15rem, 4vw, 1.5rem) !important; }
+}
+
+/* ────────────────────────────────────────────────
+   FOOTER
+   ──────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .footer-grid, .vienna-footer-grid {
+    grid-template-columns: 1fr !important;
+    gap: 2rem !important;
+  }
+  .footer-bottom-bar {
+    flex-direction: column !important;
+    gap: 0.75rem !important;
+    text-align: center !important;
+  }
+}
+
+/* ────────────────────────────────────────────────
+   MARQUEE — allow scroll on mobile instead of animation
+   ──────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .marquee-container {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+  .marquee-content {
+    animation: none !important;
+    width: auto !important;
+  }
+}
+
+/* ────────────────────────────────────────────────
+   PREVENT HORIZONTAL OVERFLOW GLOBALLY
+   ──────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  img { max-width: 100%; height: auto; }
+  table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  pre, code { overflow-x: auto; white-space: pre-wrap; word-break: break-word; }
+}

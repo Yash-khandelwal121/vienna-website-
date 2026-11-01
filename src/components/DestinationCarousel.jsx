@@ -207,9 +207,9 @@ export default function DestinationCarousel() {
               position: 'relative',
               borderRadius: 'var(--radius-xl)',
               overflow: 'hidden',
-              backgroundColor: '#FFFFFF',
-              border: '1px solid rgba(0, 0, 0, 0.08)',
-              boxShadow: '0 10px 30px rgba(0, 0, 0, 0.04)',
+              backgroundColor: 'var(--bg-card)',
+              border: '1px solid var(--border)',
+              boxShadow: '0 10px 30px rgba(0, 0, 0, 0.15)',
               display: 'flex',
               flexDirection: 'column',
               transition: 'all 0.35s cubic-bezier(0.16, 1, 0.3, 1)'
@@ -255,9 +255,9 @@ export default function DestinationCarousel() {
                 <span
                   style={{
                     padding: '0.35rem 0.8rem',
-                    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                    backgroundColor: 'var(--bg-card)',
                     backdropFilter: 'blur(10px)',
-                    border: '1px solid rgba(197, 160, 89, 0.4)',
+                    border: '1px solid var(--border)',
                     borderRadius: 'var(--radius-full)',
                     fontFamily: 'var(--font-display)',
                     fontSize: '1.05rem',
@@ -272,9 +272,9 @@ export default function DestinationCarousel() {
                 <span
                   style={{
                     padding: '0.35rem 0.85rem',
-                    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                    backgroundColor: 'var(--bg-card)',
                     backdropFilter: 'blur(10px)',
-                    border: '1px solid rgba(0, 0, 0, 0.08)',
+                    border: '1px solid var(--border)',
                     borderRadius: 'var(--radius-full)',
                     fontFamily: 'var(--font-heading)',
                     fontSize: '0.74rem',
@@ -290,7 +290,7 @@ export default function DestinationCarousel() {
               </div>
             </div>
 
-            {/* Bottom Card Content - Pure Crisp White Body */}
+            {/* Bottom Card Content */}
             <div
               style={{
                 padding: '1.75rem',
@@ -298,7 +298,7 @@ export default function DestinationCarousel() {
                 flexDirection: 'column',
                 flexGrow: 1,
                 justifyContent: 'space-between',
-                backgroundColor: '#FFFFFF'
+                backgroundColor: 'var(--bg-card)'
               }}
             >
               <div>

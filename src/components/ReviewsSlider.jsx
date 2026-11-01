@@ -93,11 +93,11 @@ export default function ReviewsSlider() {
               display: 'flex',
               alignItems: 'center',
               gap: '0.65rem',
-              backgroundColor: '#FFFFFF',
+              backgroundColor: 'var(--bg-card)',
               padding: '0.65rem 1.25rem',
               borderRadius: 'var(--radius-full)',
-              border: '1px solid #E6D8C3',
-              boxShadow: '0 4px 15px rgba(23, 25, 28, 0.04)'
+              border: '1px solid var(--border)',
+              boxShadow: '0 4px 15px rgba(0, 0, 0, 0.08)'
             }}
           >
             <div style={{ display: 'flex', color: '#C69C50', gap: '2px' }}>
@@ -105,7 +105,7 @@ export default function ReviewsSlider() {
                 <Star key={i} size={15} fill="#C69C50" />
               ))}
             </div>
-            <span style={{ fontFamily: 'var(--font-heading)', fontSize: '0.92rem', fontWeight: 700, color: '#17191C' }}>
+            <span style={{ fontFamily: 'var(--font-heading)', fontSize: '0.92rem', fontWeight: 700, color: 'var(--text-primary)' }}>
               5.0 / 5.0 (150+ Google Reviews)
             </span>
           </div>
@@ -120,15 +120,15 @@ export default function ReviewsSlider() {
                 width: '42px',
                 height: '42px',
                 borderRadius: '50%',
-                backgroundColor: '#FFFFFF',
-                border: '1px solid #E6D8C3',
-                color: '#17191C',
+                backgroundColor: 'var(--bg-card)',
+                border: '1px solid var(--border)',
+                color: 'var(--text-primary)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+                boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.borderColor = '#C69C50';
@@ -136,8 +136,8 @@ export default function ReviewsSlider() {
                 e.currentTarget.style.transform = 'translateX(-2px)';
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = '#E6D8C3';
-                e.currentTarget.style.color = '#17191C';
+                e.currentTarget.style.borderColor = 'var(--border)';
+                e.currentTarget.style.color = 'var(--text-primary)';
                 e.currentTarget.style.transform = 'translateX(0)';
               }}
             >
@@ -151,15 +151,15 @@ export default function ReviewsSlider() {
                 width: '42px',
                 height: '42px',
                 borderRadius: '50%',
-                backgroundColor: '#FFFFFF',
-                border: '1px solid #E6D8C3',
-                color: '#17191C',
+                backgroundColor: 'var(--bg-card)',
+                border: '1px solid var(--border)',
+                color: 'var(--text-primary)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+                boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.borderColor = '#C69C50';
@@ -167,8 +167,8 @@ export default function ReviewsSlider() {
                 e.currentTarget.style.transform = 'translateX(2px)';
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = '#E6D8C3';
-                e.currentTarget.style.color = '#17191C';
+                e.currentTarget.style.borderColor = 'var(--border)';
+                e.currentTarget.style.color = 'var(--text-primary)';
                 e.currentTarget.style.transform = 'translateX(0)';
               }}
             >
@@ -198,15 +198,15 @@ export default function ReviewsSlider() {
             className="review-slide-card"
             style={{
               scrollSnapAlign: 'start',
-              backgroundColor: '#FFFFFF',
-              border: '1px solid #E6D8C3',
+              backgroundColor: 'var(--bg-card)',
+              border: '1px solid var(--border)',
               borderRadius: 'var(--radius-xl)',
               padding: '2.25rem',
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'space-between',
               transition: 'all 0.3s ease',
-              boxShadow: '0 8px 24px rgba(23, 25, 28, 0.04)',
+              boxShadow: '0 8px 24px rgba(0, 0, 0, 0.12)',
               minHeight: '280px'
             }}
           >
@@ -224,7 +224,7 @@ export default function ReviewsSlider() {
               {/* Review Text */}
               <p
                 style={{
-                  color: '#17191C',
+                  color: 'var(--text-primary)',
                   fontSize: '0.96rem',
                   lineHeight: '1.7',
                   fontStyle: 'italic',
@@ -242,7 +242,7 @@ export default function ReviewsSlider() {
             {/* Customer Author & Source Badge */}
             <div
               style={{
-                borderTop: '1px solid #F0ECE4',
+                borderTop: '1px solid var(--border-subtle)',
                 paddingTop: '1.2rem',
                 display: 'flex',
                 justifyContent: 'space-between',
@@ -250,10 +250,10 @@ export default function ReviewsSlider() {
               }}
             >
               <div>
-                <div style={{ fontFamily: 'var(--font-heading)', fontSize: '1.12rem', fontWeight: 700, color: '#17191C' }}>
+                <div style={{ fontFamily: 'var(--font-heading)', fontSize: '1.12rem', fontWeight: 700, color: 'var(--text-primary)' }}>
                   {rev.name}
                 </div>
-                <div style={{ fontSize: '0.8rem', color: '#8E929B', marginTop: '0.15rem' }}>
+                <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.15rem' }}>
                   {rev.source}
                 </div>
               </div>
@@ -276,7 +276,7 @@ export default function ReviewsSlider() {
           justifyContent: 'center',
           marginTop: '1.5rem',
           paddingTop: '1.5rem',
-          borderTop: '1px solid #E6D8C3'
+          borderTop: '1px solid var(--border)'
         }}
       >
         <a

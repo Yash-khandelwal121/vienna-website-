@@ -944,3 +944,86 @@
     font-size: 0.78rem;
   }
 }
+
+/* =========================================================================
+   DARK MODE OVERRIDES — Blog Listing Page
+   ========================================================================= */
+[data-theme="dark"] .vdt-blog-page {
+  background-color: #111418 !important;
+  color: #F0EDE8 !important;
+}
+
+[data-theme="dark"] .vdt-blog-hero-card {
+  background: linear-gradient(135deg, #1C2026 0%, #161A20 100%) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.4) !important;
+}
+
+[data-theme="dark"] .vdt-blog-hero-title {
+  color: #F0EDE8 !important;
+}
+
+[data-theme="dark"] .vdt-blog-hero-desc {
+  color: #B8B4AD !important;
+}
+
+[data-theme="dark"] .vdt-blog-search-box {
+  background: #1C2026 !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+[data-theme="dark"] .vdt-blog-search-input {
+  color: #F0EDE8 !important;
+}
+
+[data-theme="dark"] .vdt-category-pill {
+  background: #1C2026 !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  color: #B8B4AD !important;
+}
+
+[data-theme="dark"] .vdt-category-pill:hover,
+[data-theme="dark"] .vdt-category-pill.active {
+  background: #C9A04F !important;
+  color: #111418 !important;
+  border-color: #C9A04F !important;
+}
+
+[data-theme="dark"] .vdt-blog-card {
+  background: #1C2026 !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3) !important;
+}
+
+[data-theme="dark"] .vdt-card-title {
+  color: #F0EDE8 !important;
+}
+
+[data-theme="dark"] .vdt-card-excerpt {
+  color: #B8B4AD !important;
+}
+
+[data-theme="dark"] .vdt-recommended-card {
+  background: #1C2026 !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+[data-theme="dark"] .vdt-recommended-item-title {
+  color: #F0EDE8 !important;
+}
+
+[data-theme="dark"] .vdt-journal-title {
+  color: #F0EDE8 !important;
+}
+
+[data-theme="dark"] .vdt-page-btn,
+[data-theme="dark"] .vdt-page-nav-btn {
+  background: #1C2026 !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  color: #F0EDE8 !important;
+}
+
+[data-theme="dark"] .vdt-page-btn.active {
+  background: #C9A04F !important;
+  color: #111418 !important;
+}

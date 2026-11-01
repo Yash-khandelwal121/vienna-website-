@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, ChevronDown, Globe, Calendar, ArrowUpRight, Phone, MessageSquare, Check } from 'lucide-react';
 import { siteConfig, navLinks } from '../data/site';
 import { useLanguage, LANGUAGES } from '../context/LanguageContext';
+import { useTheme, THEME_DARK, THEME_LIGHT } from '../context/ThemeContext';
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -12,6 +13,7 @@ export default function Navbar() {
   const [mobileLangOpen, setMobileLangOpen] = useState(false);
   const location = useLocation();
   const { language, setLanguage, t } = useLanguage();
+  const { effectiveTheme, toggleTheme } = useTheme();
   const langRef = useRef(null);
   const desktopNavRef = useRef(null);
 
@@ -344,8 +346,42 @@ export default function Navbar() {
             })}
           </nav>
 
-          {/* Right Header Controls (RIGHT): 🌐 EN ▾ | BOOK NOW */}
+          {/* Right Header Controls (RIGHT): 🌐 EN ▾ | 🌙 | BOOK NOW */}
           <div className="header-controls" style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', flexShrink: 0 }}>
+            {/* Theme Toggle Button */}
+            <button
+              type="button"
+              id="theme-toggle-btn"
+              onClick={toggleTheme}
+              aria-label={effectiveTheme === THEME_DARK ? 'Switch to light mode' : 'Switch to dark mode'}
+              title={effectiveTheme === THEME_DARK ? 'Switch to light mode' : 'Switch to dark mode'}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '38px',
+                height: '38px',
+                backgroundColor: effectiveTheme === THEME_DARK ? '#1E2228' : '#FFFFFF',
+                border: `1px solid ${effectiveTheme === THEME_DARK ? '#2E3440' : '#E6D8C3'}`,
+                borderRadius: '50%',
+                cursor: 'pointer',
+                fontSize: '18px',
+                lineHeight: 1,
+                transition: 'all 0.25s ease',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+                flexShrink: 0
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = '#C69C50';
+                e.currentTarget.style.transform = 'scale(1.1)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = effectiveTheme === THEME_DARK ? '#2E3440' : '#E6D8C3';
+                e.currentTarget.style.transform = 'scale(1)';
+              }}
+            >
+              {effectiveTheme === THEME_DARK ? '☀️' : '🌙'}
+            </button>
             {/* PART 3: SIX-LANGUAGE DROPDOWN */}
             <div ref={langRef} style={{ position: 'relative' }} className="lang-selector-wrapper">
               <button
@@ -528,15 +564,44 @@ export default function Navbar() {
           style={{
             position: 'fixed',
             inset: 0,
-            backgroundColor: '#FAF8F4',
+            backgroundColor: effectiveTheme === 'dark' ? '#111418' : '#FAF8F4',
             zIndex: 999,
             overflowY: 'auto',
             display: 'flex',
             flexDirection: 'column',
             gap: '1.25rem',
-            borderTop: '1px solid #E6D8C3'
+            borderTop: `1px solid ${effectiveTheme === 'dark' ? '#2E3440' : '#E6D8C3'}`,
+            padding: '1.25rem 1.5rem'
           }}
         >
+          {/* Mobile Theme Toggle */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.5rem 0' }}>
+            <span style={{ fontFamily: 'var(--font-body)', fontSize: '0.92rem', fontWeight: 600, color: effectiveTheme === 'dark' ? '#F0EDE8' : '#17191C' }}>
+              {effectiveTheme === 'dark' ? '🌙 Dark Mode' : '☀️ Light Mode'}
+            </span>
+            <button
+              type="button"
+              id="mobile-theme-toggle-btn"
+              onClick={toggleTheme}
+              aria-label={effectiveTheme === THEME_DARK ? 'Switch to light mode' : 'Switch to dark mode'}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '0.45rem 1rem',
+                backgroundColor: effectiveTheme === THEME_DARK ? '#1E2228' : '#FFFFFF',
+                border: `1px solid ${effectiveTheme === THEME_DARK ? '#2E3440' : '#E6D8C3'}`,
+                borderRadius: '20px',
+                cursor: 'pointer',
+                fontSize: '13px',
+                fontWeight: 600,
+                color: effectiveTheme === THEME_DARK ? '#F0EDE8' : '#17191C',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              {effectiveTheme === THEME_DARK ? '☀️ Light' : '🌙 Dark'}
+            </button>
+          </div>
           {/* Mobile Language Selector */}
           <div
             style={{

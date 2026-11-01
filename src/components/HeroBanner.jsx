@@ -1835,6 +1835,143 @@ export default function HeroBanner() {
             padding-top: 0.65rem;
           }
         }
+
+        /* =============================================================
+           DARK MODE OVERRIDES — Hero Banner & Booking Form
+           ============================================================= */
+        [data-theme="dark"] .hero-palace-gradient {
+          background: linear-gradient(
+            90deg,
+            rgba(17, 20, 24, 0.96) 0%,
+            rgba(17, 20, 24, 0.88) 28%,
+            rgba(17, 20, 24, 0.45) 44%,
+            rgba(17, 20, 24, 0.1) 56%,
+            transparent 68%
+          ) !important;
+        }
+
+        [data-theme="dark"] .hero-heading {
+          color: #F0EDE8 !important;
+        }
+
+        [data-theme="dark"] .hero-description {
+          color: #B8B4AD !important;
+        }
+
+        [data-theme="dark"] .hero-highlight-label {
+          color: #F0EDE8 !important;
+        }
+
+        [data-theme="dark"] .vdt-ref-tab-btn {
+          background-color: #1C2026 !important;
+          color: #F0EDE8 !important;
+          border-color: rgba(255, 255, 255, 0.1) !important;
+          box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3) !important;
+        }
+
+        [data-theme="dark"] .vdt-ref-tab-btn:hover {
+          border-color: #C9A04F !important;
+        }
+
+        [data-theme="dark"] .vdt-ref-tab-btn.active {
+          background-color: #C9A04F !important;
+          color: #111418 !important;
+          border-color: #C9A04F !important;
+        }
+
+        [data-theme="dark"] .vdt-ref-form-card {
+          background-color: #1C2026 !important;
+          border-color: rgba(255, 255, 255, 0.1) !important;
+          box-shadow: 0 16px 45px rgba(0, 0, 0, 0.45) !important;
+        }
+
+        [data-theme="dark"] .vdt-ref-grid-row:not(:last-child) {
+          border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+        }
+
+        [data-theme="dark"] .vdt-ref-cell:not(:last-child) {
+          border-right-color: rgba(255, 255, 255, 0.08) !important;
+        }
+
+        [data-theme="dark"] .vdt-ref-cell-label {
+          color: #B8B4AD !important;
+        }
+
+        [data-theme="dark"] .vdt-ref-help {
+          background: #252B33 !important;
+          color: #B8B4AD !important;
+        }
+
+        [data-theme="dark"] .vdt-ref-cell-input,
+        [data-theme="dark"] .vdt-ref-cell-select {
+          color: #F0EDE8 !important;
+          color-scheme: dark;
+        }
+
+        [data-theme="dark"] .vdt-ref-cell-select option {
+          background-color: #1C2026 !important;
+          color: #F0EDE8 !important;
+        }
+
+        [data-theme="dark"] .vdt-ref-cell-input::placeholder {
+          color: #6E727A !important;
+        }
+
+        [data-theme="dark"] .vdt-ref-chevron {
+          color: #B8B4AD !important;
+        }
+
+        [data-theme="dark"] .vdt-ref-suggestions-menu {
+          background: #1C2026 !important;
+          border-color: rgba(255, 255, 255, 0.12) !important;
+          box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5) !important;
+        }
+
+        [data-theme="dark"] .vdt-ref-suggestion-item {
+          color: #F0EDE8 !important;
+        }
+
+        [data-theme="dark"] .vdt-ref-suggestion-item:hover {
+          background: #252B33 !important;
+          color: #C9A04F !important;
+        }
+
+        [data-theme="dark"] .vdt-ref-quote-btn {
+          background-color: #C9A04F !important;
+          color: #111418 !important;
+        }
+
+        [data-theme="dark"] .vdt-ref-quote-btn:hover {
+          background-color: #DFB76C !important;
+          color: #111418 !important;
+        }
+
+        [data-theme="dark"] .hero-trust-inner-card {
+          background-color: #1C2026 !important;
+          border-color: rgba(255, 255, 255, 0.08) !important;
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35) !important;
+        }
+
+        [data-theme="dark"] .hero-trust-bordered {
+          border-left-color: rgba(255, 255, 255, 0.08) !important;
+        }
+
+        [data-theme="dark"] .hero-trust-title {
+          color: #F0EDE8 !important;
+        }
+
+        [data-theme="dark"] .hero-trust-sub {
+          color: #B8B4AD !important;
+        }
+
+        @media (max-width: 768px) {
+          [data-theme="dark"] .vdt-ref-cell:not(:last-child) {
+            border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+          }
+          [data-theme="dark"] .hero-trust-bordered {
+            border-top-color: rgba(255, 255, 255, 0.08) !important;
+          }
+        }
       `}</style>
     </div>
   );

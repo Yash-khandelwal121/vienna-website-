@@ -817,3 +817,171 @@
     padding: 11px 16px;
   }
 }
+
+/* =========================================================================
+   DARK MODE — Vienna Footer
+   Complete dark theme implementation matching exact palette:
+   Background: #111418 | Cards: #1C2026 | Text: #F0EDE8 | Muted: #B8B4AD | Gold: #C9A04F
+   ========================================================================= */
+[data-theme="dark"] .lux-footer {
+  --cream: #111418;
+  --cream-card: #1C2026;
+  --dark: #F0EDE8;
+  --muted: #B8B4AD;
+  --border-light: #2E3440;
+  background: #111418 !important;
+  color: #F0EDE8 !important;
+}
+
+[data-theme="dark"] .lux-footer-top {
+  background: linear-gradient(
+    180deg,
+    rgba(17, 20, 24, 0.88) 0%,
+    rgba(17, 20, 24, 0.98) 100%
+  ),
+  url("/images/footer-vienna.jpg") !important;
+  background-size: cover !important;
+  background-position: center !important;
+}
+
+[data-theme="dark"] .lux-footer-cta {
+  background: rgba(28, 32, 38, 0.95) !important;
+  border: 1px solid #2E3440 !important;
+  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.5) !important;
+}
+
+[data-theme="dark"] .lux-cta-text h2 {
+  color: #F0EDE8 !important;
+}
+
+[data-theme="dark"] .lux-cta-text h2 em {
+  color: #C9A04F !important;
+}
+
+[data-theme="dark"] .lux-cta-text p {
+  color: #B8B4AD !important;
+}
+
+/* OVERRIDE LIGHT GRADIENT ON MAIN BODY */
+[data-theme="dark"] .lux-footer-main {
+  background: linear-gradient(
+    135deg,
+    #111418 0%,
+    #161A20 55%,
+    #1C2026 100%
+  ) !important;
+}
+
+[data-theme="dark"] .lux-brand-header h2 {
+  color: #F0EDE8 !important;
+}
+
+[data-theme="dark"] .lux-brand-header span {
+  color: #C9A04F !important;
+}
+
+[data-theme="dark"] .lux-description {
+  color: #B8B4AD !important;
+}
+
+[data-theme="dark"] .lux-social a {
+  background: #1C2026 !important;
+  border-color: rgba(201, 160, 79, 0.45) !important;
+  color: #F0EDE8 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+}
+
+[data-theme="dark"] .lux-social a:hover {
+  background: #C9A04F !important;
+  color: #111418 !important;
+}
+
+[data-theme="dark"] .lux-column h3 {
+  color: #F0EDE8 !important;
+}
+
+[data-theme="dark"] .lux-column h3::after {
+  background: #C9A04F !important;
+}
+
+[data-theme="dark"] .lux-column li a {
+  color: #B8B4AD !important;
+}
+
+[data-theme="dark"] .lux-column li a:hover {
+  color: #C9A04F !important;
+}
+
+[data-theme="dark"] .lux-contact-item {
+  color: #B8B4AD !important;
+}
+
+[data-theme="dark"] .lux-contact-item a {
+  color: #F0EDE8 !important;
+}
+
+[data-theme="dark"] .lux-contact-item a:hover {
+  color: #C9A04F !important;
+}
+
+[data-theme="dark"] .lux-review-btn {
+  background: #1C2026 !important;
+  border-color: #C9A04F !important;
+  color: #C9A04F !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3) !important;
+}
+
+[data-theme="dark"] .lux-review-btn:hover {
+  background: #C9A04F !important;
+  color: #111418 !important;
+}
+
+[data-theme="dark"] .lux-footer-features {
+  background: #161A1F !important;
+  border-top: 1px solid #2E3440 !important;
+  border-bottom: 1px solid #2E3440 !important;
+}
+
+[data-theme="dark"] .lux-feature strong {
+  color: #F0EDE8 !important;
+}
+
+[data-theme="dark"] .lux-feature span {
+  color: #B8B4AD !important;
+}
+
+[data-theme="dark"] .lux-feature:not(:last-child) {
+  border-right: 1px solid #2E3440 !important;
+}
+
+[data-theme="dark"] .lux-footer-bottom {
+  background: #0D1014 !important;
+  border-top: 1px solid #2E3440 !important;
+  color: #B8B4AD !important;
+}
+
+[data-theme="dark"] .lux-legal a {
+  color: #B8B4AD !important;
+}
+
+[data-theme="dark"] .lux-legal a:hover {
+  color: #C9A04F !important;
+}
+
+/* =========================================================================
+   MOBILE RESPONSIVENESS — Vienna Footer
+   ========================================================================= */
+@media (max-width: 768px) {
+  .lux-footer-top { padding: 40px 18px 24px; }
+  .lux-footer-main-grid { grid-template-columns: 1fr !important; gap: 28px !important; }
+  .lux-footer-links-section { grid-template-columns: 1fr 1fr !important; gap: 20px !important; }
+  .lux-footer-bottom { flex-direction: column !important; gap: 12px !important; text-align: center !important; }
+  .lux-footer-bottom-links { justify-content: center !important; flex-wrap: wrap !important; }
+  .lux-footer-cta-title { font-size: clamp(22px, 6vw, 32px) !important; }
+  .lux-footer-cta-sub { font-size: 14px !important; }
+}
+
+@media (max-width: 480px) {
+  .lux-footer-links-section { grid-template-columns: 1fr !important; }
+  .lux-footer-social-row { flex-wrap: wrap !important; gap: 10px !important; }
+}

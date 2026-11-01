@@ -825,6 +825,171 @@ export default function About() {
             border-top-right-radius: 140px;
           }
         }
+
+        /* Dark Mode Overrides */
+        [data-theme="dark"] .about-page-wrapper {
+          background-color: #111418 !important;
+          color: #F0EDE8 !important;
+        }
+
+        [data-theme="dark"] .about-hero-section {
+          background-color: #111418 !important;
+          border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+        }
+
+        [data-theme="dark"] .about-main-heading {
+          color: #F0EDE8 !important;
+        }
+
+        [data-theme="dark"] .about-lead-description {
+          color: #B8B4AD !important;
+        }
+
+        [data-theme="dark"] .about-divider {
+          background: linear-gradient(90deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.03) 100%) !important;
+        }
+
+        [data-theme="dark"] .about-story-statement {
+          color: #F0EDE8 !important;
+        }
+
+        [data-theme="dark"] .about-story-paragraphs {
+          color: #B8B4AD !important;
+        }
+
+        [data-theme="dark"] .about-story-paragraphs p {
+          color: #B8B4AD !important;
+        }
+
+        [data-theme="dark"] .about-stat-card {
+          background-color: #1C2026 !important;
+          border-color: rgba(255, 255, 255, 0.08) !important;
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4) !important;
+        }
+
+        [data-theme="dark"] .about-stat-card:hover {
+          border-color: #C9A04F !important;
+        }
+
+        [data-theme="dark"] .about-stat-value {
+          color: #C9A04F !important;
+        }
+
+        [data-theme="dark"] .about-stat-label {
+          color: #B8B4AD !important;
+        }
+
+        [data-theme="dark"] .about-arch-frame {
+          background-color: #161A20 !important;
+          border-color: #C9A04F !important;
+          box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4) !important;
+        }
+
+        [data-theme="dark"] .about-arch-overlay {
+          background: linear-gradient(180deg, rgba(17, 20, 24, 0) 60%, rgba(17, 20, 24, 0.45) 100%) !important;
+        }
+
+        [data-theme="dark"] .about-image-badge {
+          background-color: #1C2026 !important;
+          border-color: rgba(255, 255, 255, 0.08) !important;
+          box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3) !important;
+        }
+
+        [data-theme="dark"] .badge-title {
+          color: #F0EDE8 !important;
+        }
+
+        [data-theme="dark"] .badge-sub {
+          color: #B8B4AD !important;
+        }
+
+        [data-theme="dark"] .about-values-section {
+          background-color: #111418 !important;
+          border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+        }
+
+        [data-theme="dark"] .about-section-title {
+          color: #F0EDE8 !important;
+        }
+
+        [data-theme="dark"] .about-section-subtitle {
+          color: #B8B4AD !important;
+        }
+
+        [data-theme="dark"] .about-value-card {
+          background-color: #1C2026 !important;
+          border-color: rgba(255, 255, 255, 0.08) !important;
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3) !important;
+        }
+
+        [data-theme="dark"] .about-value-card:hover {
+          border-color: #C9A04F !important;
+          box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5) !important;
+        }
+
+        [data-theme="dark"] .about-value-number {
+          color: #C9A04F !important;
+        }
+
+        [data-theme="dark"] .about-value-title {
+          color: #F0EDE8 !important;
+        }
+
+        [data-theme="dark"] .about-value-text {
+          color: #B8B4AD !important;
+        }
+
+        [data-theme="dark"] .about-trust-section {
+          background-color: #111418 !important;
+          border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+        }
+
+        [data-theme="dark"] .about-trust-card {
+          background-color: #1C2026 !important;
+          border-color: rgba(255, 255, 255, 0.08) !important;
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3) !important;
+        }
+
+        [data-theme="dark"] .about-trust-card-title {
+          color: #F0EDE8 !important;
+        }
+
+        [data-theme="dark"] .about-trust-card-text {
+          color: #B8B4AD !important;
+        }
+
+        [data-theme="dark"] .compliance-item {
+          color: #F0EDE8 !important;
+        }
+
+        [data-theme="dark"] .partner-tag {
+          background-color: #161A20 !important;
+          border-color: rgba(255, 255, 255, 0.1) !important;
+          color: #F0EDE8 !important;
+        }
+
+        [data-theme="dark"] .about-faq-section {
+          background-color: #111418 !important;
+          border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+        }
+
+        [data-theme="dark"] .about-cta-section {
+          background-color: #111418 !important;
+        }
+
+        [data-theme="dark"] .about-cta-box {
+          background: linear-gradient(135deg, #1C2026 0%, #161A20 100%) !important;
+          border-color: #C9A04F !important;
+          box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5) !important;
+        }
+
+        [data-theme="dark"] .about-cta-title {
+          color: #F0EDE8 !important;
+        }
+
+        [data-theme="dark"] .about-cta-text {
+          color: #B8B4AD !important;
+        }
       `}</style>
     </div>
   );

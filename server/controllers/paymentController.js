@@ -79,20 +79,67 @@ const VEHICLE_MULTIPLIERS = {
   'armored': 3.0
 };
 
+// KM-based per-vehicle transfer rates (EUR per km)
+const TRANSFER_KM_RATES = {
+  'mercedes-benz e-class': 1.80,
+  'e-class': 1.80,
+  'mercedes-benz s-class': 2.70,
+  's-class': 2.70,
+  'mercedes-benz eqs': 2.70,
+  'eqs': 2.70,
+  'mercedes-benz v-class': 2.00,
+  'v-class': 2.00
+};
+
+const MIN_TRANSFER_FARE = 55; // EUR minimum for any transfer
+
 const CHILD_SEAT_RATE_EUR = 10; // €10 per child seat
+
+/**
+ * Independently queries Google Maps Distance Matrix API from the backend
+ * to verify actual driving distance for arbitrary pickup and drop-off locations.
+ * Prevents client-side manipulation of distance, route, or pricing.
+ */
+export async function getVerifiedDrivingDistanceKm(pickupLocation, dropoffLocation) {
+  if (!pickupLocation || !dropoffLocation) return null;
+  const apiKey = process.env.VITE_GOOGLE_MAPS_API_KEY || process.env.GOOGLE_MAPS_API_KEY;
+  if (!apiKey) return null;
+
+  try {
+    const url = `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${encodeURIComponent(
+      pickupLocation
+    )}&destinations=${encodeURIComponent(dropoffLocation)}&key=${apiKey}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    if (data.status === 'OK' && data.rows?.[0]?.elements?.[0]?.status === 'OK') {
+      const distanceMeters = data.rows[0].elements[0].distance.value;
+      return Math.round(distanceMeters / 1000);
+    }
+  } catch (err) {
+    console.warn('[Backend Distance Verification Warning]:', err.message);
+  }
+  return null;
+}
 
 /**
  * Server-side calculation of payable amount in EUR based on verified booking data
  */
-export function calculatePayableAmount(booking, discountCode, childSeatCountOverride) {
+export function calculatePayableAmount(booking, discountCode, childSeatCountOverride, verifiedDistanceKmOverride) {
   const service = (booking.serviceType || '').toLowerCase();
   const vehicle = (booking.preferredVehicle || '').toLowerCase();
   const pickup = (booking.pickupLocation || '').toLowerCase();
   const dropoff = (booking.dropoffLocation || '').toLowerCase();
   const combined = `${service} ${pickup} ${dropoff}`;
+  const specialRequests = (booking.specialRequests || '');
+
+  // ─── Check if this is a km-based transfer ───
+  // The frontend sends the distance in km inside specialRequests
+  const kmMatch = specialRequests.match(/Distance:\s*([\d.]+)\s*km/i);
+  const isTransfer = !service.includes('day trip') && !service.includes('hourly');
+  const isReturn = service.includes('return') || combined.includes('return');
 
   // 1. Determine Base Rate
-  let basePrice = 55; // Default minimum transfer
+  let basePrice = MIN_TRANSFER_FARE; // Default minimum transfer
 
   if (combined.includes('hallstatt')) basePrice = 595;
   else if (combined.includes('salzburg')) basePrice = 595;
@@ -111,21 +158,65 @@ export function calculatePayableAmount(booking, discountCode, childSeatCountOver
     const m = notes.match(/(\d+)\s*hours?/i) || service.match(/(\d+)\s*hours?/i);
     if (m && m[1]) hours = parseInt(m[1], 10);
     basePrice = 52 * hours;
+  } else if (isTransfer) {
+    // ─── KM-based transfer pricing with independent backend verification ───
+    let distanceKm = 0;
+
+    if (
+      verifiedDistanceKmOverride !== undefined &&
+      verifiedDistanceKmOverride !== null &&
+      !isNaN(verifiedDistanceKmOverride) &&
+      verifiedDistanceKmOverride > 0
+    ) {
+      // Priority 1: Backend verified Google Maps driving distance
+      distanceKm = verifiedDistanceKmOverride;
+    } else {
+      // Priority 2: Parsed client distance with server-side baseline safety check
+      let parsedKm = kmMatch ? parseFloat(kmMatch[1]) : 0;
+      if (isNaN(parsedKm) || parsedKm <= 0) parsedKm = 0;
+
+      let minExpectedKm = 5; // minimum plausible distance for any city dispatch
+      if (combined.includes('munich') || combined.includes('münchen')) minExpectedKm = 430;
+      else if (combined.includes('innsbruck')) minExpectedKm = 475;
+      else if (combined.includes('linz')) minExpectedKm = 180;
+      else if (combined.includes('cesky krumlov') || combined.includes('krumlov')) minExpectedKm = 200;
+      else if (combined.includes('brno')) minExpectedKm = 135;
+      else if (combined.includes('airport') || combined.includes('vie') || combined.includes('schwechat')) minExpectedKm = 18;
+
+      distanceKm = Math.max(parsedKm, minExpectedKm);
+    }
+
+    if (isReturn) {
+      distanceKm *= 2;
+    }
+
+    // Resolve per-km rate for the selected vehicle
+    let kmRate = 1.80; // default E-Class rate
+    for (const [vKey, vRate] of Object.entries(TRANSFER_KM_RATES)) {
+      if (vehicle.includes(vKey)) {
+        kmRate = vRate;
+        break;
+      }
+    }
+    basePrice = distanceKm * kmRate;
   } else {
-    // Standard transfer
-    basePrice = 55;
+    // Standard transfer (no km data from frontend)
+    basePrice = MIN_TRANSFER_FARE;
   }
 
-  if (service.includes('return') || combined.includes('return')) {
+  if (isReturn && !isTransfer) {
     basePrice *= 2;
   }
 
-  // 2. Vehicle Multiplier
+  // 2. Vehicle Multiplier (applies to day trips and hourly only; transfers use kmRate directly)
   let mult = 1.0;
-  for (const [vKey, vMult] of Object.entries(VEHICLE_MULTIPLIERS)) {
-    if (vehicle.includes(vKey)) {
-      mult = vMult;
-      break;
+  if (!isTransfer || !kmMatch) {
+    // Apply vehicle multiplier only if NOT using km-based pricing
+    for (const [vKey, vMult] of Object.entries(VEHICLE_MULTIPLIERS)) {
+      if (vehicle.includes(vKey)) {
+        mult = vMult;
+        break;
+      }
     }
   }
 
@@ -250,9 +341,17 @@ export async function createStripeCheckoutSession(req, res) {
     }
 
     // Calculate payable amount in EUR strictly on the backend
+    // 1. Independently query actual driving distance via Google Maps Distance Matrix API
+    let verifiedDistanceKm = null;
+    const serviceType = (booking.serviceType || '').toLowerCase();
+    const isTransferBooking = !serviceType.includes('day trip') && !serviceType.includes('hourly');
+    if (isTransferBooking && booking.pickupLocation && booking.dropoffLocation) {
+      verifiedDistanceKm = await getVerifiedDrivingDistanceKm(booking.pickupLocation, booking.dropoffLocation);
+    }
+
     // childSeatCount from request takes precedence over what's stored; backend verifies max limit (0-3)
     const resolvedChildSeatCount = Math.min(3, Math.max(0, Number(childSeatCount || booking.childSeatCount || 0)));
-    const calculation = calculatePayableAmount(booking, discountCode, resolvedChildSeatCount);
+    const calculation = calculatePayableAmount(booking, discountCode, resolvedChildSeatCount, verifiedDistanceKm);
     const amountEur = calculation.total;
     const amountCents = Math.round(amountEur * 100);
 

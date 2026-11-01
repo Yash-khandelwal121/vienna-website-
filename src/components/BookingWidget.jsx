@@ -80,10 +80,10 @@ Please confirm availability and provide a tailored quote. Thank you!`;
         width: '100%',
         maxWidth: '1280px',
         margin: '0 auto',
-        backgroundColor: '#FFFFFF',
+        backgroundColor: 'var(--bg-card)',
         borderRadius: 'var(--radius-xl)',
-        border: '1px solid rgba(0, 0, 0, 0.08)',
-        boxShadow: '0 25px 65px rgba(0, 0, 0, 0.07), 0 2px 10px rgba(0, 0, 0, 0.02)',
+        border: '1px solid var(--border)',
+        boxShadow: '0 25px 65px rgba(0, 0, 0, 0.12), 0 2px 10px rgba(0, 0, 0, 0.04)',
         padding: 'clamp(1.25rem, 3vw, 2.25rem)',
         position: 'relative',
         zIndex: 50
@@ -95,7 +95,7 @@ Please confirm availability and provide a tailored quote. Thank you!`;
           display: 'flex',
           gap: '0.65rem',
           flexWrap: 'wrap',
-          borderBottom: '1px solid rgba(0, 0, 0, 0.06)',
+          borderBottom: '1px solid var(--border-subtle)',
           paddingBottom: '1.25rem',
           marginBottom: '1.5rem'
         }}
@@ -119,8 +119,8 @@ Please confirm availability and provide a tailored quote. Thank you!`;
                 textTransform: 'uppercase',
                 padding: '0.65rem 1.4rem',
                 borderRadius: 'var(--radius-full)',
-                border: isActive ? '1px solid rgba(197, 160, 89, 0.45)' : '1px solid rgba(0, 0, 0, 0.06)',
-                background: isActive ? 'linear-gradient(135deg, #DFC187 0%, #C5A059 50%, #967425 100%)' : '#F3F4F7',
+                border: isActive ? '1px solid var(--accent)' : '1px solid var(--border)',
+                background: isActive ? 'linear-gradient(135deg, #DFC187 0%, #C5A059 50%, #967425 100%)' : 'var(--bg-surface)',
                 color: isActive ? '#FFFFFF' : 'var(--text-secondary)',
                 cursor: 'pointer',
                 transition: 'all 0.25s ease',
@@ -206,7 +206,7 @@ Please confirm availability and provide a tailored quote. Thank you!`;
               value={date}
               onChange={(e) => setDate(e.target.value)}
               className="input-strada"
-              style={{ borderColor: errors.date ? '#ff4d4f' : undefined, colorScheme: 'light' }}
+              style={{ borderColor: errors.date ? '#ff4d4f' : undefined }}
             />
           </div>
 
@@ -222,7 +222,7 @@ Please confirm availability and provide a tailored quote. Thank you!`;
               value={time}
               onChange={(e) => setTime(e.target.value)}
               className="input-strada"
-              style={{ borderColor: errors.time ? '#ff4d4f' : undefined, colorScheme: 'light' }}
+              style={{ borderColor: errors.time ? '#ff4d4f' : undefined }}
             />
           </div>
 
