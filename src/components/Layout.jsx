@@ -3,6 +3,7 @@ import { Outlet, useLocation } from 'react-router-dom';
 import Navbar from './Navbar';
 import ViennaFooter from './ViennaFooter';
 import FloatingWhatsApp from './FloatingWhatsApp';
+import CustomSchemaRenderer from './CustomSchemaRenderer';
 import useScrollReveal from '../hooks/useScrollReveal';
 
 export default function Layout() {
@@ -17,6 +18,7 @@ export default function Layout() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: 'var(--bg-main)' }}>
+      <CustomSchemaRenderer />
       <Navbar />
       <main style={{ flex: '1 0 auto' }}>
         <Outlet />

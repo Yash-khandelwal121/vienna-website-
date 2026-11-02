@@ -32,6 +32,7 @@ import AdminLayout from '../components/AdminLayout';
 import { useAdminAuth } from '../context/AdminAuthContext';
 import RichTextEditor from '../components/RichTextEditor';
 import { CANONICAL_DAY_TRIP_IMAGES, sanitizeImageUrl } from '../../services/api';
+import { cleanAndValidateJson } from '../../utils/schemaInjector';
 
 const STEPS = [
   { id: 'basic', label: '1. Basic Information', icon: FileText },
@@ -105,7 +106,8 @@ export default function DayTripsManager() {
       canonicalUrl: '',
       ogTitle: '',
       ogDescription: '',
-      ogImage: ''
+      ogImage: '',
+      schemaJson: ''
     }
   });
 
@@ -301,7 +303,8 @@ export default function DayTripsManager() {
         canonicalUrl: t.canonicalUrl || t.seo?.canonicalUrl || `https://viennadaytrip.com/${t.slug}/`,
         ogTitle: t.seo?.ogTitle || t.title || '',
         ogDescription: t.seo?.ogDescription || t.shortDesc || '',
-        ogImage: t.seo?.ogImage || t.image || ''
+        ogImage: t.seo?.ogImage || t.image || '',
+        schemaJson: t.schemaMarkup ? (typeof t.schemaMarkup === 'string' ? t.schemaMarkup : JSON.stringify(t.schemaMarkup, null, 2)) : ''
       }
     });
 
@@ -344,6 +347,13 @@ export default function DayTripsManager() {
     } else if (activeTab === 'content') {
       setActiveTab('seo');
     } else if (activeTab === 'seo') {
+      if (form.seo.schemaJson?.trim()) {
+        const valResult = cleanAndValidateJson(form.seo.schemaJson);
+        if (!valResult.valid) {
+          setValidationError(`Custom Schema Markup is not valid JSON: ${valResult.error}. Please correct it in Step 4.`);
+          return;
+        }
+      }
       setActiveTab('publish');
     }
   };
@@ -413,7 +423,20 @@ export default function DayTripsManager() {
       return;
     }
 
-    const isPub = publishStatus !== null ? publishStatus : form.isPublished;
+    // Validate JSON-LD if provided
+    let cleanedSchema = form.seo.schemaJson;
+    if (form.seo.schemaJson && form.seo.schemaJson.trim()) {
+      const valResult = cleanAndValidateJson(form.seo.schemaJson);
+      if (!valResult.valid) {
+        setValidationError(`The Schema Markup JSON-LD is not valid JSON: ${valResult.error}. Please correct it in SEO Settings.`);
+        setActiveTab('seo');
+        return;
+      }
+      cleanedSchema = valResult.jsonString;
+    } else {
+      // Requirement: "Preserve existing schema when the new field is empty; do not erase it automatically."
+      cleanedSchema = selectedTour?.schemaMarkup || '';
+    }
 
     try {
       setSaving(true);
@@ -447,7 +470,8 @@ export default function DayTripsManager() {
         isFeatured: Boolean(form.isFeatured),
         isPublished: isPub,
         seoTitle: form.seo.metaTitle || form.title,
-        seoDesc: form.seo.metaDescription || form.shortDesc
+        seoDesc: form.seo.metaDescription || form.shortDesc,
+        schemaMarkup: form.seo.schemaJson?.trim() ? cleanedSchema : (selectedTour?.schemaMarkup || null)
       };
 
       const url = selectedTour ? `/api/v1/admin/day-trips/${selectedTour.id}` : '/api/v1/admin/day-trips';
@@ -465,11 +489,16 @@ export default function DayTripsManager() {
       if (data.success && data.tour) {
         setTourStatus(isPub ? 'PUBLISHED' : 'DRAFT');
         setSelectedTour(data.tour);
+        const savedSchema = data.tour.schemaMarkup || cleanedSchema;
         setForm((prev) => ({
           ...prev,
           id: data.tour.id,
           slug: data.tour.slug,
-          isPublished: isPub
+          isPublished: isPub,
+          seo: {
+            ...prev.seo,
+            schemaJson: savedSchema ? (typeof savedSchema === 'string' ? savedSchema : JSON.stringify(savedSchema, null, 2)) : ''
+          }
         }));
         setIsDirty(false);
         setModalNotice({
@@ -1175,6 +1204,34 @@ export default function DayTripsManager() {
                         onChange={(e) => updateSeo({ canonicalUrl: e.target.value })}
                       />
                     </div>
+                  </div>
+
+                  {/* Custom JSON-LD Schema Markup (Structured Data) */}
+                  <div className="vdt-form-group">
+                    <label className="vdt-form-label" style={{ fontWeight: 700 }}>
+                      Custom JSON-LD Schema Markup (Structured Data)
+                    </label>
+                    <textarea
+                      className="vdt-form-textarea"
+                      rows={8}
+                      value={form.seo.schemaJson}
+                      onChange={(e) => updateSeo({ schemaJson: e.target.value })}
+                      placeholder={`{
+  "@context": "https://schema.org",
+  "@type": "TouristTrip",
+  "name": "${form.name || 'Hallstatt Day Trip'}",
+  "description": "${form.shortDesc || 'Private luxury day trip from Vienna'}",
+  "provider": {
+    "@type": "TravelAgency",
+    "name": "Vienna Day Trip",
+    "url": "https://viennadaytrip.com"
+  }
+}`}
+                      style={{ fontFamily: 'monospace', fontSize: '0.82rem', lineHeight: '1.4' }}
+                    />
+                    <small style={{ color: '#8E929B', marginTop: '4px', display: 'block' }}>
+                      Paste custom JSON-LD structured data. Validated before saving. Leave blank to preserve existing schema.
+                    </small>
                   </div>
 
                   {/* Google SERP Live Preview */}

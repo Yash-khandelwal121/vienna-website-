@@ -221,6 +221,7 @@ model DayTrip {
   displayOrder Int      @default(0)
   seoTitle     String?
   seoDesc      String?
+  schemaMarkup String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
@@ -300,6 +301,7 @@ model SEORecord {
   canonicalUrl    String?
   ogImage         String?
   keywords        String?
+  schemaMarkup    String?
   isIndexed       Boolean  @default(true)
   updatedAt       DateTime @updatedAt
 

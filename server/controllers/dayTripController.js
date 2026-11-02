@@ -77,6 +77,19 @@ export async function createDayTrip(req, res) {
       });
     }
 
+    let finalSchema = null;
+    if (data.schemaMarkup && data.schemaMarkup.trim()) {
+      let cleaned = data.schemaMarkup.trim();
+      const scriptMatch = cleaned.match(/<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/i);
+      if (scriptMatch) cleaned = scriptMatch[1].trim();
+      try {
+        const parsed = JSON.parse(cleaned);
+        finalSchema = JSON.stringify(parsed, null, 2);
+      } catch (err) {
+        return res.status(400).json({ success: false, error: `Custom Schema Markup is not valid JSON: ${err.message}` });
+      }
+    }
+
     const created = await db.dayTrips.create({
       data: {
         slug,
@@ -96,7 +109,8 @@ export async function createDayTrip(req, res) {
         isPublished: data.isPublished !== false,
         displayOrder: Number(data.displayOrder) || 0,
         seoTitle: data.seoTitle || null,
-        seoDesc: data.seoDesc || null
+        seoDesc: data.seoDesc || null,
+        schemaMarkup: finalSchema
       }
     });
 
@@ -147,9 +161,37 @@ export async function updateDayTrip(req, res) {
       cleanData.isPublished = Boolean(cleanData.isPublished);
     }
 
+    // Validate and preserve schemaMarkup
+    if (cleanData.schemaMarkup !== undefined) {
+      if (!cleanData.schemaMarkup || !cleanData.schemaMarkup.trim()) {
+        // Requirement: "Preserve existing schema when the new field is empty; do not erase it automatically."
+        cleanData.schemaMarkup = existing.schemaMarkup || null;
+      } else {
+        let cleaned = cleanData.schemaMarkup.trim();
+        const scriptMatch = cleaned.match(/<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/i);
+        if (scriptMatch) cleaned = scriptMatch[1].trim();
+        try {
+          const parsed = JSON.parse(cleaned);
+          cleanData.schemaMarkup = JSON.stringify(parsed, null, 2);
+        } catch (err) {
+          return res.status(400).json({ success: false, error: `Custom Schema Markup is not valid JSON: ${err.message}` });
+        }
+      }
+    }
+
+    const validKeys = new Set([
+      'slug', 'name', 'title', 'eyebrow', 'shortDesc', 'fullDesc', 'duration',
+      'image', 'gallery', 'itinerary', 'highlights', 'inclusions', 'exclusions',
+      'price', 'isPublished', 'displayOrder', 'seoTitle', 'seoDesc', 'schemaMarkup'
+    ]);
+    const prismaSafeData = {};
+    for (const [k, v] of Object.entries(cleanData)) {
+      if (validKeys.has(k)) prismaSafeData[k] = v;
+    }
+
     const updated = await db.dayTrips.update({
       where: { id },
-      data: cleanData
+      data: prismaSafeData
     });
     res.json({ success: true, tour: updated });
   } catch (error) {

@@ -3,6 +3,51 @@ import fs from 'fs';
 import path from 'path';
 import { hashPassword } from '../utils/password.js';
 
+export const DEFAULT_SEO_ROUTES = [
+  {
+    routePath: '/',
+    metaTitle: 'Vienna Day Trip | Ultra-Luxury Chauffeur & Private Tours',
+    metaDescription: 'Licensed ultra-luxury private chauffeur service in Vienna, Austria. Airport transfers, hourly hire, and day trips to Hallstatt, Salzburg, Budapest, Prague & Wachau.',
+    canonicalUrl: 'https://viennadaytrip.com/',
+    schemaMarkup: null
+  },
+  {
+    routePath: '/about-vienna-day-trip/',
+    metaTitle: 'About Vienna Day Trip | Licensed Chauffeur Company Since 2019',
+    metaDescription: 'Discover Vienna Day Trip, a premier licensed chauffeur company founded in 2019. Built on precision, elegance, and authentic Austrian hospitality.',
+    canonicalUrl: 'https://viennadaytrip.com/about-vienna-day-trip/',
+    schemaMarkup: null
+  },
+  {
+    routePath: '/our-fleet/',
+    metaTitle: 'Mercedes-Benz Luxury Chauffeur Fleet | Vienna Day Trip',
+    metaDescription: 'Explore our flagship Mercedes-Benz fleet: S-Class First Class, E-Class Business, V-Class VIP Van, Sprinter Minibus, and certified Armored VR6/VR7.',
+    canonicalUrl: 'https://viennadaytrip.com/our-fleet/',
+    schemaMarkup: null
+  },
+  {
+    routePath: '/our-services/',
+    metaTitle: 'Executive Chauffeur Services | Vienna Day Trip',
+    metaDescription: 'Comprehensive luxury private transportation: Airport transfers, hourly chauffeur hire, private day trips, and high-security diplomatic convoys.',
+    canonicalUrl: 'https://viennadaytrip.com/our-services/',
+    schemaMarkup: null
+  },
+  {
+    routePath: '/blog/',
+    metaTitle: 'The Vienna Travel Journal | Day Trip Guides & Insights',
+    metaDescription: 'Discover 129 comprehensive travel guides, itineraries, and expert insights for exploring Vienna, Hallstatt, Salzburg, Budapest, Prague, and Wachau.',
+    canonicalUrl: 'https://viennadaytrip.com/blog/',
+    schemaMarkup: null
+  },
+  {
+    routePath: '/contact-us-i/',
+    metaTitle: 'Contact Vienna Day Trip | 24/7 VIP Chauffeur Concierge',
+    metaDescription: 'Contact our 24/7 private chauffeur concierge desk for bespoke travel itineraries, airport transfers, and tailored Central European day trips.',
+    canonicalUrl: 'https://viennadaytrip.com/contact-us-i/',
+    schemaMarkup: null
+  }
+];
+
 // Resolve PostgreSQL connection string across Neon / Vercel integration variants
 export const resolvedDatabaseUrl =
   process.env.DATABASE_URL ||
@@ -139,6 +184,15 @@ async function loadSeedData() {
     try {
       const data = JSON.parse(fs.readFileSync(fileToRead, 'utf8'));
       memoryStore = { ...memoryStore, ...data };
+      if (!Array.isArray(memoryStore.seo) || memoryStore.seo.length === 0) {
+        memoryStore.seo = DEFAULT_SEO_ROUTES.map((r, i) => ({
+          id: `seo_${i + 1}`,
+          ...r,
+          isIndexed: true,
+          updatedAt: new Date().toISOString()
+        }));
+        persistStore();
+      }
       console.log(`[DB] Loaded persistent data store (${memoryStore.blogs?.length || 0} blogs, ${memoryStore.vehicles?.length || 0} vehicles, ${memoryStore.bookings?.length || 0} bookings).`);
       return;
     } catch (e) {
@@ -1253,11 +1307,14 @@ export const db = {
       return memoryStore.dayTrips.find((d) => d.id === where.id || d.slug === where.slug) || null;
     },
     async create({ data }) {
+      let created = null;
       if (isPostgresConnected) {
-        try { return await prisma.dayTrip.create({ data }); } catch (e) {}
+        try { created = await prisma.dayTrip.create({ data }); } catch (e) {
+          console.warn('[DB Error] Prisma create dayTrip note:', e.message);
+        }
       }
       const item = {
-        id: `tour_${Date.now()}`,
+        id: created?.id || `tour_${Date.now()}`,
         isPublished: true,
         ...data,
         createdAt: new Date().toISOString(),
@@ -1265,19 +1322,22 @@ export const db = {
       };
       memoryStore.dayTrips.push(item);
       persistStore();
-      return item;
+      return created || item;
     },
     async update({ where, data }) {
+      let updated = null;
       if (isPostgresConnected) {
-        try { return await prisma.dayTrip.update({ where, data }); } catch (e) {}
+        try { updated = await prisma.dayTrip.update({ where, data }); } catch (e) {
+          console.warn('[DB Error] Prisma update dayTrip note:', e.message);
+        }
       }
       const idx = memoryStore.dayTrips.findIndex((d) => d.id === where.id || d.slug === where.slug);
       if (idx !== -1) {
         memoryStore.dayTrips[idx] = { ...memoryStore.dayTrips[idx], ...data, updatedAt: new Date().toISOString() };
         persistStore();
-        return memoryStore.dayTrips[idx];
+        return updated || memoryStore.dayTrips[idx];
       }
-      return null;
+      return updated;
     },
     async delete({ where }) {
       if (isPostgresConnected) {
@@ -1286,6 +1346,64 @@ export const db = {
       memoryStore.dayTrips = memoryStore.dayTrips.filter((d) => d.id !== where.id && d.slug !== where.slug);
       persistStore();
       return { success: true };
+    }
+  },
+
+  // SEO RECORDS
+  seo: {
+    async findMany() {
+      if (isPostgresConnected) {
+        try {
+          const records = await prisma.sEORecord.findMany();
+          if (Array.isArray(records) && records.length > 0) return records;
+        } catch (e) {
+          console.warn('[DB] Prisma findMany sEORecord note:', e.message);
+        }
+      }
+      return memoryStore.seo || [];
+    },
+    async findUnique({ where }) {
+      if (isPostgresConnected) {
+        try {
+          const record = await prisma.sEORecord.findUnique({ where });
+          if (record) return record;
+        } catch (e) {
+          console.warn('[DB] Prisma findUnique sEORecord note:', e.message);
+        }
+      }
+      return (memoryStore.seo || []).find((s) => s.routePath === where.routePath || s.id === where.id) || null;
+    },
+    async upsert({ where, update, create }) {
+      let result = null;
+      if (isPostgresConnected) {
+        try {
+          result = await prisma.sEORecord.upsert({ where, update, create });
+        } catch (e) {
+          console.warn('[DB] Prisma upsert sEORecord note:', e.message);
+        }
+      }
+      if (!memoryStore.seo) memoryStore.seo = [];
+      const idx = memoryStore.seo.findIndex((s) => s.routePath === where.routePath);
+      const now = new Date().toISOString();
+      if (idx !== -1) {
+        memoryStore.seo[idx] = {
+          ...memoryStore.seo[idx],
+          ...update,
+          updatedAt: now
+        };
+        result = result || memoryStore.seo[idx];
+      } else {
+        const newItem = {
+          id: `seo_${Date.now()}`,
+          ...create,
+          createdAt: now,
+          updatedAt: now
+        };
+        memoryStore.seo.push(newItem);
+        result = result || newItem;
+      }
+      persistStore();
+      return result;
     }
   },
 

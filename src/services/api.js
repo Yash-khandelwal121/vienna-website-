@@ -450,3 +450,41 @@ export async function simulatePaymentSuccess({ bookingId, sessionId }) {
   }
 }
 
+/**
+ * Fetch public SEO record (including custom JSON-LD schema) by route path
+ */
+export async function fetchPublicSeoRecord(routePath) {
+  if (!routePath) return null;
+  const norm = routePath === '/' ? '/' : (routePath.endsWith('/') ? routePath : `${routePath}/`);
+  return dedupeRequest(`public_seo_${norm}`, async () => {
+    try {
+      const res = await fetch(`/api/v1/public/seo/page?path=${encodeURIComponent(norm)}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && data.record) {
+          return data.record;
+        }
+      }
+    } catch (e) {}
+    return null;
+  });
+}
+
+/**
+ * Fetch all public SEO records
+ */
+export async function fetchAllPublicSeoRecords() {
+  return dedupeRequest('all_public_seo', async () => {
+    try {
+      const res = await fetch('/api/v1/public/seo');
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && Array.isArray(data.records)) {
+          return data.records;
+        }
+      }
+    } catch (e) {}
+    return [];
+  });
+}
+

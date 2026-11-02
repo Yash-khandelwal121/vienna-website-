@@ -10,6 +10,7 @@ import BookingWidget from '../components/BookingWidget';
 import { siteConfig } from '../data/site';
 import { signatureDestinations } from '../components/DestinationCarousel';
 import { fetchPublicDayTripBySlug, CANONICAL_DAY_TRIP_IMAGES } from '../services/api';
+import { injectCustomSchema, removeCustomSchema } from '../utils/schemaInjector';
 
 export default function TourPage({ tourKey }) {
   const params = useParams();
@@ -19,19 +20,21 @@ export default function TourPage({ tourKey }) {
   useEffect(() => {
     let isMounted = true;
     async function load() {
+      // 1. Seed baseline from bundled toursData if available
       if (toursData[key]) {
         setLiveTour(toursData[key]);
-        return;
       }
+      // 2. Fetch live database record to retrieve custom schemaMarkup and latest content
       try {
         const fetched = await fetchPublicDayTripBySlug(key);
         if (isMounted && fetched) {
           const formatted = {
+            ...(toursData[key] || {}),
             ...fetched,
-            slug: fetched.slug,
+            slug: fetched.slug || key,
             title: fetched.title || `${fetched.name} from Vienna`,
             eyebrow: fetched.eyebrow || 'PRIVATE LUXURY CHAUFFEUR',
-            heroImage: fetched.image || 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80',
+            heroImage: fetched.image || (toursData[key]?.heroImage) || 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80',
             stats: [
               { label: 'Duration', value: fetched.duration || 'Full Day (10-12h)' },
               { label: 'Departure', value: 'Vienna ⇄ Direct' },
@@ -42,19 +45,20 @@ export default function TourPage({ tourKey }) {
               fetched.shortDesc || '',
               typeof fetched.fullDesc === 'string' ? fetched.fullDesc.replace(/<[^>]*>?/gm, '') : ''
             ].filter(Boolean),
-            highlights: Array.isArray(fetched.highlights) && fetched.highlights.length > 0 ? fetched.highlights : [
+            highlights: Array.isArray(fetched.highlights) && fetched.highlights.length > 0 ? fetched.highlights : (toursData[key]?.highlights || [
               'Door-to-door luxury transport in Vienna',
               'Professional English & German-speaking chauffeur',
               'Scenic viewpoints and flexible schedule'
-            ],
-            itinerary: Array.isArray(fetched.itinerary) ? fetched.itinerary : [],
-            included: Array.isArray(fetched.inclusions) && fetched.inclusions.length > 0 ? fetched.inclusions : [
+            ]),
+            itinerary: Array.isArray(fetched.itinerary) && fetched.itinerary.length > 0 ? fetched.itinerary : (toursData[key]?.itinerary || []),
+            included: Array.isArray(fetched.inclusions) && fetched.inclusions.length > 0 ? fetched.inclusions : (toursData[key]?.included || [
               'Private Mercedes-Benz vehicle',
               'Professional chauffeur',
               'Chilled mineral water & Wi-Fi onboard'
-            ],
-            notIncluded: Array.isArray(fetched.exclusions) ? fetched.exclusions : ['Entrance tickets & meals'],
-            faqs: Array.isArray(fetched.faqs) ? fetched.faqs : []
+            ]),
+            notIncluded: Array.isArray(fetched.exclusions) && fetched.exclusions.length > 0 ? fetched.exclusions : (toursData[key]?.notIncluded || ['Entrance tickets & meals']),
+            faqs: Array.isArray(fetched.faqs) && fetched.faqs.length > 0 ? fetched.faqs : (toursData[key]?.faqs || []),
+            schemaMarkup: fetched.schemaMarkup || null
           };
           setLiveTour(formatted);
         }
@@ -69,6 +73,16 @@ export default function TourPage({ tourKey }) {
     ...baseTour,
     heroImage: CANONICAL_DAY_TRIP_IMAGES[key] || baseTour.heroImage
   };
+
+  // Safely inject valid saved JSON-LD schema into document.head and clean up on unmount/route change
+  useEffect(() => {
+    if (tour?.schemaMarkup && tour.schemaMarkup.trim()) {
+      injectCustomSchema(tour.schemaMarkup);
+    }
+    return () => {
+      removeCustomSchema();
+    };
+  }, [tour?.schemaMarkup]);
 
   const stats = Array.isArray(tour?.stats) ? tour.stats : [];
   const overview = Array.isArray(tour?.overview) ? tour.overview : [];

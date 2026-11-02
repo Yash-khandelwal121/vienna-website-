@@ -6,6 +6,7 @@ import { getPublicServices } from '../controllers/serviceController.js';
 import { getPublicDayTrips, getPublicDayTripBySlug } from '../controllers/dayTripController.js';
 import { getPublicBlogs, getPublicBlogBySlug } from '../controllers/blogController.js';
 import { getSettings, getReviewsSettings } from '../controllers/settingsController.js';
+import { getPublicSeoRecord, getPublicAllSeoRecords } from '../controllers/seoController.js';
 
 import {
   createStripeCheckoutSession,
@@ -35,5 +36,7 @@ router.get('/blogs', getPublicBlogs);
 router.get('/blogs/:slug', getPublicBlogBySlug);
 router.get('/settings', getSettings);
 router.get('/reviews', getReviewsSettings);
+router.get('/seo', getPublicAllSeoRecords);
+router.get('/seo/page', getPublicSeoRecord);
 
 export default router;

@@ -56,6 +56,10 @@ import {
   updateAdminUser,
   deleteAdminUser
 } from '../controllers/settingsController.js';
+import {
+  getAdminSeoRecords,
+  updateSeoRecord
+} from '../controllers/seoController.js';
 
 const router = Router();
 
@@ -115,6 +119,11 @@ router.get('/settings', getSettings);
 router.patch('/settings', requireRole('SUPER_ADMIN'), updateSettings);
 router.get('/reviews', getReviewsSettings);
 router.patch('/reviews', requireRole('SUPER_ADMIN'), updateReviewsSettings);
+
+// SEO & Sitemap
+router.get('/seo', getAdminSeoRecords);
+router.put('/seo', requireRole('SUPER_ADMIN', 'CONTENT_EDITOR'), updateSeoRecord);
+router.post('/seo', requireRole('SUPER_ADMIN', 'CONTENT_EDITOR'), updateSeoRecord);
 
 // User Management (Super Admin only)
 router.get('/users', requireRole('SUPER_ADMIN'), getAdminUsers);

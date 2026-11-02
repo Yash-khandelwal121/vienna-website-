@@ -591,7 +591,8 @@
       "isPublished": true,
       "displayOrder": 1,
       "createdAt": "2026-10-24T07:46:37.830Z",
-      "updatedAt": "2026-10-24T07:46:37.830Z"
+      "updatedAt": "2026-11-02T15:30:52.345Z",
+      "schemaMarkup": "{\n  \"@context\": \"https://schema.org\",\n  \"@type\": \"TouristTrip\",\n  \"name\": \"Hallstatt Private Chauffeur Tour from Vienna\",\n  \"description\": \"Full-day private luxury tour to Hallstatt with English-speaking chauffeur.\",\n  \"touristType\": [\n    \"Luxury Traveler\",\n    \"Couples\",\n    \"Families\"\n  ],\n  \"offers\": {\n    \"@type\": \"Offer\",\n    \"price\": \"650\",\n    \"priceCurrency\": \"EUR\"\n  }\n}"
     },
     {
       "id": "tour_salzburg",
@@ -24897,7 +24898,68 @@
   "pageSections": [],
   "media": [],
   "translations": [],
-  "seo": [],
+  "seo": [
+    {
+      "id": "seo_1",
+      "routePath": "/",
+      "metaTitle": "Vienna Day Trip | Ultra-Luxury Chauffeur & Private Tours",
+      "metaDescription": "Licensed ultra-luxury private chauffeur service in Vienna, Austria. Airport transfers, hourly hire, and day trips to Hallstatt, Salzburg, Budapest, Prague & Wachau.",
+      "canonicalUrl": "https://viennadaytrip.com/",
+      "schemaMarkup": null,
+      "isIndexed": true,
+      "updatedAt": "2026-11-02T15:23:40.158Z"
+    },
+    {
+      "id": "seo_2",
+      "routePath": "/about-vienna-day-trip/",
+      "metaTitle": "About Vienna Day Trip | Licensed Chauffeur Company Since 2019",
+      "metaDescription": "Discover Vienna Day Trip, a premier licensed chauffeur company founded in 2019.",
+      "canonicalUrl": "https://viennadaytrip.com/about-vienna-day-trip/",
+      "schemaMarkup": "{\n  \"@context\": \"https://schema.org\",\n  \"@type\": \"AboutPage\",\n  \"name\": \"About Vienna Day Trip Chauffeur Service\",\n  \"description\": \"Premier licensed private chauffeur company founded in Vienna.\"\n}",
+      "isIndexed": true,
+      "updatedAt": "2026-11-02T15:30:49.743Z"
+    },
+    {
+      "id": "seo_3",
+      "routePath": "/our-fleet/",
+      "metaTitle": "Mercedes-Benz Luxury Chauffeur Fleet | Vienna Day Trip",
+      "metaDescription": "Explore our flagship Mercedes-Benz fleet: S-Class First Class, E-Class Business, V-Class VIP Van, Sprinter Minibus, and certified Armored VR6/VR7.",
+      "canonicalUrl": "https://viennadaytrip.com/our-fleet/",
+      "schemaMarkup": null,
+      "isIndexed": true,
+      "updatedAt": "2026-11-02T15:23:40.161Z"
+    },
+    {
+      "id": "seo_4",
+      "routePath": "/our-services/",
+      "metaTitle": "Executive Chauffeur Services | Vienna Day Trip",
+      "metaDescription": "Comprehensive luxury private transportation: Airport transfers, hourly chauffeur hire, private day trips, and high-security diplomatic convoys.",
+      "canonicalUrl": "https://viennadaytrip.com/our-services/",
+      "schemaMarkup": null,
+      "isIndexed": true,
+      "updatedAt": "2026-11-02T15:23:40.161Z"
+    },
+    {
+      "id": "seo_5",
+      "routePath": "/blog/",
+      "metaTitle": "The Vienna Travel Journal | Day Trip Guides & Insights",
+      "metaDescription": "Discover 129 comprehensive travel guides, itineraries, and expert insights for exploring Vienna, Hallstatt, Salzburg, Budapest, Prague, and Wachau.",
+      "canonicalUrl": "https://viennadaytrip.com/blog/",
+      "schemaMarkup": null,
+      "isIndexed": true,
+      "updatedAt": "2026-11-02T15:23:40.161Z"
+    },
+    {
+      "id": "seo_6",
+      "routePath": "/contact-us-i/",
+      "metaTitle": "Contact Vienna Day Trip | 24/7 VIP Chauffeur Concierge",
+      "metaDescription": "Contact our 24/7 private chauffeur concierge desk for bespoke travel itineraries, airport transfers, and tailored Central European day trips.",
+      "canonicalUrl": "https://viennadaytrip.com/contact-us-i/",
+      "schemaMarkup": null,
+      "isIndexed": true,
+      "updatedAt": "2026-11-02T15:23:40.161Z"
+    }
+  ],
   "reviews": {
     "id": "singleton",
     "googleMapsUrl": "https://maps.app.goo.gl/vienna-day-trip",
