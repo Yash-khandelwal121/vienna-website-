@@ -1,5 +1,12 @@
 import Stripe from 'stripe';
 import { db } from '../config/db.js';
+import {
+  calculateBookingTotal,
+  getVehicleByName,
+  DAY_TRIPS,
+  CHILD_SEAT_RATE,
+  PROMO_CODES
+} from '../pricingEngine.js';
 
 // Initialize Stripe Client
 const stripeSecretKey = process.env.STRIPE_SECRET_KEY || '';
@@ -48,52 +55,8 @@ try {
 // (processedWebhookEvent table in PostgreSQL). No in-memory Set needed here.
 // See server/config/db.js for the implementation with hot-cache + PostgreSQL.
 
-// Canonical Rates & Multipliers (EUR)
-const BASE_RATES = {
-  // Day Trips
-  'hallstatt': 595,
-  'salzburg': 595,
-  'wachau': 416,
-  'bratislava': 208,
-  'budapest': 495,
-  'prague': 513,
-  'vienna': 208,
-  // Transfers
-  'airport': 55,
-  'city': 55,
-  'hourly': 52
-};
-
-const VEHICLE_MULTIPLIERS = {
-  'mercedes-benz e-class': 1.0,
-  'e-class': 1.0,
-  'mercedes-benz s-class': 1.5,
-  's-class': 1.5,
-  'mercedes-benz eqs': 1.5,
-  'eqs': 1.5,
-  'mercedes-benz v-class': 1.35,
-  'v-class': 1.35,
-  'mercedes-benz sprinter': 2.2,
-  'sprinter': 2.2,
-  'armored luxury vehicle': 3.0,
-  'armored': 3.0
-};
-
-// KM-based per-vehicle transfer rates (EUR per km)
-const TRANSFER_KM_RATES = {
-  'mercedes-benz e-class': 1.80,
-  'e-class': 1.80,
-  'mercedes-benz s-class': 2.70,
-  's-class': 2.70,
-  'mercedes-benz eqs': 2.70,
-  'eqs': 2.70,
-  'mercedes-benz v-class': 2.00,
-  'v-class': 2.00
-};
-
-const MIN_TRANSFER_FARE = 55; // EUR minimum for any transfer
-
-const CHILD_SEAT_RATE_EUR = 10; // €10 per child seat
+// Legacy constant retained for reference in Stripe line-item descriptions
+const CHILD_SEAT_RATE_EUR = CHILD_SEAT_RATE; // from pricingEngine.js
 
 /**
  * Independently queries Google Maps Distance Matrix API from the backend
@@ -122,135 +85,90 @@ export async function getVerifiedDrivingDistanceKm(pickupLocation, dropoffLocati
 }
 
 /**
- * Server-side calculation of payable amount in EUR based on verified booking data
+ * Server-side calculation of payable amount in EUR based on verified booking data.
+ * Delegates to the shared pricingEngine.js — identical logic to the frontend.
  */
 export function calculatePayableAmount(booking, discountCode, childSeatCountOverride, verifiedDistanceKmOverride) {
-  const service = (booking.serviceType || '').toLowerCase();
-  const vehicle = (booking.preferredVehicle || '').toLowerCase();
-  const pickup = (booking.pickupLocation || '').toLowerCase();
-  const dropoff = (booking.dropoffLocation || '').toLowerCase();
-  const combined = `${service} ${pickup} ${dropoff}`;
-  const specialRequests = (booking.specialRequests || '');
+  const service  = (booking.serviceType    || '').toLowerCase();
+  const pickup   = booking.pickupLocation  || '';
+  const dropoff  = booking.dropoffLocation || '';
+  const specialRequests = booking.specialRequests || '';
 
-  // ─── Check if this is a km-based transfer ───
-  // The frontend sends the distance in km inside specialRequests
-  const kmMatch = specialRequests.match(/Distance:\s*([\d.]+)\s*km/i);
-  const isTransfer = !service.includes('day trip') && !service.includes('hourly');
-  const isReturn = service.includes('return') || combined.includes('return');
+  // Resolve mode
+  const isHourly  = service.includes('hourly');
+  const isDayTrip = service.includes('day trip');
+  const isTransfer = !isHourly && !isDayTrip;
+  const isReturn  = service.includes('return');
+  const mode = isHourly ? 'hourly' : isDayTrip ? 'daytrip' : 'transfer';
+  const tripType = isReturn ? 'return' : 'oneway';
 
-  // 1. Determine Base Rate
-  let basePrice = MIN_TRANSFER_FARE; // Default minimum transfer
+  // Resolve vehicle
+  const vehicle = getVehicleByName(booking.preferredVehicle || '');
 
-  if (combined.includes('hallstatt')) basePrice = 595;
-  else if (combined.includes('salzburg')) basePrice = 595;
-  else if (combined.includes('wachau') || combined.includes('melk')) basePrice = 416;
-  else if (combined.includes('bratislava')) {
-    basePrice = service.includes('day trip') ? 208 : 120;
-  }
-  else if (combined.includes('budapest')) basePrice = 495;
-  else if (combined.includes('prague')) basePrice = 513;
-  else if (combined.includes('graz')) basePrice = 338;
-  else if (combined.includes('sightseeing') || combined.includes('vienna tour')) basePrice = 208;
-  else if (service.includes('day trip')) basePrice = 495;
-  else if (service.includes('hourly')) {
-    let hours = 3;
-    const notes = (booking.specialRequests || '');
-    const m = notes.match(/(\d+)\s*hours?/i) || service.match(/(\d+)\s*hours?/i);
-    if (m && m[1]) hours = parseInt(m[1], 10);
-    basePrice = 52 * hours;
-  } else if (isTransfer) {
-    // ─── KM-based transfer pricing with independent backend verification ───
-    let distanceKm = 0;
-
-    if (
-      verifiedDistanceKmOverride !== undefined &&
-      verifiedDistanceKmOverride !== null &&
-      !isNaN(verifiedDistanceKmOverride) &&
-      verifiedDistanceKmOverride > 0
-    ) {
-      // Priority 1: Backend verified Google Maps driving distance
-      distanceKm = verifiedDistanceKmOverride;
-    } else {
-      // Priority 2: Parsed client distance with server-side baseline safety check
-      let parsedKm = kmMatch ? parseFloat(kmMatch[1]) : 0;
-      if (isNaN(parsedKm) || parsedKm <= 0) parsedKm = 0;
-
-      let minExpectedKm = 5; // minimum plausible distance for any city dispatch
-      if (combined.includes('munich') || combined.includes('münchen')) minExpectedKm = 430;
-      else if (combined.includes('innsbruck')) minExpectedKm = 475;
-      else if (combined.includes('linz')) minExpectedKm = 180;
-      else if (combined.includes('cesky krumlov') || combined.includes('krumlov')) minExpectedKm = 200;
-      else if (combined.includes('brno')) minExpectedKm = 135;
-      else if (combined.includes('airport') || combined.includes('vie') || combined.includes('schwechat')) minExpectedKm = 18;
-
-      distanceKm = Math.max(parsedKm, minExpectedKm);
-    }
-
-    if (isReturn) {
-      distanceKm *= 2;
-    }
-
-    // Resolve per-km rate for the selected vehicle
-    let kmRate = 1.80; // default E-Class rate
-    for (const [vKey, vRate] of Object.entries(TRANSFER_KM_RATES)) {
-      if (vehicle.includes(vKey)) {
-        kmRate = vRate;
-        break;
-      }
-    }
-    basePrice = distanceKm * kmRate;
+  // Resolve distance (km)
+  let distKm = 0;
+  if (verifiedDistanceKmOverride != null && !isNaN(verifiedDistanceKmOverride) && verifiedDistanceKmOverride > 0) {
+    distKm = verifiedDistanceKmOverride;
   } else {
-    // Standard transfer (no km data from frontend)
-    basePrice = MIN_TRANSFER_FARE;
+    const kmMatch = specialRequests.match(/Distance:\s*([\d.]+)\s*km/i);
+    let parsedKm = kmMatch ? parseFloat(kmMatch[1]) : 0;
+    if (isNaN(parsedKm) || parsedKm <= 0) parsedKm = 0;
+    // Server-side minimum expected km sanity check
+    let minKm = 5;
+    const combined = (pickup + ' ' + dropoff).toLowerCase();
+    if (combined.includes('munich') || combined.includes('münchen')) minKm = 430;
+    else if (combined.includes('innsbruck')) minKm = 475;
+    else if (combined.includes('linz')) minKm = 180;
+    else if (combined.includes('cesky krumlov') || combined.includes('krumlov')) minKm = 200;
+    else if (combined.includes('brno')) minKm = 135;
+    else if (combined.includes('airport') || combined.includes('vie') || combined.includes('schwechat')) minKm = 18;
+    distKm = Math.max(parsedKm, minKm);
   }
 
-  if (isReturn && !isTransfer) {
-    basePrice *= 2;
+  // Resolve hours (for hourly bookings)
+  let hours = 3;
+  const hMatch = specialRequests.match(/(\d+)\s*hours?/i) || service.match(/(\d+)\s*hours?/i);
+  if (hMatch && hMatch[1]) hours = parseInt(hMatch[1], 10);
+
+  // Resolve day trip index
+  let tripIndex = 0;
+  if (isDayTrip) {
+    const idx = DAY_TRIPS.findIndex(t =>
+      service.includes(t.name.toLowerCase()) ||
+      (pickup  + ' ' + dropoff).toLowerCase().includes(t.name.split(' ')[0].toLowerCase())
+    );
+    if (idx !== -1) tripIndex = idx;
   }
 
-  // 2. Vehicle Multiplier (applies to day trips and hourly only; transfers use kmRate directly)
-  let mult = 1.0;
-  if (!isTransfer || !kmMatch) {
-    // Apply vehicle multiplier only if NOT using km-based pricing
-    for (const [vKey, vMult] of Object.entries(VEHICLE_MULTIPLIERS)) {
-      if (vehicle.includes(vKey)) {
-        mult = vMult;
-        break;
-      }
-    }
-  }
+  // Child seat count
+  const childSeatCount = Math.max(0, Number(
+    childSeatCountOverride !== undefined ? childSeatCountOverride : (booking.childSeatCount || 0)
+  ));
 
-  const vehicleSubtotal = basePrice * mult;
-
-  // 3. Child Seat Charges (€10 per seat) — use override from request or stored booking field
-  const childSeatCount = Number(
-    childSeatCountOverride !== undefined
-      ? childSeatCountOverride
-      : booking.childSeatCount || 0
-  );
-  const childSeatCharge = Math.max(0, childSeatCount) * CHILD_SEAT_RATE_EUR;
-
-  const subtotal = vehicleSubtotal + childSeatCharge;
-
-  // 4. Discount Validation (Server-Side — applied to vehicle subtotal only, not child seat charge)
-  let discountPercent = 0;
-  const cleanCode = (discountCode || '').trim().toUpperCase();
-  if (cleanCode === 'WELCOME10') {
-    discountPercent = 10;
-  }
-
-  const discountAmount = (vehicleSubtotal * discountPercent) / 100;
-  const total = Math.max(35, subtotal - discountAmount);
+  // Call unified pricing engine
+  const result = calculateBookingTotal({
+    mode,
+    pickup,
+    dropoff,
+    distKm,
+    vehicle,
+    tripType,
+    hours,
+    extraMinutes: 0,
+    tripIndex,
+    childSeats: childSeatCount,
+    promoCode: discountCode || ''
+  });
 
   return {
-    vehicleSubtotal: Math.round(vehicleSubtotal * 100) / 100,
+    vehicleSubtotal:  result.vehicleSubtotal,
     childSeatCount,
-    childSeatCharge: Math.round(childSeatCharge * 100) / 100,
-    subtotal: Math.round(subtotal * 100) / 100,
-    discountPercent,
-    discountAmount: Math.round(discountAmount * 100) / 100,
-    total: Math.round(total * 100) / 100,
-    currency: 'EUR'
+    childSeatCharge:  result.childSeatCharge,
+    subtotal:         result.subtotal,
+    discountPercent:  result.discountPercent,
+    discountAmount:   result.discountAmount,
+    total:            result.total,
+    currency:         'EUR'
   };
 }
 

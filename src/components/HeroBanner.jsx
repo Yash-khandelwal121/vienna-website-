@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   MapPin,
@@ -19,6 +19,8 @@ import {
 import VehicleModal from './VehicleModal';
 import { useLanguage } from '../context/LanguageContext';
 import { submitBookingEnquiry } from '../services/api';
+
+const HERO_GMAPS_KEY = String(import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '');
 
 /* 
   MERCEDES-BENZ FLEET DATA FOR HERO CAROUSEL
@@ -178,6 +180,58 @@ export default function HeroBanner() {
   });
   const [errorMsg, setErrorMsg] = useState('');
   const [focusedField, setFocusedField] = useState(null);
+
+  // Google Places Autocomplete refs (same approach as Booking page)
+  const puInputRef  = useRef(null);
+  const drInputRef  = useRef(null);
+  const hPuInputRef = useRef(null); // hourly pickup ref
+  const puACRef     = useRef(null);
+  const drACRef     = useRef(null);
+  const hPuACRef    = useRef(null);
+  const [gmapsReady, setGmapsReady] = useState(Boolean(window.google?.maps?.places));
+
+  // Load Google Maps script (places library) if not already present
+  useEffect(() => {
+    if (!HERO_GMAPS_KEY) return;
+    if (window.google?.maps?.places) { setGmapsReady(true); return; }
+    if (document.getElementById('vdt-google-maps-script')) {
+      // Script already injected by Booking page — wait for load
+      const interval = setInterval(() => {
+        if (window.google?.maps?.places) { setGmapsReady(true); clearInterval(interval); }
+      }, 200);
+      return () => clearInterval(interval);
+    }
+    const script = document.createElement('script');
+    script.id = 'vdt-google-maps-script';
+    script.async = true;
+    script.defer = true;
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(HERO_GMAPS_KEY)}&libraries=places&v=weekly`;
+    script.onload = () => setGmapsReady(true);
+    document.head.appendChild(script);
+  }, []);
+
+  // Attach autocomplete to an input ref; returns a cleanup function
+  const attachAutocomplete = useCallback((inputRef, acRef, fieldName) => {
+    if (!gmapsReady || !inputRef.current || !window.google?.maps?.places) return;
+    if (acRef.current) acRef.current.unbindAll?.();
+    const ac = new window.google.maps.places.Autocomplete(inputRef.current, {
+      types: ['geocode', 'establishment'],
+      fields: ['formatted_address', 'geometry', 'name', 'place_id']
+    });
+    acRef.current = ac;
+    const listener = ac.addListener('place_changed', () => {
+      const place = ac.getPlace();
+      const value = place.formatted_address || place.name || inputRef.current.value;
+      handleInputChange(fieldName, value);
+      setFocusedField(null);
+    });
+    return () => { window.google.maps.event.removeListener(listener); };
+  }, [gmapsReady]);
+
+  // Attach autocomplete whenever gmaps becomes ready, active tab changes, or inputs mount
+  useEffect(() => { const c = attachAutocomplete(puInputRef,  puACRef,  'pickup');  return c; }, [gmapsReady, attachAutocomplete, activeTab]);
+  useEffect(() => { const c = attachAutocomplete(drInputRef,  drACRef,  'dropoff'); return c; }, [gmapsReady, attachAutocomplete, activeTab]);
+  useEffect(() => { const c = attachAutocomplete(hPuInputRef, hPuACRef, 'pickup');  return c; }, [gmapsReady, attachAutocomplete, activeTab]);
 
   // Modal showcase state (for vehicle inspection if clicked)
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -563,6 +617,7 @@ export default function HeroBanner() {
                       <span className="vdt-ref-help" title="Pickup airport, hotel or address">?</span>
                     </label>
                     <input
+                      ref={puInputRef}
                       id="hero-pickup-loc"
                       type="text"
                       placeholder="Enter a location"
@@ -573,7 +628,7 @@ export default function HeroBanner() {
                       className="vdt-ref-cell-input"
                       autoComplete="off"
                     />
-                    {focusedField === 'pickup' && (
+                    {!gmapsReady && focusedField === 'pickup' && (
                       <div className="vdt-ref-suggestions-menu">
                         {popularLocations.filter(loc => !formData.pickup || loc.toLowerCase().includes(formData.pickup.toLowerCase())).slice(0, 5).map((loc, i) => (
                           <div
@@ -598,6 +653,7 @@ export default function HeroBanner() {
                       <span className="vdt-ref-help" title="Destination address or city">?</span>
                     </label>
                     <input
+                      ref={drInputRef}
                       id="hero-dropoff-loc"
                       type="text"
                       placeholder="Enter a location"
@@ -608,7 +664,7 @@ export default function HeroBanner() {
                       className="vdt-ref-cell-input"
                       autoComplete="off"
                     />
-                    {focusedField === 'dropoff' && (
+                    {!gmapsReady && focusedField === 'dropoff' && (
                       <div className="vdt-ref-suggestions-menu">
                         {popularLocations.filter(loc => !formData.dropoff || loc.toLowerCase().includes(formData.dropoff.toLowerCase())).slice(0, 5).map((loc, i) => (
                           <div
@@ -709,6 +765,7 @@ export default function HeroBanner() {
                       <span className="vdt-ref-help" title="Pickup hotel or address">?</span>
                     </label>
                     <input
+                      ref={hPuInputRef}
                       id="hero-hourly-pickup"
                       type="text"
                       placeholder="Enter a location"
@@ -719,7 +776,7 @@ export default function HeroBanner() {
                       className="vdt-ref-cell-input"
                       autoComplete="off"
                     />
-                    {focusedField === 'pickup' && (
+                    {!gmapsReady && focusedField === 'pickup' && (
                       <div className="vdt-ref-suggestions-menu">
                         {popularLocations.filter(loc => !formData.pickup || loc.toLowerCase().includes(formData.pickup.toLowerCase())).slice(0, 5).map((loc, i) => (
                           <div

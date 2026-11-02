@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { useLocation, Link } from 'react-router-dom';
+import { useLocation, Link, useNavigate } from 'react-router-dom';
 import {
   submitBookingEnquiry,
   createStripeCheckoutSession,
@@ -7,6 +7,15 @@ import {
   simulatePaymentSuccess
 } from '../services/api';
 import './Booking.css';
+import {
+  VEHICLES,
+  DAY_TRIPS,
+  CHILD_SEAT_RATE as CS_RATE,
+  PROMO_CODES,
+  calculateBookingTotal,
+  isAirport,
+  isViennaCity
+} from '../utils/pricingEngine';
 
 /* =========================================================================
    SETTINGS & CONFIGURATION (matching exact supplied code)
@@ -19,78 +28,16 @@ const S = {
   RAZORPAY_KEY: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_XXXXXXXXXXXX',
   CURRENCY: 'EUR',
   WHATSAPP: '436642035445',
-  HOURLY: 52,
+  // Hourly rate is now per-vehicle (from pricingEngine); kept for fallback display only
+  HOURLY: 55,
   STEP: 15,
   BASE: 35,
-  PER_KM: 1.45, // legacy fallback only
   MIN: 55,
-  FIX: {
-    salzburg: 595,
-    hallstatt: 595,
-    budapest: 495,
-    prague: 513,
-    bratislava: 120,
-    graz: 338
-  },
-  TOURS: [
-    ['Hallstatt Day Trip', 595],
-    ['Salzburg Day Trip', 595],
-    ['Wachau Valley Day Trip', 416],
-    ['Bratislava Day Trip', 208],
-    ['Budapest Day Trip', 495],
-    ['Prague Day Trip', 513],
-    ['Vienna Sightseeing Tour', 208]
-  ],
-  CODES: { WELCOME10: 10 },
-  // KM-based transfer rates per vehicle (EUR per km)
-  VEHICLE_KM_RATES: {
-    sedan_business: 1.80,  // Mercedes-Benz E-Class
-    sedan_first: 2.70,     // Mercedes-Benz S-Class
-    eqs: 2.70,             // Mercedes-Benz EQS (same tier as S-Class)
-    van_business: 2.00     // Mercedes-Benz V-Class
-  },
-  CARS: [
-    {
-      id: 'sedan_business',
-      name: 'Mercedes-Benz E-Class',
-      tag: 'Business Class',
-      pax: 3,
-      bags: 2,
-      mult: 1,       // kept for day-trip/hourly multiplier compatibility
-      kmRate: 1.80,  // €/km for transfers
-      img: '/cars/e-class.webp'
-    },
-    {
-      id: 'sedan_first',
-      name: 'Mercedes-Benz S-Class',
-      tag: 'First Class VIP',
-      pax: 3,
-      bags: 2,
-      mult: 1.5,
-      kmRate: 2.70,
-      img: '/cars/s-class.webp'
-    },
-    {
-      id: 'eqs',
-      name: 'Mercedes-Benz EQS',
-      tag: 'Electric VIP',
-      pax: 3,
-      bags: 2,
-      mult: 1.5,
-      kmRate: 2.70,
-      img: '/cars/s-class.webp'
-    },
-    {
-      id: 'van_business',
-      name: 'Mercedes-Benz V-Class',
-      tag: 'Executive Van',
-      pax: 7,
-      bags: 7,
-      mult: 1.35,
-      kmRate: 2.00,
-      img: '/cars/v-class.webp'
-    }
-  ]
+  // TOURS now driven by pricingEngine.DAY_TRIPS — kept as legacy array of [name, baseFare] for UI
+  TOURS: DAY_TRIPS.map(t => [t.name, t.baseFare]),
+  CODES: PROMO_CODES,
+  // CARS pulled from the shared pricing engine (includes EQE)
+  CARS: VEHICLES
 };
 
 const STEP_NAMES = [
@@ -259,6 +206,7 @@ export default function Booking() {
   const [pu, setPu] = useState('');
   const [dr, setDr] = useState('');
   const [ty, setTy] = useState('oneway'); // 'oneway' | 'return'
+  const navigate = useNavigate();
   const [hr, setHr] = useState(3);
   const [tr, setTr] = useState(0);
   const [ex, setEx] = useState(0);
@@ -351,7 +299,8 @@ export default function Booking() {
     if (q.get('dropoff')) setDr(q.get('dropoff'));
     if (q.get('date') && q.get('date') >= today) setD(q.get('date'));
     if (q.get('time')) setT(q.get('time'));
-    if (q.get('type')) setTy(q.get('type')); // 'oneway' | 'return'
+    const typeParam = q.get('type') || q.get('ty');
+    if (typeParam) setTy(typeParam); // 'oneway' | 'return'
     if (q.get('hours')) setHr(Number(q.get('hours')));
     if (q.get('extra')) setEx(Number(q.get('extra')));
 
@@ -417,6 +366,16 @@ export default function Booking() {
       setStep(4);
     }
   }, [location.search]);
+
+  // Task 2: Sync trip-type (ty) back to URL so page refresh preserves Return / One Way selection
+  useEffect(() => {
+    const q = new URLSearchParams(location.search);
+    const currentType = q.get('type') || 'oneway';
+    if (mode === 'transfer' && currentType !== ty) {
+      q.set('type', ty);
+      navigate(`?${q.toString()}`, { replace: true });
+    }
+  }, [ty, mode]);
 
   const VIENNA_CENTER = { lat: 48.2082, lng: 16.3738 };
 
@@ -804,7 +763,7 @@ export default function Booking() {
     }
   }, [step, directionsData]);
 
-  const CHILD_SEAT_RATE = 10; // EUR per child seat
+  const CHILD_SEAT_RATE = CS_RATE; // from pricingEngine
 
   // Effective KM distance for pricing (live Google Maps value or fallback estimate)
   const effectiveKm = useMemo(() => {
@@ -817,56 +776,33 @@ export default function Booking() {
   const distanceUnavailable = mode === 'transfer' && effectiveKm === 0 && !pu.trim();
 
   /**
-   * basePrice – the 'unit price' before vehicle-specific calculation:
-   * • transfer: the effective KM distance (pricing is km × rate per vehicle)
-   * • hourly:   total hours * hourly rate
-   * • daytrip:  fixed tour price
-   */
-  const basePrice = useMemo(() => {
-    const e = (Number(ex) / 60) * S.HOURLY;
-    let b = null;
-    if (mode === 'hourly') {
-      const hours = Math.max(2, Number(hr) || 2);
-      b = hours * S.HOURLY;
-    } else if (mode === 'daytrip') {
-      b = S.TOURS[tr] ? S.TOURS[tr][1] : 208;
-    } else {
-      // Transfer mode: return the km distance as the base (each vehicle applies its own rate)
-      // We store the raw km here; totals() multiplies by the vehicle's kmRate
-      b = effectiveKm > 0 ? effectiveKm : 0;
-      if (ty === 'return') b *= 2;
-    }
-    // For non-transfer modes, add extra-time charge
-    const calculatedBase = (b !== null && !isNaN(b)) ? b : 0;
-    return mode !== 'transfer' ? calculatedBase + e : calculatedBase;
-  }, [mode, hr, tr, ex, pu, dr, km, ty, effectiveKm]);
-
-  /**
-   * totals – compute the per-vehicle price and final total
-   * Transfer mode uses km × vehicle.kmRate
-   * Other modes use base × vehicle.mult (existing logic)
+   * totals – compute the complete booking price using the shared pricingEngine.
+   * Returns same shape as before: { s, childSeatCharge, d, t } for backward compat.
    */
   const totals = useMemo(() => {
     const selectedCar = car || S.CARS[0];
-    let s;
-    if (mode === 'transfer') {
-      const kmDist = basePrice > 0 ? basePrice : effectiveKm;
-      const rate = selectedCar.kmRate || 1.80;
-      s = kmDist > 0 ? kmDist * rate : S.MIN;
-    } else {
-      const effectiveBase = (basePrice !== null && !isNaN(basePrice) && basePrice > 0) ? basePrice : S.MIN;
-      s = effectiveBase * selectedCar.mult;
-    }
-    const childSeatCharge = Number(cs || 0) * CHILD_SEAT_RATE;
-    const subtotalWithChildSeats = s + childSeatCharge;
-    const d = disc ? (s * disc.p) / 100 : 0;
+    const result = calculateBookingTotal({
+      mode,
+      pickup: pu,
+      dropoff: dr,
+      distKm: effectiveKm,
+      vehicle: selectedCar,
+      tripType: ty,       // 'oneway' | 'return'
+      hours: hr,
+      extraMinutes: Number(ex) || 0,
+      tripIndex: tr,
+      childSeats: Number(cs) || 0,
+      promoCode: disc ? disc.c : ''
+    });
     return {
-      s,                            // vehicle subtotal (before child seats & discount)
-      childSeatCharge,              // €10 * number of child seats
-      d,                            // discount applied to vehicle subtotal only
-      t: subtotalWithChildSeats - d // final total in EUR
+      s:             result.vehicleSubtotal,      // vehicle subtotal
+      intlSurcharge: result.internationalSurcharge, // international surcharge
+      childSeatCharge: result.childSeatCharge,   // child seats charge
+      d:             result.discountAmount,        // discount
+      t:             result.total,                 // final total
+      breakdown:     result.breakdown
     };
-  }, [basePrice, car, disc, cs, mode, effectiveKm]);
+  }, [car, mode, pu, dr, effectiveKm, ty, hr, ex, tr, cs, disc]);
 
   const serviceLabel = () => {
     return { transfer: 'Transfer', hourly: 'Hourly Chauffeur', daytrip: 'Day Trip' }[mode];
@@ -961,10 +897,11 @@ export default function Booking() {
     if (disc) L.push(['Discount code', `${disc.c} (-${disc.p}%)`]);
     if (tVal) {
       L.push(['Vehicle price', money(tVal.s)]);
+      if (tVal.intlSurcharge > 0) L.push(['International surcharge', money(tVal.intlSurcharge)]);
       if (tVal.childSeatCharge > 0) L.push(['Child seats charge', money(tVal.childSeatCharge)]);
       if (tVal.d > 0) L.push(['Discount', `-${money(tVal.d)}`]);
     }
-    L.push(['Total', money(tVal ? tVal.t : (S.MIN * (car?.mult || 1)))]);
+    L.push(['Total', money(tVal ? tVal.t : S.MIN)]);
     return L;
   };
 
@@ -1042,6 +979,7 @@ export default function Booking() {
         childSeatCount > 0 ? `Child seats: ${childSeatCount} × €${CHILD_SEAT_RATE} = €${childSeatCharge}` : '',
         // Include distance so backend can verify km-based transfer pricing
         mode === 'transfer' && effectiveKm > 0 ? `Distance: ${Math.round(effectiveKm)} km` : '',
+        totals && totals.intlSurcharge > 0 ? `International surcharge: €${totals.intlSurcharge}` : '',
         totals ? `Vehicle Price: €${totals.s.toFixed(2)} | Total: €${totals.t.toFixed(2)}` : '',
         isOnline
           ? 'Payment method: Pay Online (Stripe)'
@@ -1530,7 +1468,7 @@ export default function Booking() {
                 </div>
                 <div className="stats">
                   <div>
-                    <span>Total distance</span>
+                    <span>{ty === 'return' ? 'Outbound route' : 'One-way route'}</span>
                     <b id="km">
                       {km > 0 ? `${Math.round(km)} km` : '—'}
                     </b>
@@ -1559,28 +1497,38 @@ export default function Booking() {
               STEP 2: CHOOSE A VEHICLE
               ===================================================================== */}
           <section className={`panel ${step === 2 ? 'on' : ''}`} data-p="2">
-            {/* KM pricing info banner for transfer mode */}
-            {mode === 'transfer' && effectiveKm > 0 && (
-              <div style={{
-                background: 'linear-gradient(135deg, #fffdf8, #fdf8ed)',
-                border: '1px solid #eadfca',
-                borderRadius: '12px',
-                padding: '12px 18px',
-                marginBottom: '16px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px',
-                fontSize: '13px',
-                color: '#5a5244'
-              }}>
-                <span style={{ color: '#c9a04f', fontSize: '18px' }}>📍</span>
-                <span>
-                  Route distance: <strong style={{ color: '#1c1a17' }}>{Math.round(effectiveKm)} km</strong>
-                  {ty === 'return' && <span style={{ color: '#c9a04f' }}> (return × 2)</span>}
-                  {' '}— Prices calculated at each vehicle's per-km rate
-                </span>
-              </div>
-            )}
+            {/* Route info banner for transfer mode */}
+            {mode === 'transfer' && effectiveKm > 0 && (() => {
+              const isFixedRoute =
+                (isAirport(pu) && isViennaCity(dr)) ||
+                (isViennaCity(pu) && isAirport(dr)) ||
+                (isViennaCity(pu) && isViennaCity(dr));
+              return (
+                <div style={{
+                  background: 'linear-gradient(135deg, #fffdf8, #fdf8ed)',
+                  border: '1px solid #eadfca',
+                  borderRadius: '12px',
+                  padding: '12px 18px',
+                  marginBottom: '16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  fontSize: '13px',
+                  color: '#5a5244'
+                }}>
+                  <span style={{ color: '#c9a04f', fontSize: '18px' }}>📍</span>
+                  <span>
+                    {ty === 'return'
+                      ? `Outbound route: ${Math.round(effectiveKm)} km`
+                      : `Route distance: ${Math.round(effectiveKm)} km`}
+                    {' — '}
+                    {isFixedRoute
+                      ? <strong style={{ color: '#1c1a17' }}>Fixed price · all-inclusive</strong>
+                      : 'Price varies by vehicle and distance'}
+                  </span>
+                </div>
+              );
+            })()}
             {mode === 'transfer' && effectiveKm === 0 && pu.trim() && dr.trim() && (
               <div style={{
                 background: '#fff8e6',
@@ -1597,19 +1545,45 @@ export default function Booking() {
             <div id="cars">
               {S.CARS.map((vehicle) => {
                 const isSelected = car && car.id === vehicle.id;
-                // Transfer: km × rate; other modes: base × mult
+                // Per-vehicle price using the shared pricingEngine
                 let calculatedPrice;
                 let priceSubLabel;
-                if (mode === 'transfer') {
-                  const kmDist = effectiveKm > 0 ? (ty === 'return' ? effectiveKm * 2 : effectiveKm) : 0;
-                  calculatedPrice = kmDist > 0 ? kmDist * vehicle.kmRate : S.MIN;
-                  priceSubLabel = effectiveKm > 0
-                    ? `€${vehicle.kmRate.toFixed(2)}/km · ${Math.round(kmDist)} km`
-                    : `€${vehicle.kmRate.toFixed(2)}/km`;
-                } else {
-                  const vehicleBase = (basePrice !== null && !isNaN(basePrice) && basePrice > 0) ? basePrice : S.MIN;
-                  calculatedPrice = vehicleBase * vehicle.mult;
+                if (mode === 'hourly') {
+                  calculatedPrice = vehicle.hourlyRate * Math.max(2, Number(hr) || 2);
+                  if (Number(ex)) calculatedPrice += ((Number(ex) / 60) * vehicle.hourlyRate);
+                  priceSubLabel = `€${vehicle.hourlyRate}/hr · ${Math.max(2, Number(hr) || 2)}h`;
+                } else if (mode === 'daytrip') {
+                  const trip = S.TOURS[tr] ? { km: (DAY_TRIPS[tr] || {km: 200}).km } : { km: 200 };
+                  const oneWay = trip.km * vehicle.kmRate;
+                  calculatedPrice = ty === 'return' ? oneWay * 2 : oneWay;
                   priceSubLabel = 'fixed, all-inclusive';
+                } else {
+                  // Transfer mode — use calculateBookingTotal for this vehicle
+                  const vehicleResult = calculateBookingTotal({
+                    mode,
+                    pickup: pu,
+                    dropoff: dr,
+                    distKm: effectiveKm,
+                    vehicle,
+                    tripType: ty,
+                    childSeats: 0,
+                    promoCode: ''
+                  });
+                  calculatedPrice = vehicleResult.total;
+                  // Only show per-km label for non-fixed (distance-based) routes
+                  const isFixedTransfer =
+                    (isAirport(pu) && isViennaCity(dr)) ||
+                    (isViennaCity(pu) && isAirport(dr)) ||
+                    (isViennaCity(pu) && isViennaCity(dr));
+                  if (isFixedTransfer) {
+                    priceSubLabel = ty === 'return'
+                      ? 'Return trip · fixed price, all-inclusive'
+                      : 'Fixed price · all-inclusive';
+                  } else {
+                    priceSubLabel = effectiveKm > 0
+                      ? `€${vehicle.kmRate.toFixed(2)}/km · ${Math.round(effectiveKm)} km`
+                      : `€${vehicle.kmRate.toFixed(2)}/km`;
+                  }
                 }
                 const priceFormatted = eur(calculatedPrice);
 
@@ -1988,7 +1962,7 @@ export default function Booking() {
                     {mode === 'transfer' && (
                       <div className="s2">
                         <div className="r">
-                          <span>Total distance</span>
+                          <span>{ty === 'return' ? 'Outbound route distance' : 'One-way route distance'}</span>
                           <b>{Math.round(km)} km</b>
                         </div>
                         <div className="r">
@@ -2050,6 +2024,12 @@ export default function Booking() {
                         <span>Vehicle price</span>
                         <span>{money(totals.s)}</span>
                       </div>
+                      {totals.intlSurcharge > 0 && (
+                        <div className="pr">
+                          <span>International surcharge</span>
+                          <span>+{money(totals.intlSurcharge)}</span>
+                        </div>
+                      )}
                       {totals.childSeatCharge > 0 && (
                         <div className="pr">
                           <span>Child seat{cs > 1 ? 's' : ''} ({cs} × €{CHILD_SEAT_RATE})</span>
@@ -2070,7 +2050,7 @@ export default function Booking() {
                   ) : (
                     <div className="pr t">
                       <span>Total</span>
-                      <span>{money((basePrice ?? S.MIN) * (car?.mult || 1))}</span>
+                      <span>{money(S.MIN)}</span>
                     </div>
                   )}
                 </div>

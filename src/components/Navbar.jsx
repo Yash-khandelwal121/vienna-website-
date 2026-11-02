@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, ChevronDown, Globe, Calendar, ArrowUpRight, Phone, MessageSquare, Check } from 'lucide-react';
 import { siteConfig, navLinks } from '../data/site';
 import { useLanguage, LANGUAGES } from '../context/LanguageContext';
@@ -12,10 +12,18 @@ export default function Navbar() {
   const [langDropdownOpen, setLangDropdownOpen] = useState(false);
   const [mobileLangOpen, setMobileLangOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const { language, setLanguage, t } = useLanguage();
   const { effectiveTheme, toggleTheme } = useTheme();
   const langRef = useRef(null);
   const desktopNavRef = useRef(null);
+
+  const handleMobileLinkClick = (e, href) => {
+    if (e && e.preventDefault) e.preventDefault();
+    setMobileOpen(false);
+    navigate(href);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -684,7 +692,7 @@ export default function Navbar() {
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <Link
                   to={item.href}
-                  onClick={() => setMobileOpen(false)}
+                  onClick={(e) => handleMobileLinkClick(e, item.href)}
                   style={{
                     fontFamily: 'var(--font-heading)',
                     fontSize: '1.25rem',
@@ -736,7 +744,7 @@ export default function Navbar() {
                       key={sub.href}
                       to={sub.href}
                       role="menuitem"
-                      onClick={() => setMobileOpen(false)}
+                      onClick={(e) => handleMobileLinkClick(e, sub.href)}
                       style={{
                         color: isActive(sub.href) ? '#C69C50' : '#62666D',
                         textDecoration: 'none',
@@ -763,13 +771,13 @@ export default function Navbar() {
               More Links
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              <Link to="/tour-pricing/" onClick={() => setMobileOpen(false)} style={{ color: '#17191C', textDecoration: 'none', fontSize: '0.95rem' }}>
+              <Link to="/tour-pricing/" onClick={(e) => handleMobileLinkClick(e, '/tour-pricing/')} style={{ color: '#17191C', textDecoration: 'none', fontSize: '0.95rem' }}>
                 {t('footer_private_day_trips') || 'Private Day Trips'}
               </Link>
-              <Link to="/blog" onClick={() => setMobileOpen(false)} style={{ color: '#17191C', textDecoration: 'none', fontSize: '0.95rem' }}>
+              <Link to="/blog" onClick={(e) => handleMobileLinkClick(e, '/blog')} style={{ color: '#17191C', textDecoration: 'none', fontSize: '0.95rem' }}>
                 {t('nav_blog')}
               </Link>
-              <Link to="/contact-us-i/" onClick={() => setMobileOpen(false)} style={{ color: '#17191C', textDecoration: 'none', fontSize: '0.95rem' }}>
+              <Link to="/contact-us-i/" onClick={(e) => handleMobileLinkClick(e, '/contact-us-i/')} style={{ color: '#17191C', textDecoration: 'none', fontSize: '0.95rem' }}>
                 {t('nav_contact')}
               </Link>
             </div>
@@ -778,7 +786,7 @@ export default function Navbar() {
           <div style={{ marginTop: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
             <Link
               to="/booking"
-              onClick={() => setMobileOpen(false)}
+              onClick={(e) => handleMobileLinkClick(e, '/booking')}
               className="btn btn-primary"
               style={{
                 width: '100%',

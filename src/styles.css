@@ -287,6 +287,14 @@ html[data-theme="dark"] body {
 [data-theme="dark"] .booking-vdt-root .ttb-ac li { color: #F0EDE8; border-color: #252B33; }
 [data-theme="dark"] .booking-vdt-root .ttb-ac li:hover { background: #252B33; color: #C9A04F; }
 
+/* Google Places autocomplete base */
+.pac-container {
+  z-index: 99999 !important;
+  font-family: inherit !important;
+  border-radius: 12px !important;
+  margin-top: 6px !important;
+}
+
 /* Google Places autocomplete dark */
 [data-theme="dark"] .pac-container {
   background: #1E2228 !important;
