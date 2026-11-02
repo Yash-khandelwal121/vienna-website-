@@ -41,7 +41,10 @@ import {
 import {
   getAllMedia,
   uploadMedia,
-  deleteMedia
+  deleteMedia,
+  getUploadMode,
+  getBlobUploadToken,
+  registerBlobAsset
 } from '../controllers/mediaController.js';
 import {
   getSettings,
@@ -96,10 +99,14 @@ router.delete('/day-trips/:id', requireRole('SUPER_ADMIN', 'CONTENT_EDITOR'), de
 router.get('/blogs', getAdminBlogs);
 router.post('/blogs', requireRole('SUPER_ADMIN', 'CONTENT_EDITOR'), createBlog);
 router.patch('/blogs/:id', requireRole('SUPER_ADMIN', 'CONTENT_EDITOR'), updateBlog);
+router.put('/blogs/:id', requireRole('SUPER_ADMIN', 'CONTENT_EDITOR'), updateBlog);
 router.delete('/blogs/:id', requireRole('SUPER_ADMIN', 'CONTENT_EDITOR'), deleteBlog);
 
 // Media Library
 router.get('/media', getAllMedia);
+router.get('/media/upload-mode', getUploadMode);
+router.post('/media/blob-token', getBlobUploadToken);
+router.post('/media/register', registerBlobAsset);
 router.post('/media/upload', upload.single('file'), uploadMedia);
 router.delete('/media/:id', requireRole('SUPER_ADMIN', 'CONTENT_EDITOR'), deleteMedia);
 

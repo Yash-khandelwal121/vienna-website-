@@ -55,6 +55,10 @@ const createPortableTextComponents = (headingCounterRef) => ({
             alt={value.alt || ''}
             title={value.title || undefined}
             loading="lazy"
+            onError={(e) => {
+              e.currentTarget.onerror = null;
+              e.currentTarget.src = '/images/vienna-palace-backdrop.webp';
+            }}
             style={{
               maxWidth: '100%',
               height: 'auto',
@@ -615,6 +619,10 @@ export default function BlogDetail() {
                   alt={post.featuredImageAlt || post.title}
                   title={post.featuredImageTitle || undefined}
                   className="vdt-article-featured-img"
+                  onError={(e) => {
+                    e.currentTarget.onerror = null;
+                    e.currentTarget.src = '/images/vienna-palace-backdrop.webp';
+                  }}
                 />
                 {post.featuredImageAlt && post.featuredImageAlt !== post.title && (
                   <div className="vdt-article-featured-caption">
@@ -823,6 +831,10 @@ export default function BlogDetail() {
                           src={rel.featuredImage}
                           alt={rel.title}
                           loading="lazy"
+                          onError={(e) => {
+                            e.currentTarget.onerror = null;
+                            e.currentTarget.src = '/images/vienna-palace-backdrop.webp';
+                          }}
                         />
                       </div>
                       <div style={{ flex: 1 }}>
@@ -937,6 +949,10 @@ export default function BlogDetail() {
                       src={rel.featuredImage}
                       alt={rel.featuredImageAlt || rel.title}
                       loading="lazy"
+                      onError={(e) => {
+                        e.currentTarget.onerror = null;
+                        e.currentTarget.src = '/images/vienna-palace-backdrop.webp';
+                      }}
                     />
                   </div>
 

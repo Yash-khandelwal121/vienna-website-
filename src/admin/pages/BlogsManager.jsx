@@ -62,6 +62,7 @@ export default function BlogsManager() {
   const [uploadingImage, setUploadingImage] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
   const [manualSlugEdit, setManualSlugEdit] = useState(false);
+  const [imagePreviewError, setImagePreviewError] = useState(false);
 
   // Form State
   const [form, setForm] = useState({
@@ -454,40 +455,150 @@ export default function BlogsManager() {
     );
   };
 
-  // Upload Featured Image with persistent media storage
+  // Upload Featured Image with persistent media storage (Vercel Blob / Server-Proxy)
   const handleFeaturedImageUpload = async (e) => {
     const file = e.target.files?.[0];
+    // Reset input so the same file can be re-selected after an error
+    if (e.target) e.target.value = '';
     if (!file) return;
+
+    // Client-side validation: format (JPG, PNG, WebP, AVIF, SVG)
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/avif', 'image/svg+xml'];
+    if (!allowedTypes.includes(file.type)) {
+      setMessage({
+        type: 'error',
+        text: `Unsupported file type: ${file.type || 'unknown'}. Please select a JPG, PNG, WebP, AVIF, or SVG image.`
+      });
+      return;
+    }
+
+    // Client-side validation: size (15MB max)
+    const MAX_SIZE_BYTES = 15 * 1024 * 1024;
+    if (file.size > MAX_SIZE_BYTES) {
+      setMessage({
+        type: 'error',
+        text: `File too large: ${(file.size / 1024 / 1024).toFixed(1)} MB. Maximum allowed size is 15 MB.`
+      });
+      return;
+    }
 
     try {
       setUploadingImage(true);
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('category', 'blog_featured');
-      formData.append('altText', form.featuredImageAlt || form.title || file.name);
+      setMessage({ type: '', text: '' });
+      setImagePreviewError(false);
 
-      const res = await fetch('/api/v1/admin/media/upload', {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
-        body: formData
-      });
-      const data = await res.json();
-      if (data.success && data.asset?.url) {
-        setForm({
-          ...form,
-          featuredImage: data.asset.url,
-          featuredImageAlt: form.featuredImageAlt || form.title,
-          seo: {
-            ...form.seo,
-            ogImage: form.seo.ogImage || data.asset.url
-          }
+      let finalUrl = null;
+
+      // 1. Check upload mode: if Vercel Blob is active, upload directly from browser to Vercel Blob CDN
+      let uploadMode = 'server-proxy';
+      try {
+        const modeRes = await fetch('/api/v1/admin/media/upload-mode', {
+          headers: { Authorization: `Bearer ${token}` }
         });
-        setMessage({ type: 'success', text: 'Image uploaded and stored persistently.' });
-      } else {
-        alert(data.error || 'Failed to upload image.');
+        if (modeRes.ok) {
+          const modeData = await modeRes.json();
+          if (modeData?.mode) uploadMode = modeData.mode;
+        }
+      } catch (modeErr) {
+        console.warn('[Upload Mode Check]:', modeErr.message);
+      }
+
+      if (uploadMode === 'blob-client') {
+        try {
+          // Direct client-to-Vercel-Blob upload using @vercel/blob/client
+          // This transfers binary data directly to Vercel's Blob CDN,
+          // completely bypassing Vercel Serverless Function 4.5MB request body limits
+          const { upload } = await import('@vercel/blob/client');
+
+          const ext = file.name.includes('.') ? file.name.slice(file.name.lastIndexOf('.')).toLowerCase() : '';
+          const cleanBase = file.name
+            .replace(/\.[^/.]+$/, '')
+            .toLowerCase()
+            .replace(/[^a-z0-9_-]/g, '-');
+          const uniqueFilename = `${cleanBase}-${Date.now()}-${Math.round(Math.random() * 1e4)}${ext}`;
+
+          const newBlob = await upload(`uploads/${uniqueFilename}`, file, {
+            access: 'public',
+            handleUploadUrl: '/api/v1/admin/media/blob-token',
+            headers: { Authorization: `Bearer ${token}` },
+            clientPayload: JSON.stringify({ category: 'blog_featured' })
+          });
+
+          if (newBlob?.url) {
+            finalUrl = newBlob.url;
+
+            // Register asset in database so it appears in media library and audit logs
+            try {
+              await fetch('/api/v1/admin/media/register', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                  url: newBlob.url,
+                  filename: uniqueFilename,
+                  originalName: file.name,
+                  mimeType: file.type,
+                  size: file.size,
+                  altText: form.featuredImageAlt || form.title || file.name,
+                  category: 'blog_featured'
+                })
+              });
+            } catch (regErr) {
+              console.warn('[Asset Register Note]:', regErr.message);
+            }
+          }
+        } catch (blobErr) {
+          console.warn('[Direct Blob Upload Warning - attempting server-proxy fallback]:', blobErr);
+          finalUrl = null;
+        }
+      }
+
+      // 2. Server-proxy upload (used in local development or if direct upload was skipped/fallback)
+      if (!finalUrl) {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('category', 'blog_featured');
+        formData.append('altText', form.featuredImageAlt || form.title || file.name);
+
+        const res = await fetch('/api/v1/admin/media/upload', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${token}` },
+          body: formData
+        });
+
+        let data;
+        try {
+          data = await res.json();
+        } catch {
+          throw new Error(`Server returned status ${res.status} with no JSON body.`);
+        }
+
+        if (data.success && data.asset?.url) {
+          finalUrl = data.asset.url;
+        } else {
+          throw new Error(data.error || 'Upload failed. Please try again.');
+        }
+      }
+
+      if (finalUrl) {
+        setForm((prev) => ({
+          ...prev,
+          featuredImage: finalUrl,
+          featuredImageAlt: prev.featuredImageAlt || prev.title || file.name,
+          seo: {
+            ...prev.seo,
+            ogImage: prev.seo?.ogImage || finalUrl
+          }
+        }));
+        setImagePreviewError(false);
+        setIsDirty(true);
+        setMessage({ type: 'success', text: `Image uploaded successfully: ${file.name}` });
       }
     } catch (err) {
-      alert('Error uploading image.');
+      console.error('[Image Upload Error]:', err);
+      setMessage({ type: 'error', text: err.message || 'Network error during upload. Please check your connection and try again.' });
     } finally {
       setUploadingImage(false);
     }
@@ -972,7 +1083,7 @@ export default function BlogsManager() {
                       Upload High-Resolution Featured Image
                     </h4>
                     <p style={{ margin: '0 0 1.25rem', color: '#62666D', fontSize: '0.88rem' }}>
-                      Persisted to secure media storage. Compatible with embedded text without aggressive cropping.
+                      Persisted to Vercel Blob persistent cloud storage. Supports JPG, PNG, WebP, AVIF, and SVG (up to 15 MB).
                     </p>
                     <label
                       className="vdt-btn-primary"
@@ -982,7 +1093,7 @@ export default function BlogsManager() {
                       <span>{uploadingImage ? 'Uploading Image...' : 'Select File From Computer'}</span>
                       <input
                         type="file"
-                        accept="image/*"
+                        accept="image/jpeg,image/png,image/webp,image/avif,image/svg+xml"
                         onChange={handleFeaturedImageUpload}
                         disabled={uploadingImage}
                         style={{ display: 'none' }}
@@ -1007,12 +1118,17 @@ export default function BlogsManager() {
                           justifyContent: 'center',
                         }}
                       >
-                        {form.featuredImage ? (
+                        {form.featuredImage && !imagePreviewError ? (
                           <img
                             src={form.featuredImage}
                             alt={form.featuredImageAlt || form.title}
                             style={{ width: '100%', maxHeight: '280px', objectFit: 'contain' }}
+                            onError={() => setImagePreviewError(true)}
                           />
+                        ) : form.featuredImage && imagePreviewError ? (
+                          <span style={{ color: '#E53E3E', fontSize: '0.82rem', textAlign: 'center', padding: '1rem' }}>
+                            ⚠ Image could not be loaded. The URL may be broken or the file may not exist on the server yet.
+                          </span>
                         ) : (
                           <span style={{ color: '#8E929B', fontSize: '0.88rem' }}>No image selected</span>
                         )}
@@ -1034,14 +1150,17 @@ export default function BlogsManager() {
                     {/* Image Metadata Inputs */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                       <div className="vdt-field-group">
-                        <label style={{ fontWeight: 700 }}>Featured Image URL (Direct / Fallback)</label>
+                        <label style={{ fontWeight: 700 }}>Featured Image URL (paste external or CDN URL)</label>
                         <input
                           type="text"
                           value={form.featuredImage}
                           onChange={(e) => updateForm({ featuredImage: e.target.value })}
-                          placeholder="https://cdn.sanity.io/... or /blog-images/image.png"
+                          placeholder="https://example.com/image.jpg or /blog-images/image.png"
                           className="vdt-input"
                         />
+                        <span style={{ fontSize: '0.78rem', color: '#62666D', marginTop: '0.25rem', display: 'block' }}>
+                          Paste any public image URL, or use the upload button above to upload from your computer.
+                        </span>
                       </div>
 
                       <div className="vdt-field-group">

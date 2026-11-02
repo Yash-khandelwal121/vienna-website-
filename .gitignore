@@ -42,3 +42,6 @@ CONTENT_AND_TECH_DOCUMENT.md
 *.key
 *.cert
 STRIPE_CHECKOUT_500_DIAGNOSIS_REPORT.md
+
+public/uploads/*
+!public/uploads/.gitkeep

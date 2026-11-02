@@ -263,6 +263,10 @@ export default function Blog() {
               alt="Imperial Vienna Hofburg Palace and luxury chauffeur Mercedes-Benz"
               className="vdt-blog-hero-image"
               loading="eager"
+              onError={(e) => {
+                e.currentTarget.onerror = null;
+                e.currentTarget.src = '/images/vienna-palace-backdrop.webp';
+              }}
             />
             <div className="vdt-blog-hero-image-overlay" />
           </div>

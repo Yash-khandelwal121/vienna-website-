@@ -3,9 +3,11 @@ import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import path from 'path';
+import fs from 'fs';
 import os from 'os';
 import { initDatabase, ensureDbInitialized } from './config/db.js';
 import apiRouter from './routes/api.js';
+
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -179,7 +181,18 @@ app.use(
 app.use(express.urlencoded({ extended: true, limit: '20mb' }));
 app.use(cookieParser(process.env.COOKIE_SECRET || 'vienna_luxury_cookie_secret_dev_2026'));
 
-// Static uploads serving
+// Ensure local uploads directory exists (created on first run if missing)
+try {
+  const localUploadsDir = path.resolve('public/uploads');
+  if (!fs.existsSync(localUploadsDir)) {
+    fs.mkdirSync(localUploadsDir, { recursive: true });
+    console.log('[Server] Created local uploads directory:', localUploadsDir);
+  }
+} catch {
+  // Non-critical: read-only filesystem or serverless - gracefully ignored
+}
+
+// Static uploads serving - local disk first, then ephemeral /tmp fallback
 app.use('/uploads', express.static(path.resolve('public/uploads')));
 try {
   const tmpUploads = path.join(os.tmpdir(), 'uploads');
