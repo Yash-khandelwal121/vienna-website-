@@ -57,7 +57,7 @@ const createPortableTextComponents = (headingCounterRef) => ({
             loading="lazy"
             onError={(e) => {
               e.currentTarget.onerror = null;
-              e.currentTarget.src = '/images/vienna-palace-backdrop.webp';
+              e.currentTarget.style.display = 'none';
             }}
             style={{
               maxWidth: '100%',
@@ -252,10 +252,16 @@ export default function BlogDetail() {
   const [mobileTocOpen, setMobileTocOpen] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
 
-  // Fetch article data (backend API -> Sanity -> local static fallback)
+  // Fetch article data (backend API -> local static fallback)
+  // IMPORTANT: The API response is always the authoritative source.
+  // The local bundled data (blogPosts.json) provides a structural skeleton for instant
+  // rendering (title, content, etc.) but the API's featuredImage ALWAYS wins.
+  // This prevents stale bundled image URLs from overriding Admin Panel uploads.
   useEffect(() => {
     const local = getBlogPostBySlug(cleanSlug);
     if (local) {
+      // Load local skeleton for instant render, but keep isLoading=true for the image
+      // to prevent showing a stale bundled image before the API confirms the live URL.
       setPost(local);
       setIsLoading(false);
     } else {
@@ -266,9 +272,14 @@ export default function BlogDetail() {
     fetchPublicBlogBySlug(cleanSlug).then((res) => {
       if (isMounted) {
         if (res?.blog) {
+          // API response spreads LAST so it always overrides the bundled static data.
+          // featuredImage from the API (Neon PostgreSQL / Vercel Blob) is authoritative.
           setPost((prev) => ({
             ...(prev || {}),
             ...res.blog,
+            // Explicit: API image always wins over any bundled static image
+            featuredImage: res.blog.featuredImage || prev?.featuredImage || '',
+            featuredImageAlt: res.blog.featuredImageAlt || prev?.featuredImageAlt || '',
             primaryCategory: res.blog.category || prev?.primaryCategory || 'Luxury Travel',
             categories: res.blog.categories || prev?.categories || [res.blog.category || 'Luxury Travel'],
           }));
@@ -620,8 +631,10 @@ export default function BlogDetail() {
                   title={post.featuredImageTitle || undefined}
                   className="vdt-article-featured-img"
                   onError={(e) => {
+                    // Only hide the broken image element — do not silently swap to an
+                    // unrelated landscape photo, which would be misleading to visitors.
                     e.currentTarget.onerror = null;
-                    e.currentTarget.src = '/images/vienna-palace-backdrop.webp';
+                    e.currentTarget.style.display = 'none';
                   }}
                 />
                 {post.featuredImageAlt && post.featuredImageAlt !== post.title && (
