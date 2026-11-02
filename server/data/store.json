@@ -15,6 +15,15 @@
   "sessions": [],
   "auditLogs": [
     {
+      "id": "aud_1793634726269",
+      "userId": "28d898b5-2d25-481c-a6e2-ad062e6585ef",
+      "action": "ADMIN_LOGIN_SUCCESS",
+      "entity": "AdminUser",
+      "entityId": "28d898b5-2d25-481c-a6e2-ad062e6585ef",
+      "ipAddress": "::1",
+      "createdAt": "2026-11-02T15:52:06.269Z"
+    },
+    {
       "id": "aud_1793620313401",
       "userId": "28d898b5-2d25-481c-a6e2-ad062e6585ef",
       "action": "DELETE_MEDIA",
