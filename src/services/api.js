@@ -25,45 +25,45 @@ export {
 };
 
 export const CANONICAL_DAY_TRIP_IMAGES = {
-  'hallstatt-day-trip-from-vienna': '/images/Hallstatt.jpg',
-  'salzburg-day-trip': '/images/salzburg.jpg',
-  'wachau-valley-trip': '/images/wachauvalley.jpg',
-  'budapest-day-trip': '/images/budapest.jpg',
-  'prague-day-trip': '/images/parague.jpg',
-  'bratislava-day-trip': '/images/bratislava.jpg',
-  'vienna-sightseeing-tour': 'https://viennadaytrip.com/wp-content/uploads/2026/03/vienna-day-teip.jpeg',
-  'customized-day-trips': '/images/customized.jpg',
-  'airport-transfer-vienna': 'https://viennadaytrip.com/wp-content/uploads/2026/03/Vienna-Airport-Schwechat-Terminal-Gate-Check-in-Guide-1024x576-1.webp',
-  'hourly-chauffeur-service': 'https://viennadaytrip.com/wp-content/uploads/2026/03/your-professional-chauffeur.jpg',
-  'secure-transportation': 'https://viennadaytrip.com/wp-content/uploads/2026/05/Armored-Vehicle-.jpeg',
+  'hallstatt-day-trip-from-vienna': 'https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/images/Hallstatt.jpg',
+  'salzburg-day-trip': 'https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/images/salzburg.jpg',
+  'wachau-valley-trip': 'https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/images/wachauvalley.jpg',
+  'budapest-day-trip': 'https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/images/budapest.jpg',
+  'prague-day-trip': 'https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/images/parague.jpg',
+  'bratislava-day-trip': 'https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/images/bratislava.jpg',
+  'vienna-sightseeing-tour': 'https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/wp-uploads/2026/03/vienna-day-teip.jpeg',
+  'customized-day-trips': 'https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/images/customized.jpg',
+  'airport-transfer-vienna': 'https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/images/airport-transfer.webp',
+  'hourly-chauffeur-service': 'https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/images/hourly-chauffeur.webp',
+  'secure-transportation': 'https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/cars/armored_remote.jpg',
 };
 
 export const CANONICAL_FLEET_IMAGES = {
-  'e-class': '/cars/e-class.png',
-  's-class': '/cars/s-class.png',
-  'v-class': '/cars/v-class.png',
-  'sprinter': '/cars/sprinter.png',
-  'armored': '/cars/armored.png',
-  'sedan_business': '/cars/e-class.png',
-  'sedan_first': '/cars/s-class.png',
-  'van_business': '/cars/v-class.png',
-  'mercedes-benz-e-class': '/cars/e-class.png',
-  'mercedes-benz-s-class': '/cars/s-class.png',
-  'mercedes-benz-v-class': '/cars/v-class.png',
-  'mercedes-benz-sprinter': '/cars/sprinter.png',
-  'mercedes-benz-sprinter-vip': '/cars/sprinter.png',
-  'armored-luxury-vehicle': '/cars/armored.png'
+  'e-class': 'https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/cars/e-class.png',
+  's-class': 'https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/cars/s-class.png',
+  'v-class': 'https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/cars/v-class.png',
+  'sprinter': 'https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/cars/sprinter.png',
+  'armored': 'https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/cars/armored.png',
+  'sedan_business': 'https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/cars/e-class.png',
+  'sedan_first': 'https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/cars/s-class.png',
+  'van_business': 'https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/cars/v-class.png',
+  'mercedes-benz-e-class': 'https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/cars/e-class.png',
+  'mercedes-benz-s-class': 'https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/cars/s-class.png',
+  'mercedes-benz-v-class': 'https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/cars/v-class.png',
+  'mercedes-benz-sprinter': 'https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/cars/sprinter.png',
+  'mercedes-benz-sprinter-vip': 'https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/cars/sprinter.png',
+  'armored-luxury-vehicle': 'https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/cars/armored.png'
 };
 
 export const CANONICAL_SERVICE_IMAGES = {
   // Local bundled assets — Git-tracked, served via Vercel CDN, no external dependency
-  'airport-transfers':       '/images/airport-transfer.webp',
-  'airport-transfer-vienna': '/images/airport-transfer.webp',
-  'hourly-chauffeur':        '/images/hourly-chauffeur.webp',
-  'hourly-chauffeur-service':'/images/hourly-chauffeur.webp',
-  'private-day-trips':       '/images/private-day-trips.webp',
-  'day-trips':               '/images/private-day-trips.webp',
-  'secure-transportation':   '/images/secure-transportation.webp',
+  'airport-transfers':       'https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/images/airport-transfer.webp',
+  'airport-transfer-vienna': 'https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/images/airport-transfer.webp',
+  'hourly-chauffeur':        'https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/images/hourly-chauffeur.webp',
+  'hourly-chauffeur-service':'https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/images/hourly-chauffeur.webp',
+  'private-day-trips':       'https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/images/private-day-trips.webp',
+  'day-trips':               'https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/images/private-day-trips.webp',
+  'secure-transportation':   'https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/images/secure-transportation.webp',
 };
 
 export function sanitizeImageUrl(url, fallbackUrl = '') {
@@ -121,7 +121,7 @@ export async function fetchPublicVehicles() {
         if (data.success && Array.isArray(data.vehicles) && data.vehicles.length > 0) {
           return data.vehicles.map((v) => {
             const key = (v.model || v.name || v.id || '').toLowerCase().replace(/[^a-z0-9]/g, '-');
-            const fallback = CANONICAL_FLEET_IMAGES[key] || CANONICAL_FLEET_IMAGES[v.id] || '/cars/s-class.png';
+            const fallback = CANONICAL_FLEET_IMAGES[key] || CANONICAL_FLEET_IMAGES[v.id] || 'https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/cars/s-class.png';
             return {
               ...v,
               image: sanitizeImageUrl(v.image, fallback)
@@ -151,7 +151,7 @@ export async function fetchPublicServices() {
             // Prefer the canonical image (stable, bundled/external) over a DB-stored
             // /uploads/ path, which is ephemeral on Vercel serverless and may 404.
             const canonical = CANONICAL_SERVICE_IMAGES[s.slug];
-            const fallback = canonical || '/images/vienna-palace-backdrop.webp';
+            const fallback = canonical || 'https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/images/vienna-palace-backdrop.webp';
             return {
               ...s,
               image: canonical || sanitizeImageUrl(s.image, fallback)
@@ -169,7 +169,7 @@ export async function fetchPublicServices() {
       shortDesc: p.desc,
       fullDesc: p.desc,
       features: p.bullets || [],
-      image: sanitizeImageUrl(p.image, CANONICAL_SERVICE_IMAGES[p.id] || '/images/vienna-palace-backdrop.webp'),
+      image: sanitizeImageUrl(p.image, CANONICAL_SERVICE_IMAGES[p.id] || 'https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/images/vienna-palace-backdrop.webp'),
       ctaLabel: 'LEARN MORE & BOOK',
       ctaUrl: p.link,
       displayOrder: idx + 1,
@@ -226,7 +226,7 @@ export async function fetchPublicDayTrips() {
       if (bt.slug) {
         const prev = map.get(bt.slug) || {};
         const canonical = CANONICAL_DAY_TRIP_IMAGES[bt.slug];
-        const fallback = canonical || prev.image || '/images/vienna-palace-backdrop.webp';
+        const fallback = canonical || prev.image || 'https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/images/vienna-palace-backdrop.webp';
         const resolvedImg = canonical || sanitizeImageUrl(bt.image, fallback);
         map.set(bt.slug, {
           ...prev,

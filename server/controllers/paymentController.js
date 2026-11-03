@@ -299,7 +299,7 @@ export async function createStripeCheckoutSession(req, res) {
               product_data: {
                 name: `Vienna Day Trip — ${booking.serviceType}`,
                 description: lineItemDescription,
-                images: ['https://viennadaytrip.com/wp-content/uploads/2026/03/your-professional-chauffeur.jpg']
+                images: ['https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/images/hourly-chauffeur.webp']
               },
               unit_amount: amountCents
             },

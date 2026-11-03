@@ -4,7 +4,7 @@ export const fleetData = [
     name: "Mercedes-Benz E-Class",
     category: "Executive Business",
     tagline: "Sophistication Meets Everyday Efficiency",
-    image: "/cars/e-class.png",
+    image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/cars/e-class.png",
     passengers: "3 Guests",
     luggage: "2 Large Bags",
     transmission: "9G-TRONIC",
@@ -19,9 +19,9 @@ export const fleetData = [
       "Advanced driver assistance & collision prevention"
     ],
     gallery: [
-      "/cars/e-class.png",
-      "https://viennadaytrip.com/wp-content/uploads/2022/11/30-681b44a0404a7__700.jpg",
-      "https://viennadaytrip.com/wp-content/uploads/2026/03/your-professional-chauffeur.jpg"
+      "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/cars/e-class.png",
+      "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/wp-uploads/2022/11/30-681b44a0404a7__700.jpg",
+      "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/images/hourly-chauffeur.webp"
     ]
   },
   {
@@ -29,7 +29,7 @@ export const fleetData = [
     name: "Mercedes-Benz S-Class",
     category: "First Class Limousine",
     tagline: "The Pinnacle of Automotive Luxury",
-    image: "/cars/s-class.png",
+    image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/cars/s-class.png",
     passengers: "3 Guests",
     luggage: "2 Large Bags",
     transmission: "AIRMATIC Suspension",
@@ -44,9 +44,9 @@ export const fleetData = [
       "Chilled refreshment compartment & evian water"
     ],
     gallery: [
-      "/cars/s-class.png",
-      "https://viennadaytrip.com/wp-content/uploads/2026/05/S-class-interior-1.png",
-      "https://viennadaytrip.com/wp-content/uploads/2026/05/S-class-interior-2.png"
+      "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/cars/s-class.png",
+      "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/wp-uploads/2026/05/S-class-interior-1.png",
+      "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/wp-uploads/2026/05/S-class-interior-2.png"
     ]
   },
   {
@@ -54,7 +54,7 @@ export const fleetData = [
     name: "Mercedes-Benz V-Class",
     category: "VIP Executive Van",
     tagline: "First-Class Space for Families & Delegations",
-    image: "/cars/v-class.png",
+    image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/cars/v-class.png",
     passengers: "7 Guests",
     luggage: "7 Large Bags",
     transmission: "Luxury Air Ride",
@@ -69,9 +69,9 @@ export const fleetData = [
       "Privacy tinted glass & electric sliding doors"
     ],
     gallery: [
-      "/cars/v-class.png",
-      "https://viennadaytrip.com/wp-content/uploads/2026/05/V-class-interior-1.png",
-      "https://viennadaytrip.com/wp-content/uploads/2026/05/V-class-interior-2.png"
+      "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/cars/v-class.png",
+      "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/wp-uploads/2026/05/V-class-interior-1.png",
+      "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/wp-uploads/2026/05/V-class-interior-2.png"
     ]
   },
   {
@@ -79,7 +79,7 @@ export const fleetData = [
     name: "Mercedes-Benz Sprinter VIP",
     category: "Luxury Mini-Coach",
     tagline: "Spacious Group Travel with High-End Refinement",
-    image: "/cars/sprinter.png",
+    image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/cars/sprinter.png",
     passengers: "8-16 Guests",
     luggage: "16 Large Bags",
     transmission: "Heavy-Duty Comfort",
@@ -94,8 +94,8 @@ export const fleetData = [
       "Available only upon special advance request"
     ],
     gallery: [
-      "/cars/sprinter.png",
-      "https://viennadaytrip.com/wp-content/uploads/2026/03/2-1-1024x768-1.jpg"
+      "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/cars/sprinter.png",
+      "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/wp-uploads/2026/03/2-1-1024x768-1.jpg"
     ]
   },
   {
@@ -103,7 +103,7 @@ export const fleetData = [
     name: "Armored Luxury Vehicle",
     category: "Tactical & Diplomatic Protection",
     tagline: "Discreet Ballistic Protection & Executive Security",
-    image: "/cars/armored.png",
+    image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/cars/armored.png",
     passengers: "3 Guests",
     luggage: "3 Bags",
     transmission: "Reinforced Chassis",
@@ -118,10 +118,10 @@ export const fleetData = [
       "Available upon confidential advance inquiry"
     ],
     gallery: [
-      "/cars/armored.png",
-      "https://viennadaytrip.com/wp-content/uploads/2026/03/Celebrity-VIP-Secure-Transfers.jpeg",
-      "https://viennadaytrip.com/wp-content/uploads/2026/03/Diplomatic-Embassy-Transportation.jpeg",
-      "https://viennadaytrip.com/wp-content/uploads/2026/03/Executive-Chauffeur-Protection-Services.jpeg"
+      "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/cars/armored.png",
+      "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/wp-uploads/2026/03/Celebrity-VIP-Secure-Transfers.jpeg",
+      "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/wp-uploads/2026/03/Diplomatic-Embassy-Transportation.jpeg",
+      "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/wp-uploads/2026/03/Executive-Chauffeur-Protection-Services.jpeg"
     ]
   }
 ];

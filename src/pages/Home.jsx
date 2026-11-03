@@ -103,7 +103,7 @@ export default function Home() {
                 }}
               >
                 <img
-                  src="https://viennadaytrip.com/wp-content/uploads/2026/03/service-VIP-chauffeur-3.jpg"
+                  src="https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/images/about-chauffeur-vclass.jpg"
                   alt="Professional Vienna Chauffeur and Mercedes-Benz"
                   style={{
                     width: '100%',
@@ -154,7 +154,7 @@ export default function Home() {
                     }}
                   >
                     <img
-                      src="/images/wko-wien-logo.svg"
+                      src="https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/images/wko-wien-logo.svg"
                       alt="Wirtschaftskammer Wien (WKO)"
                       style={{
                         height: 'clamp(26px, 3.8vw, 34px)',

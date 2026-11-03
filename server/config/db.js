@@ -1,4 +1,4 @@
-﻿import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import fs from 'fs';
 import path from 'path';
 import { hashPassword } from '../utils/password.js';
@@ -479,7 +479,7 @@ async function loadSeedData() {
       shortDesc: 'Explore Mozart’s birthplace, Mirabell Gardens, Hohensalzburg Fortress, and Sound of Music filming locations.',
       fullDesc: 'Travel through the Austrian countryside to the Baroque jewel of Salzburg. Walk through the Getreidegasse and visit the iconic fortress.',
       duration: '12 Hours',
-      image: 'https://viennadaytrip.com/wp-content/uploads/2026/03/St.-Gilgen-–-Coffee-Stop-by-the-Lake.jpg',
+      image: 'https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/wp-uploads/2026/03/St.-Gilgen-%25E2%2580%2593-Coffee-Stop-by-the-Lake.jpg',
       price: 'From €680',
       isPublished: true,
       displayOrder: 2,
@@ -511,7 +511,7 @@ async function loadSeedData() {
       shortDesc: 'Immerse yourself in historic Prague: Charles Bridge, Prague Castle, and the Astronomical Clock.',
       fullDesc: 'A comfortable full-day private journey from Vienna to the historic heart of Bohemia.',
       duration: '13–14 Hours',
-      image: 'https://viennadaytrip.com/wp-content/uploads/2026/03/extra.webp',
+      image: 'https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/wp-uploads/2026/03/extra.webp',
       price: 'From €750',
       isPublished: true,
       displayOrder: 4,
@@ -763,6 +763,18 @@ export const db = {
       }
       return null;
     },
+    async update({ where, data }) {
+      if (isPostgresConnected) {
+        try { return await prisma.mediaAsset.update({ where, data }); } catch (e) {}
+      }
+      const idx = memoryStore.media.findIndex((m) => m.id === where.id);
+      if (idx !== -1) {
+        memoryStore.media[idx] = { ...memoryStore.media[idx], ...data };
+        persistStore();
+        return memoryStore.media[idx];
+      }
+      return null;
+    },
     async delete({ where }) {
       if (isPostgresConnected) {
         try { return await prisma.adminUser.delete({ where }); } catch (e) {}
@@ -915,6 +927,18 @@ export const db = {
       return this._hydrateBooking(updated);
     },
 
+    async update({ where, data }) {
+      if (isPostgresConnected) {
+        try { return await prisma.mediaAsset.update({ where, data }); } catch (e) {}
+      }
+      const idx = memoryStore.media.findIndex((m) => m.id === where.id);
+      if (idx !== -1) {
+        memoryStore.media[idx] = { ...memoryStore.media[idx], ...data };
+        persistStore();
+        return memoryStore.media[idx];
+      }
+      return null;
+    },
     async delete({ where }) {
       if (!isPostgresConnected || !prisma) {
         throw new Error('[DB] Database unavailable: PostgreSQL connection required to delete bookings.');
@@ -1066,6 +1090,18 @@ export const db = {
       }
       return null;
     },
+    async update({ where, data }) {
+      if (isPostgresConnected) {
+        try { return await prisma.mediaAsset.update({ where, data }); } catch (e) {}
+      }
+      const idx = memoryStore.media.findIndex((m) => m.id === where.id);
+      if (idx !== -1) {
+        memoryStore.media[idx] = { ...memoryStore.media[idx], ...data };
+        persistStore();
+        return memoryStore.media[idx];
+      }
+      return null;
+    },
     async delete({ where }) {
       if (isPostgresConnected) {
         try { return await prisma.vehicle.delete({ where }); } catch (e) {}
@@ -1184,6 +1220,18 @@ export const db = {
       }
       return updated;
     },
+    async update({ where, data }) {
+      if (isPostgresConnected) {
+        try { return await prisma.mediaAsset.update({ where, data }); } catch (e) {}
+      }
+      const idx = memoryStore.media.findIndex((m) => m.id === where.id);
+      if (idx !== -1) {
+        memoryStore.media[idx] = { ...memoryStore.media[idx], ...data };
+        persistStore();
+        return memoryStore.media[idx];
+      }
+      return null;
+    },
     async delete({ where }) {
       if (isPostgresConnected) {
         try { await prisma.blogPost.delete({ where }); } catch (e) {}
@@ -1274,6 +1322,18 @@ export const db = {
       persistStore();
       return updated;
     },
+    async update({ where, data }) {
+      if (isPostgresConnected) {
+        try { return await prisma.mediaAsset.update({ where, data }); } catch (e) {}
+      }
+      const idx = memoryStore.media.findIndex((m) => m.id === where.id);
+      if (idx !== -1) {
+        memoryStore.media[idx] = { ...memoryStore.media[idx], ...data };
+        persistStore();
+        return memoryStore.media[idx];
+      }
+      return null;
+    },
     async delete({ where }) {
       if (isPostgresConnected) {
         try {
@@ -1338,6 +1398,18 @@ export const db = {
         return updated || memoryStore.dayTrips[idx];
       }
       return updated;
+    },
+    async update({ where, data }) {
+      if (isPostgresConnected) {
+        try { return await prisma.mediaAsset.update({ where, data }); } catch (e) {}
+      }
+      const idx = memoryStore.media.findIndex((m) => m.id === where.id);
+      if (idx !== -1) {
+        memoryStore.media[idx] = { ...memoryStore.media[idx], ...data };
+        persistStore();
+        return memoryStore.media[idx];
+      }
+      return null;
     },
     async delete({ where }) {
       if (isPostgresConnected) {
@@ -1427,6 +1499,18 @@ export const db = {
       memoryStore.media.unshift(item);
       persistStore();
       return item;
+    },
+    async update({ where, data }) {
+      if (isPostgresConnected) {
+        try { return await prisma.mediaAsset.update({ where, data }); } catch (e) {}
+      }
+      const idx = memoryStore.media.findIndex((m) => m.id === where.id);
+      if (idx !== -1) {
+        memoryStore.media[idx] = { ...memoryStore.media[idx], ...data };
+        persistStore();
+        return memoryStore.media[idx];
+      }
+      return null;
     },
     async delete({ where }) {
       if (isPostgresConnected) {

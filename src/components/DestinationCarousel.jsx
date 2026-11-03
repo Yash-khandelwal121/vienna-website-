@@ -11,7 +11,7 @@ export const signatureDestinations = [
     tagline: "UNESCO World Heritage Alpine Postcard",
     driveTime: "3.0 Hours",
     slug: "/hallstatt-day-trip-from-vienna/",
-    image: "/images/Hallstatt.jpg",
+    image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/images/Hallstatt.jpg",
     desc: "A sheer lakeside fairytale surrounded by Dachstein peaks, 16th-century wooden houses, and the breathtaking Hallstatt Skywalk."
   },
   {
@@ -21,7 +21,7 @@ export const signatureDestinations = [
     tagline: "Mozart's Birthplace & Alpine Splendor",
     driveTime: "3.0 Hours",
     slug: "/salzburg-day-trip/",
-    image: "/images/salzburg.jpg",
+    image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/images/salzburg.jpg",
     desc: "Mirabell Gardens, the towering medieval Hohensalzburg Fortress, and legendary 'Sound of Music' film locations."
   },
   {
@@ -31,7 +31,7 @@ export const signatureDestinations = [
     tagline: "Queen of the Danube",
     driveTime: "2.5 Hours",
     slug: "/budapest-day-trip/",
-    image: "/images/budapest.jpg",
+    image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/images/budapest.jpg",
     desc: "Cross-border imperial grandeur: the gothic Hungarian Parliament, Buda Castle, Chain Bridge, and Fisherman's Bastion."
   },
   {
@@ -41,7 +41,7 @@ export const signatureDestinations = [
     tagline: "City of a Hundred Spires",
     driveTime: "3.5 Hours",
     slug: "/prague-day-trip/",
-    image: "/images/parague.jpg",
+    image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/images/parague.jpg",
     desc: "Bohemia's medieval wonder with Charles Bridge, Prague Castle complex, and the 600-year-old Astronomical Clock."
   },
   {
@@ -51,7 +51,7 @@ export const signatureDestinations = [
     tagline: "Two Capitals in Under One Hour",
     driveTime: "55 Minutes",
     slug: "/bratislava-day-trip/",
-    image: "/images/bratislava.jpg",
+    image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/images/bratislava.jpg",
     desc: "Europe's shortest capital-to-capital transfer: hilltop castle panoramas, quaint cobblestone Old Town, and Danube promenade."
   },
   {
@@ -61,7 +61,7 @@ export const signatureDestinations = [
     tagline: "Danube Wine Country & Baroque Castles",
     driveTime: "1.0 Hour",
     slug: "/wachau-valley-trip/",
-    image: "/images/wachauvalley.jpg",
+    image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/images/wachauvalley.jpg",
     desc: "Terraced vineyards along the Danube, the golden Melk Abbey, and medieval Dürnstein where Richard the Lionheart was held."
   },
   {
@@ -71,7 +71,7 @@ export const signatureDestinations = [
     tagline: "The Imperial Heart of Europe",
     driveTime: "Half / Full Day",
     slug: "/vienna-sightseeing-tour/",
-    image: "https://viennadaytrip.com/wp-content/uploads/2026/03/vienna-day-teip.jpeg",
+    image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/wp-uploads/2026/03/vienna-day-teip.jpeg",
     desc: "Schönbrunn Palace, Ringstrasse palaces, Hofburg, and St. Stephen's Cathedral explored in private Mercedes-Benz luxury."
   }
 ];
@@ -93,7 +93,7 @@ export default function DestinationCarousel() {
             tagline: t.eyebrow || 'Signature Chauffeur Experience',
             driveTime: t.duration || 'Full Day',
             slug: `/${t.slug}/`,
-            image: CANONICAL_DAY_TRIP_IMAGES[t.slug] || sanitizeImageUrl(t.image, '/images/vienna-palace-backdrop.webp'),
+            image: CANONICAL_DAY_TRIP_IMAGES[t.slug] || sanitizeImageUrl(t.image, 'https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/images/vienna-palace-backdrop.webp'),
             desc: t.shortDesc || (typeof t.fullDesc === 'string' ? t.fullDesc.replace(/<[^>]*>?/gm, '').substring(0, 140) : '')
           }));
           setDestinations(formatted);

@@ -5,7 +5,7 @@ export const toursData = {
     eyebrow: "AIRPORT TRANSPORTATION",
     metaTitle: "Vienna Airport Transfer | Private Chauffeur & Fixed Price Service",
     metaDescription: "Reliable Vienna airport transfer with professional chauffeur. Meet & greet, flight tracking, Mercedes vehicles. Fixed prices – book now.",
-    heroImage: "https://viennadaytrip.com/wp-content/uploads/2026/03/Vienna-Airport-Schwechat-Terminal-Gate-Check-in-Guide-1024x576-1.webp",
+    heroImage: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/images/airport-transfer.webp",
     stats: [
       { label: "Duration", value: "25–35 Min" },
       { label: "Coverage", value: "VIE ⇄ Vienna" },
@@ -39,22 +39,22 @@ export const toursData = {
       {
         title: "Vienna International Airport (VIE)",
         text: "Seamless arrivals and departures at Schwechat with coordinated curb and terminal access.",
-        image: "https://viennadaytrip.com/wp-content/uploads/2026/03/Vienna-Airport-Schwechat-Terminal-Gate-Check-in-Guide-1024x576-1.webp"
+        image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/images/airport-transfer.webp"
       },
       {
         title: "Meet & Greet Service",
         text: "Your personal chauffeur welcomes you right outside baggage claim with luggage handling.",
-        image: "https://viennadaytrip.com/wp-content/uploads/2026/03/service-VIP-chauffeur-3.jpg"
+        image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/images/about-chauffeur-vclass.jpg"
       },
       {
         title: "Luxury Airport Transfers",
         text: "Rest in climate-controlled acoustic quietude after a flight in our executive Mercedes fleet.",
-        image: "https://viennadaytrip.com/wp-content/uploads/2026/03/b79167f1-92dc-46e5-85c5-d73fd8ed6571.jpg"
+        image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/wp-uploads/2026/03/b79167f1-92dc-46e5-85c5-d73fd8ed6571.jpg"
       },
       {
         title: "24/7 Chauffeur Availability",
         text: "Late-night redeye or sunrise departure — our team operates around the clock.",
-        image: "https://viennadaytrip.com/wp-content/uploads/2026/03/2-1-1024x768-1.jpg"
+        image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/wp-uploads/2026/03/2-1-1024x768-1.jpg"
       }
     ],
     faqs: [
@@ -89,7 +89,7 @@ export const toursData = {
     eyebrow: "FLEXIBLE VIP CHAUFFEUR",
     metaTitle: "Hourly Chauffeur Service - Vienna Day Trip",
     metaDescription: "Hourly chauffeur hire in Vienna with a luxury Mercedes-Benz and a professional English/German-speaking driver.",
-    heroImage: "https://viennadaytrip.com/wp-content/uploads/2026/03/your-professional-chauffeur.jpg",
+    heroImage: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/images/hourly-chauffeur.webp",
     stats: [
       { label: "Booking", value: "By The Hour" },
       { label: "Stops", value: "Unlimited" },
@@ -123,22 +123,22 @@ export const toursData = {
       {
         title: "Flexible Hourly Booking",
         text: "Reserve your chauffeur for 3 hours, a full business day, or multiple days on standby.",
-        image: "https://viennadaytrip.com/wp-content/uploads/2026/03/your-professional-chauffeur.jpg"
+        image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/images/hourly-chauffeur.webp"
       },
       {
         title: "Impeccable Professionalism",
         text: "Discreet, suit-attired chauffeurs trained in luxury hospitality and route optimization.",
-        image: "https://viennadaytrip.com/wp-content/uploads/2026/03/ChatGPT-Image-May-11-2026-11_46_15-AM.png"
+        image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/wp-uploads/2026/03/ChatGPT-Image-May-11-2026-11_46_15-AM.png"
       },
       {
         title: "Luxury Business Travel",
         text: "Turn travel time into productivity with a serene mobile office environment.",
-        image: "https://viennadaytrip.com/wp-content/uploads/2022/11/30-681b44a0404a7__700.jpg"
+        image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/wp-uploads/2022/11/30-681b44a0404a7__700.jpg"
       },
       {
         title: "Continuous 24/7 Standby",
         text: "Whether attending evening galas at the Opera or early board meetings, we are ready.",
-        image: "https://viennadaytrip.com/wp-content/uploads/2026/03/2-1-1024x768-1.jpg"
+        image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/wp-uploads/2026/03/2-1-1024x768-1.jpg"
       }
     ],
     faqs: [
@@ -169,7 +169,7 @@ export const toursData = {
     eyebrow: "IMPERIAL CITY TOUR",
     metaTitle: "Vienna Sightseeing Tour | Expert Guided City Tour",
     metaDescription: "Explore Vienna's imperial highlights on a guided sightseeing tour. Visit Schönbrunn Palace, St. Stephen's Cathedral & the Ringstrasse with a local expert. Book now.",
-    heroImage: "https://viennadaytrip.com/wp-content/uploads/2026/03/vienna-day-teip.jpeg",
+    heroImage: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/wp-uploads/2026/03/vienna-day-teip.jpeg",
     stats: [
       { label: "Duration", value: "4–6 Hours" },
       { label: "Pace", value: "Private & Relaxed" },
@@ -204,22 +204,22 @@ export const toursData = {
       {
         title: "Imperial Ringstraße",
         text: "The grand boulevard commissioned by Emperor Franz Joseph, home to world-renowned palaces.",
-        image: "https://viennadaytrip.com/wp-content/uploads/2026/03/vienna-day-teip.jpeg"
+        image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/wp-uploads/2026/03/vienna-day-teip.jpeg"
       },
       {
         title: "Schönbrunn Palace",
         text: "The 1,441-room summer residence of the Habsburg monarchs with breathtaking gardens.",
-        image: "https://viennadaytrip.com/wp-content/uploads/2026/03/vienna-road-trip.jpeg"
+        image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/wp-uploads/2026/03/vienna-road-trip.jpeg"
       },
       {
         title: "St. Stephen's Cathedral",
         text: "Vienna's gothic masterpiece anchoring the cobblestone streets of the Old Town.",
-        image: "https://viennadaytrip.com/wp-content/uploads/2026/03/ChatGPT-Image-Aug-17-2026-03_15_13-PM.png"
+        image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/wp-uploads/2026/03/ChatGPT-Image-Aug-17-2026-03_15_13-PM.png"
       },
       {
         title: "Belvedere Baroque Ensemble",
         text: "Home to Gustav Klimt's 'The Kiss' and stunning tiered fountains.",
-        image: "https://viennadaytrip.com/wp-content/uploads/2026/03/pexels-jana-259137194-22601739-scaled.jpg"
+        image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/wp-uploads/2026/03/pexels-jana-259137194-22601739-scaled.jpg"
       }
     ],
     faqs: [
@@ -246,7 +246,7 @@ export const toursData = {
     eyebrow: "WINE & UNESCO HERITAGE",
     metaTitle: "Wachau Valley Day Trip from Vienna | Wine & Villages",
     metaDescription: "Discover Austria's scenic Wachau Valley on a guided day trip from Vienna. Cruise the Danube, visit Melk Abbey, Dürnstein castle & taste local wines. Book today.",
-    heroImage: "/images/wachauvalley.jpg",
+    heroImage: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/images/wachauvalley.jpg",
     stats: [
       { label: "Duration", value: "8.5–9 Hours" },
       { label: "Distance", value: "330 km Roundtrip" },
@@ -290,22 +290,22 @@ export const toursData = {
       {
         title: "Melk Benedictine Abbey",
         text: "The golden baroque monastery crowning a granite bluff above the Danube.",
-        image: "https://viennadaytrip.com/wp-content/uploads/2026/03/pexels-jana-259137194-22601739-scaled.jpg"
+        image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/wp-uploads/2026/03/pexels-jana-259137194-22601739-scaled.jpg"
       },
       {
         title: "Dürnstein & Blue Tower",
         text: "The fairy-tale blue steeple and ruined castle towering over the river.",
-        image: "https://viennadaytrip.com/wp-content/uploads/2026/03/vienna-road-trip.jpeg"
+        image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/wp-uploads/2026/03/vienna-road-trip.jpeg"
       },
       {
         title: "Terraced Vineyards",
         text: "Centuries-old dry stone terraces producing world-renowned Austrian wines.",
-        image: "https://viennadaytrip.com/wp-content/uploads/2026/03/extra.webp"
+        image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/wp-uploads/2026/03/extra.webp"
       },
       {
         title: "Danube Riverside Vistas",
         text: "Sweeping river bends framed by castles, ruins, and apricot orchards.",
-        image: "https://viennadaytrip.com/wp-content/uploads/2026/03/b79167f1-92dc-46e5-85c5-d73fd8ed6571.jpg"
+        image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/wp-uploads/2026/03/b79167f1-92dc-46e5-85c5-d73fd8ed6571.jpg"
       }
     ],
     faqs: [
@@ -332,7 +332,7 @@ export const toursData = {
     eyebrow: "WORLD HERITAGE ALPINE GEM",
     metaTitle: "Private Hallstatt Day Trip from Vienna | Small Group Tour",
     metaDescription: "Enjoy a private Hallstatt day trip from Vienna with a licensed chauffeur. Luxury Mercedes vehicles, flexible stops & scenic views.",
-    heroImage: "/images/Hallstatt.jpg",
+    heroImage: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/images/Hallstatt.jpg",
     stats: [
       { label: "Duration", value: "11–12 Hours" },
       { label: "Distance", value: "580 km Roundtrip" },
@@ -378,32 +378,32 @@ export const toursData = {
       {
         title: "Fairytale Village of Hallstatt",
         text: "The iconic postcard scene of 16th-century Alpine houses hugging the sheer rockface.",
-        image: "/images/Hallstatt.jpg"
+        image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/images/Hallstatt.jpg"
       },
       {
         title: "St. Gilgen Lakeside Coffee Stop",
         text: "Charming Lake Wolfgang village where Mozart's mother was born.",
-        image: "https://viennadaytrip.com/wp-content/uploads/2026/03/St.-Gilgen-–-Coffee-Stop-by-the-Lake.jpg"
+        image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/wp-uploads/2026/03/St.-Gilgen-%25E2%2580%2593-Coffee-Stop-by-the-Lake.jpg"
       },
       {
         title: "Hallstatt Market Square",
         text: "Lively central plaza framed by pastel timbered merchant homes and flower boxes.",
-        image: "https://viennadaytrip.com/wp-content/uploads/2026/03/Hallstatt-Market-Square.jpg"
+        image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/wp-uploads/2026/03/Hallstatt-Market-Square.jpg"
       },
       {
         title: "Skywalk 'World Heritage View'",
         text: "Hover 350 meters above the roofs of Hallstatt with 360° alpine panoramas.",
-        image: "https://viennadaytrip.com/wp-content/uploads/2026/03/Skywalk-Hallstatt.jpg"
+        image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/wp-uploads/2026/03/Skywalk-Hallstatt.jpg"
       },
       {
         title: "Hallstatt Bone House (Beinhaus)",
         text: "Historic 12th-century ossuary housing over 600 hand-painted skulls.",
-        image: "https://viennadaytrip.com/wp-content/uploads/2026/03/Ossuary-Beinhaus.jpg"
+        image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/wp-uploads/2026/03/Ossuary-Beinhaus.jpg"
       },
       {
         title: "Lake Hallstatt Boat Ride",
         text: "Glide quietly across the glassy alpine waters surrounded by soaring cliffs.",
-        image: "https://viennadaytrip.com/wp-content/uploads/2026/03/Boat-Ride-on-Lake-Hallstatt.jpg"
+        image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/wp-uploads/2026/03/Boat-Ride-on-Lake-Hallstatt.jpg"
       }
     ],
     faqs: [
@@ -430,7 +430,7 @@ export const toursData = {
     eyebrow: "MOZART & SOUND OF MUSIC",
     metaTitle: "Salzburg Day Trip from Vienna | Guided Tour",
     metaDescription: "Explore Mozart's birthplace on a guided Salzburg day trip from Vienna. See the Old Town, Hohensalzburg Fortress & Sound of Music locations. Book now.",
-    heroImage: "/images/salzburg.jpg",
+    heroImage: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/images/salzburg.jpg",
     stats: [
       { label: "Duration", value: "11–12 Hours" },
       { label: "Distance", value: "595 km Roundtrip" },
@@ -475,22 +475,22 @@ export const toursData = {
       {
         title: "Hohensalzburg Fortress",
         text: "One of the largest preserved medieval fortresses in Europe dominating the skyline.",
-        image: "https://viennadaytrip.com/wp-content/uploads/2026/03/extra.webp"
+        image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/wp-uploads/2026/03/extra.webp"
       },
       {
         title: "Mirabell Palace & Gardens",
         text: "The famous baroque gardens where Maria and the children sang 'Do-Re-Mi'.",
-        image: "https://viennadaytrip.com/wp-content/uploads/2026/03/Central-Square.webp"
+        image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/wp-uploads/2026/03/Central-Square.webp"
       },
       {
         title: "Getreidegasse & Mozart's Birthplace",
         text: "Bustling historic lane with wrought-iron guild signs and Mozart's yellow family house.",
-        image: "https://viennadaytrip.com/wp-content/uploads/2026/03/vienna-road-trip.jpeg"
+        image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/wp-uploads/2026/03/vienna-road-trip.jpeg"
       },
       {
         title: "Salzkammergut Lake Country",
         text: "Crystal alpine lakes and soaring limestone peaks along the route.",
-        image: "https://viennadaytrip.com/wp-content/uploads/2026/03/St.-Gilgen-–-Coffee-Stop-by-the-Lake.jpg"
+        image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/wp-uploads/2026/03/St.-Gilgen-%25E2%2580%2593-Coffee-Stop-by-the-Lake.jpg"
       }
     ],
     faqs: [
@@ -517,7 +517,7 @@ export const toursData = {
     eyebrow: "QUEEN OF THE DANUBE",
     metaTitle: "Budapest Day Trip from Vienna | Full Day Tour",
     metaDescription: "Discover Budapest on a guided day trip from Vienna. Visit Parliament, Buda Castle & the Great Market Hall with an expert local guide. Free cancellation.",
-    heroImage: "/images/budapest.jpg",
+    heroImage: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/images/budapest.jpg",
     stats: [
       { label: "Duration", value: "11–12 Hours" },
       { label: "Distance", value: "485 km Roundtrip" },
@@ -563,32 +563,32 @@ export const toursData = {
       {
         title: "Hungarian Parliament Building",
         text: "The neo-Gothic jewel of Central Europe mirrored in the Danube river waters.",
-        image: "https://viennadaytrip.com/wp-content/uploads/2026/03/Hungarian-Parliament-scaled.jpg"
+        image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/wp-uploads/2026/03/Hungarian-Parliament-scaled.jpg"
       },
       {
         title: "Buda Castle (Budavári Palota)",
         text: "The imposing baroque palace of Hungarian kings guarding the western riverbank.",
-        image: "https://viennadaytrip.com/wp-content/uploads/2026/03/Buda-Castle-–-Budavari-Palota.jpg"
+        image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/wp-uploads/2026/03/Buda-Castle-%25E2%2580%2593-Budavari-Palota.jpg"
       },
       {
         title: "Széchenyi Chain Bridge",
         text: "The iconic 19th-century suspension bridge guarded by monumental stone lions.",
-        image: "https://viennadaytrip.com/wp-content/uploads/2026/03/Chain-Bridge.jpg"
+        image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/wp-uploads/2026/03/Chain-Bridge.jpg"
       },
       {
         title: "Gellért Hill Skyline",
         text: "Sweeping 360-degree vista of Buda hills and the grand Pest cityscape.",
-        image: "https://viennadaytrip.com/wp-content/uploads/2026/03/1280px-GellertHillSkyline.jpg"
+        image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/wp-uploads/2026/03/1280px-GellertHillSkyline.jpg"
       },
       {
         title: "Matthias Church",
         text: "Dazzling diamond-patterned Zsolnay roof tiles atop the gothic coronation church.",
-        image: "https://viennadaytrip.com/wp-content/uploads/2026/03/Matthias-Church.webp"
+        image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/wp-uploads/2026/03/Matthias-Church.webp"
       },
       {
         title: "St. Stephen's Basilica",
         text: "Vast neoclassical dome honoring Hungary's first Christian king.",
-        image: "https://viennadaytrip.com/wp-content/uploads/2026/03/St.-Stephens-Basilica.webp"
+        image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/wp-uploads/2026/03/St.-Stephens-Basilica.webp"
       }
     ],
     faqs: [
@@ -615,7 +615,7 @@ export const toursData = {
     eyebrow: "CITY OF A HUNDRED SPIRES",
     metaTitle: "Prague Day Trip from Vienna | Full Day Guided Tour",
     metaDescription: "Discover Prague on a full-day guided trip from Vienna. Explore the Old Town Square, Charles Bridge & Prague Castle with an expert guide. Free cancellation. Book now.",
-    heroImage: "/images/parague.jpg",
+    heroImage: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/images/parague.jpg",
     stats: [
       { label: "Duration", value: "12–13 Hours" },
       { label: "Distance", value: "660 km Roundtrip" },
@@ -660,22 +660,22 @@ export const toursData = {
       {
         title: "Prague Castle & St. Vitus",
         text: "The ancient seat of Bohemian kings with soaring Gothic spires.",
-        image: "https://viennadaytrip.com/wp-content/uploads/2026/03/extra.webp"
+        image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/wp-uploads/2026/03/extra.webp"
       },
       {
         title: "Historic Charles Bridge",
         text: "The iconic 14th-century stone bridge linking the Old Town and Malá Strana.",
-        image: "https://viennadaytrip.com/wp-content/uploads/2026/03/pexels-jana-259137194-22601739-scaled.jpg"
+        image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/wp-uploads/2026/03/pexels-jana-259137194-22601739-scaled.jpg"
       },
       {
         title: "Old Town Square & Clock",
         text: "The beating medieval heart of Prague with the 600-year-old Astronomical Clock.",
-        image: "https://viennadaytrip.com/wp-content/uploads/2026/03/Central-Square.webp"
+        image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/wp-uploads/2026/03/Central-Square.webp"
       },
       {
         title: "Vltava River Panoramas",
         text: "Romantic river vistas framed by historic bridges and red-roofed townhouses.",
-        image: "https://viennadaytrip.com/wp-content/uploads/2026/03/vienna-road-trip.jpeg"
+        image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/wp-uploads/2026/03/vienna-road-trip.jpeg"
       }
     ],
     faqs: [
@@ -698,7 +698,7 @@ export const toursData = {
     eyebrow: "TWO CAPITALS IN ONE DAY",
     metaTitle: "Bratislava Day Trip from Vienna | Guided Tour",
     metaDescription: "Explore Bratislava's charming Old Town on a guided day trip from Vienna. Just 1 hour away, discover the castle, cobblestone streets & local cuisine. Book now.",
-    heroImage: "/images/bratislava.jpg",
+    heroImage: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/images/bratislava.jpg",
     stats: [
       { label: "Duration", value: "6–8 Hours" },
       { label: "Distance", value: "130 km Roundtrip" },
@@ -743,32 +743,32 @@ export const toursData = {
       {
         title: "Bratislava Castle",
         text: "The iconic four-towered fortress perched majestically over the Danube.",
-        image: "https://viennadaytrip.com/wp-content/uploads/2026/03/Bratislava-Castle.jpg"
+        image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/wp-uploads/2026/03/Bratislava-Castle.jpg"
       },
       {
         title: "Old Town & Main Square",
         text: "The historic heart with Old Town Hall, Roland Fountain, and Napoleonic soldier statue.",
-        image: "https://viennadaytrip.com/wp-content/uploads/2026/03/1280px-Hlavne_namestie-The_napoleonic_soldier_Old_Town_Hall_and_Roland_Fountain-Bratislava.jpg"
+        image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/wp-uploads/2026/03/1280px-Hlavne_namestie-The_napoleonic_soldier_Old_Town_Hall_and_Roland_Fountain-Bratislava.jpg"
       },
       {
         title: "Michael's Gate",
         text: "The preserved medieval watchtower guarding the northern entrance to the city.",
-        image: "https://viennadaytrip.com/wp-content/uploads/2022/11/Michaels-Gate-in-Bratislava.webp"
+        image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/wp-uploads/2022/11/Michaels-Gate-in-Bratislava.webp"
       },
       {
         title: "UFO Bridge & Danube",
         text: "The futuristic retro-futuristic bridge observation deck suspended high above the water.",
-        image: "https://viennadaytrip.com/wp-content/uploads/2026/03/UFO-Bridge-amp-Danube.jpg"
+        image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/wp-uploads/2026/03/UFO-Bridge-amp-Danube.jpg"
       },
       {
         title: "St. Martin's Cathedral",
         text: "Gothic coronation cathedral where 19 Hungarian monarchs were crowned.",
-        image: "https://viennadaytrip.com/wp-content/uploads/2026/03/77c03dd1-dbca-4022-8e02-fac380680e76.jpg"
+        image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/wp-uploads/2026/03/77c03dd1-dbca-4022-8e02-fac380680e76.jpg"
       },
       {
         title: "Danube Promenade",
         text: "Peaceful riverside walkway lined with modern cafés and green parks.",
-        image: "https://viennadaytrip.com/wp-content/uploads/2026/03/Danube-Promenade-–-Panoramic-View.webp"
+        image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/wp-uploads/2026/03/Danube-Promenade-%25E2%2580%2593-Panoramic-View.webp"
       }
     ],
     faqs: [
@@ -791,7 +791,7 @@ export const toursData = {
     eyebrow: "BESPOKE EUROPEAN ITINERARIES",
     metaTitle: "Customized Day Trips from Vienna | Private Tours",
     metaDescription: "Design your perfect private day trip from Vienna. Choose your destination, duration and pace — our expert guides create a personalised tour just for you. Book now.",
-    heroImage: "/images/customized.jpg",
+    heroImage: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/images/customized.jpg",
     stats: [
       { label: "Itinerary", value: "100% Tailored" },
       { label: "Coverage", value: "Austria & Central Europe" },
@@ -833,22 +833,22 @@ export const toursData = {
       {
         title: "Innsbruck & Tyrolean Alps",
         text: "Historic Golden Roof, Olympic ski jump, and soaring alpine scenery.",
-        image: "https://viennadaytrip.com/wp-content/uploads/2026/03/vienna-road-trip.jpeg"
+        image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/wp-uploads/2026/03/vienna-road-trip.jpeg"
       },
       {
         title: "Munich & Bavarian Castles",
         text: "Marienplatz, Nymphenburg Palace, and fairytale Neuschwanstein Castle.",
-        image: "https://viennadaytrip.com/wp-content/uploads/2026/03/extra.webp"
+        image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/wp-uploads/2026/03/extra.webp"
       },
       {
         title: "Klagenfurt & Wörthersee",
         text: "Austria's warmest swimming lake, Mediterranean atmosphere, and Lindwurm statue.",
-        image: "https://viennadaytrip.com/wp-content/uploads/2026/03/St.-Gilgen-–-Coffee-Stop-by-the-Lake.jpg"
+        image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/wp-uploads/2026/03/St.-Gilgen-%25E2%2580%2593-Coffee-Stop-by-the-Lake.jpg"
       },
       {
         title: "Alpine Lakes & Swiss Frontiers",
         text: "Crystal clear mountain passes and bespoke multi-day European touring.",
-        image: "/images/Hallstatt.jpg"
+        image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/images/Hallstatt.jpg"
       }
     ],
     faqs: [
@@ -875,7 +875,7 @@ export const toursData = {
     eyebrow: "DIPLOMATIC & CLOSE PROTECTION",
     metaTitle: "Secure Transportation Vienna | Diplomatic & VIP Chauffeur",
     metaDescription: "Certified secure transportation, diplomatic chauffeur services, armored vehicle convoys, and executive close protection in Vienna and Central Europe.",
-    heroImage: "https://viennadaytrip.com/wp-content/uploads/2026/05/Armored-Vehicle-.jpeg",
+    heroImage: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/cars/armored_remote.jpg",
     stats: [
       { label: "Security Level", value: "Discreet & Armored" },
       { label: "Chauffeurs", value: "Security-Trained" },
@@ -909,22 +909,22 @@ export const toursData = {
       {
         title: "Diplomatic & Embassy Transportation",
         text: "Certified transport solutions tailored for embassy personnel, diplomatic corps, and official delegations.",
-        image: "https://viennadaytrip.com/wp-content/uploads/2026/03/Diplomatic-Embassy-Transportation.jpeg"
+        image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/wp-uploads/2026/03/Diplomatic-Embassy-Transportation.jpeg"
       },
       {
         title: "Celebrity & VIP Secure Transfers",
         text: "Private premium transfers with maximum confidentiality, secure garage pickups, and non-disclosure protocols.",
-        image: "https://viennadaytrip.com/wp-content/uploads/2026/03/Celebrity-VIP-Secure-Transfers.jpeg"
+        image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/wp-uploads/2026/03/Celebrity-VIP-Secure-Transfers.jpeg"
       },
       {
         title: "Executive Chauffeur Protection Services",
         text: "Luxury chauffeur services for corporate leaders requiring advanced route risk assessments and defensive driving.",
-        image: "https://viennadaytrip.com/wp-content/uploads/2026/03/Executive-Chauffeur-Protection-Services.jpeg"
+        image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/wp-uploads/2026/03/Executive-Chauffeur-Protection-Services.jpeg"
       },
       {
         title: "Armored Luxury Vehicle Fleet",
         text: "Discreet ballistic defense combined with the highest level of Mercedes luxury appointments.",
-        image: "https://viennadaytrip.com/wp-content/uploads/2026/05/Armored-Vehicle-.jpeg"
+        image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/cars/armored_remote.jpg"
       }
     ],
     faqs: [

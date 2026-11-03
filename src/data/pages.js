@@ -1,8 +1,8 @@
 export const aboutData = {
   title: "About Vienna Day Trip",
   eyebrow: "LICENSED CHAUFFEUR COMPANY SINCE 2019",
-  heroImage: "https://viennadaytrip.com/wp-content/uploads/2026/03/service-VIP-chauffeur-3.jpg",
-  carImage: "https://viennadaytrip.com/wp-content/uploads/2026/03/S-class-.png",
+  heroImage: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/images/about-chauffeur-vclass.jpg",
+  carImage: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/wp-uploads/2026/03/S-class-.png",
   lead: "Vienna Day Trip is a licensed private chauffeur service based in Vienna, Austria, offering airport transfers, hourly chauffeur hire, and private day trips to Hallstatt, Salzburg, Budapest, Prague, Bratislava, and the Wachau Valley.",
   story: [
     "Vienna Day Trip started as a private chauffeur service focused on one thing: getting Vienna’s visitors where they need to go, comfortably and on time, in a private Mercedes rather than a shared shuttle or public tour bus.",
@@ -82,7 +82,7 @@ export const servicesData = {
         "Complimentary luggage handling and chilled refreshments"
       ],
       link: "/airport-transfer-vienna/",
-      image: "https://viennadaytrip.com/wp-content/uploads/2026/03/Vienna-Airport-Schwechat-Terminal-Gate-Check-in-Guide-1024x576-1.webp"
+      image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/images/airport-transfer.webp"
     },
     {
       id: "hourly",
@@ -96,7 +96,7 @@ export const servicesData = {
         "Ideal for corporate roadshows, events, and VIP transport"
       ],
       link: "/hourly-chauffeur-service/",
-      image: "https://viennadaytrip.com/wp-content/uploads/2026/03/your-professional-chauffeur.jpg"
+      image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/images/hourly-chauffeur.webp"
     },
     {
       id: "daytrips",
@@ -110,7 +110,7 @@ export const servicesData = {
         "Pristine Mercedes-Benz with Wi-Fi and chilled water"
       ],
       link: "/hallstatt-day-trip-from-vienna/",
-      image: "/images/Hallstatt.jpg"
+      image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/images/Hallstatt.jpg"
     },
     {
       id: "secure",
@@ -124,7 +124,7 @@ export const servicesData = {
         "Strict non-disclosure compliance and discreet operations"
       ],
       link: "/secure-transportation/",
-      image: "https://viennadaytrip.com/wp-content/uploads/2026/05/Armored-Vehicle-.jpeg"
+      image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/cars/armored_remote.jpg"
     }
   ],
   faqs: [
@@ -228,7 +228,7 @@ export const pricingData = {
       slug: "airport-transfer-vienna",
       duration: "25–35 Min",
       capacity: "1–7 Guests",
-      image: "https://viennadaytrip.com/wp-content/uploads/2026/03/Vienna-Airport-Schwechat-Terminal-Gate-Check-in-Guide-1024x576-1.webp"
+      image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/images/airport-transfer.webp"
     },
     {
       title: "Hourly Chauffeur Service",
@@ -237,7 +237,7 @@ export const pricingData = {
       slug: "hourly-chauffeur-service",
       duration: "Min 3 Hours",
       capacity: "1–7 Guests",
-      image: "https://viennadaytrip.com/wp-content/uploads/2026/03/your-professional-chauffeur.jpg"
+      image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/images/hourly-chauffeur.webp"
     },
     {
       title: "Vienna Sightseeing Tour",
@@ -246,7 +246,7 @@ export const pricingData = {
       slug: "vienna-sightseeing-tour",
       duration: "4–6 Hours",
       capacity: "1–7 Guests",
-      image: "https://viennadaytrip.com/wp-content/uploads/2026/03/vienna-day-teip.jpeg"
+      image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/wp-uploads/2026/03/vienna-day-teip.jpeg"
     },
     {
       title: "Hallstatt Day Trip",
@@ -255,7 +255,7 @@ export const pricingData = {
       slug: "hallstatt-day-trip-from-vienna",
       duration: "11–12 Hours",
       capacity: "1–7 Guests",
-      image: "/images/Hallstatt.jpg"
+      image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/images/Hallstatt.jpg"
     },
     {
       title: "Salzburg Day Trip",
@@ -264,7 +264,7 @@ export const pricingData = {
       slug: "salzburg-day-trip",
       duration: "11–12 Hours",
       capacity: "1–7 Guests",
-      image: "/images/salzburg.jpg"
+      image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/images/salzburg.jpg"
     },
     {
       title: "Budapest Day Trip",
@@ -273,7 +273,7 @@ export const pricingData = {
       slug: "budapest-day-trip",
       duration: "11–12 Hours",
       capacity: "1–7 Guests",
-      image: "/images/budapest.jpg"
+      image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/images/budapest.jpg"
     },
     {
       title: "Prague Day Trip",
@@ -282,7 +282,7 @@ export const pricingData = {
       slug: "prague-day-trip",
       duration: "12–13 Hours",
       capacity: "1–7 Guests",
-      image: "/images/parague.jpg"
+      image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/images/parague.jpg"
     },
     {
       title: "Bratislava Day Trip",
@@ -291,7 +291,7 @@ export const pricingData = {
       slug: "bratislava-day-trip",
       duration: "6–8 Hours",
       capacity: "1–7 Guests",
-      image: "/images/bratislava.jpg"
+      image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/images/bratislava.jpg"
     },
     {
       title: "Wachau Valley Day Trip",
@@ -300,7 +300,7 @@ export const pricingData = {
       slug: "wachau-valley-trip",
       duration: "8.5–9 Hours",
       capacity: "1–7 Guests",
-      image: "/images/wachauvalley.jpg"
+      image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/images/wachauvalley.jpg"
     },
     {
       title: "Customized Private Trip – Your Way",
@@ -309,7 +309,7 @@ export const pricingData = {
       slug: "customized-day-trips",
       duration: "Flexible",
       capacity: "1–16 Guests",
-      image: "/images/customized.jpg"
+      image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/images/customized.jpg"
     },
     {
       title: "Secure Transportation",
@@ -318,7 +318,7 @@ export const pricingData = {
       slug: "secure-transportation",
       duration: "24/7 On-Demand",
       capacity: "Custom",
-      image: "https://viennadaytrip.com/wp-content/uploads/2026/05/Armored-Vehicle-.jpeg"
+      image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/cars/armored_remote.jpg"
     }
   ]
 };
@@ -332,7 +332,7 @@ export const blogPosts = [
     category: "Wachau Valley",
     readTime: "5 min read",
     excerpt: "Dürnstein packs a lot into a very small riverside town. A blue-and-white church tower rises above the Danube, a ruined castle watches over the terraced vineyards, and the shop windows are filled with Wachau apricot delicacies.",
-    image: "https://viennadaytrip.com/wp-content/uploads/2026/03/vienna-road-trip.jpeg"
+    image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/wp-uploads/2026/03/vienna-road-trip.jpeg"
   },
   {
     slug: "melk-abbey-for-day-trippers",
@@ -342,7 +342,7 @@ export const blogPosts = [
     category: "Wachau Valley",
     readTime: "7 min read",
     excerpt: "Melk Abbey sits on a rock above the Danube at the western gate of the Wachau, and it ranks among the finest baroque ensembles in Europe. Benedictine monks have lived and prayed here for more than 900 years.",
-    image: "https://viennadaytrip.com/wp-content/uploads/2026/03/pexels-jana-259137194-22601739-scaled.jpg"
+    image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/wp-uploads/2026/03/pexels-jana-259137194-22601739-scaled.jpg"
   },
   {
     slug: "wachau-wine-classification-explained",
@@ -352,7 +352,7 @@ export const blogPosts = [
     category: "Austrian Wine & Culture",
     readTime: "6 min read",
     excerpt: "Walk into any wine cellar in the Wachau and you will see three words on the labels: Steinfeder, Federspiel, and Smaragd. They are not grape varieties, but strict designations of ripeness and natural alcohol content unique to the region.",
-    image: "https://viennadaytrip.com/wp-content/uploads/2026/03/extra.webp"
+    image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/wp-uploads/2026/03/extra.webp"
   },
   {
     slug: "eisriesenwelt-ice-cave",
@@ -362,7 +362,7 @@ export const blogPosts = [
     category: "Salzburg & Alps",
     readTime: "6 min read",
     excerpt: "The Eisriesenwelt near Werfen is billed as the largest ice cave in the world, and it sits high in the Hochkogel mountains above the Salzach Valley. Discover how to plan this trip comfortably on a private chauffeur day excursion.",
-    image: "https://viennadaytrip.com/wp-content/uploads/2026/03/St.-Gilgen-–-Coffee-Stop-by-the-Lake.jpg"
+    image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/wp-uploads/2026/03/St.-Gilgen-%25E2%2580%2593-Coffee-Stop-by-the-Lake.jpg"
   },
   {
     slug: "mozarts-birthplace-or-mozarts-residence",
@@ -372,7 +372,7 @@ export const blogPosts = [
     category: "Salzburg & Mozart",
     readTime: "5 min read",
     excerpt: "Salzburg has two Mozart museums, and they sit a short walk apart on opposite sides of the Salzach River. Both celebrate the composer's genius — here is our guide to picking the right one during your day visit.",
-    image: "https://viennadaytrip.com/wp-content/uploads/2026/03/Central-Square.webp"
+    image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/wp-uploads/2026/03/Central-Square.webp"
   },
   {
     slug: "is-salzburg-card-worth-it",
@@ -382,7 +382,7 @@ export const blogPosts = [
     category: "Travel Guides",
     readTime: "5 min read",
     excerpt: "Salzburg packs a wealth of sights into a small old town, and the Salzburg Card promises free entry to most of it. We break down the math to help you determine if it makes sense for your private day trip schedule.",
-    image: "/images/Hallstatt.jpg"
+    image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/images/Hallstatt.jpg"
   }
 ];
 

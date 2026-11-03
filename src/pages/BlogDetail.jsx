@@ -452,7 +452,7 @@ export default function BlogDetail() {
         name: 'Vienna Day Trip',
         logo: {
           '@type': 'ImageObject',
-          url: 'https://viennadaytrip.com/images/logo2.png',
+          url: 'https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/images/logo2.png',
         },
       },
       description: post.excerpt,
@@ -846,7 +846,7 @@ export default function BlogDetail() {
                           loading="lazy"
                           onError={(e) => {
                             e.currentTarget.onerror = null;
-                            e.currentTarget.src = '/images/vienna-palace-backdrop.webp';
+                            e.currentTarget.src = 'https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/images/vienna-palace-backdrop.webp';
                           }}
                         />
                       </div>
@@ -964,7 +964,7 @@ export default function BlogDetail() {
                       loading="lazy"
                       onError={(e) => {
                         e.currentTarget.onerror = null;
-                        e.currentTarget.src = '/images/vienna-palace-backdrop.webp';
+                        e.currentTarget.src = 'https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/images/vienna-palace-backdrop.webp';
                       }}
                     />
                   </div>
