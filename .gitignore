@@ -35,6 +35,7 @@ scratch/
 
 # Backups & Data Migrations (Protect Customer Data)
 backups/
+server/data/*backup*
 sanity-import.ndjson
 image-urls.txt
 CONTENT_AND_TECH_DOCUMENT.md
