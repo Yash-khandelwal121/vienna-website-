@@ -48,4 +48,5 @@ public/uploads/*
 !public/uploads/.gitkeep
 
 # Local maintenance & testing scripts
-scripts/
+scripts/*
+!scripts/build.js

@@ -215,6 +215,43 @@ app.use('/api/v1', apiRouter);
 // Forward /api to /api/v1
 app.use('/api', apiRouter);
 
+
+// ==========================================
+// Production Frontend - React / Vite
+// ==========================================
+const distPath = path.resolve(process.cwd(), 'dist');
+const frontendIndex = path.join(distPath, 'index.html');
+
+if (fs.existsSync(frontendIndex)) {
+  console.log('[Frontend] Serving production build from:', distPath);
+
+  // Serve Vite static assets
+  app.use(express.static(distPath));
+
+  // React Router SPA fallback
+  app.use((req, res, next) => {
+    if (req.method !== 'GET' && req.method !== 'HEAD') {
+      return next();
+    }
+
+    // Never send index.html for API or upload requests
+    if (
+      req.path === '/api' ||
+      req.path.startsWith('/api/') ||
+      req.path === '/uploads' ||
+      req.path.startsWith('/uploads/')
+    ) {
+      return next();
+    }
+
+    res.sendFile(frontendIndex, (err) => {
+      if (err) next(err);
+    });
+  });
+} else {
+  console.warn('[Frontend] dist/index.html not found. Frontend is not being served.');
+}
+
 // Global Error Handler
 app.use((err, req, res, next) => {
   console.error('[Global API Error]:', err.message || err);
