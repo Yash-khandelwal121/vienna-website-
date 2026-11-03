@@ -473,7 +473,8 @@
       "displayOrder": 1,
       "isPublished": true,
       "createdAt": "2026-10-24T07:46:37.830Z",
-      "updatedAt": "2026-10-24T07:46:37.830Z"
+      "updatedAt": "2026-10-24T07:46:37.830Z",
+      "image": "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/cars/s-class.png"
     },
     {
       "id": "veh_e_class",
@@ -502,7 +503,8 @@
       "displayOrder": 2,
       "isPublished": true,
       "createdAt": "2026-10-24T07:46:37.830Z",
-      "updatedAt": "2026-10-24T07:46:37.830Z"
+      "updatedAt": "2026-10-24T07:46:37.830Z",
+      "image": "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/cars/e-class.png"
     },
     {
       "id": "veh_v_class",
@@ -532,7 +534,8 @@
       "displayOrder": 3,
       "isPublished": true,
       "createdAt": "2026-10-24T07:46:37.830Z",
-      "updatedAt": "2026-10-24T07:46:37.830Z"
+      "updatedAt": "2026-10-24T07:46:37.830Z",
+      "image": "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/cars/v-class.png"
     },
     {
       "id": "veh_sprinter",
@@ -561,7 +564,8 @@
       "displayOrder": 4,
       "isPublished": true,
       "createdAt": "2026-10-24T07:46:37.830Z",
-      "updatedAt": "2026-10-24T07:46:37.830Z"
+      "updatedAt": "2026-10-24T07:46:37.830Z",
+      "image": "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/cars/sprinter.png"
     },
     {
       "id": "veh_armored",
@@ -590,7 +594,8 @@
       "displayOrder": 5,
       "isPublished": true,
       "createdAt": "2026-10-24T07:46:37.830Z",
-      "updatedAt": "2026-10-24T07:46:37.830Z"
+      "updatedAt": "2026-10-24T07:46:37.830Z",
+      "image": "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/cars/armored.png"
     }
   ],
   "services": [
