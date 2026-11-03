@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { Search, Save, CheckCircle, ExternalLink, Globe, AlertCircle } from 'lucide-react';
 import AdminLayout from '../components/AdminLayout';
 import { useAdminAuth } from '../context/AdminAuthContext';
 import { cleanAndValidateJson } from '../../utils/schemaInjector';
+import { clearSeoCache } from '../../services/api';
 
 const DEFAULT_SEO_ROUTES = [
-  { path: '/', name: 'Homepage', title: 'Vienna Day Trip | Ultra-Luxury Chauffeur & Private Tours', desc: 'Licensed ultra-luxury private chauffeur service in Vienna, Austria. Airport transfers, hourly hire, and day trips to Hallstatt, Salzburg, Budapest, Prague & Wachau.', canonical: 'https://viennadaytrip.com/', schemaMarkup: '' },
+  { path: '/', name: 'Homepage', title: 'Vienna Private Chauffeur, Transfers & Day Trips', desc: 'Private chauffeur service in Vienna since 2019; airport transfers, hourly hire and day trips to Hallstatt, Salzburg and Budapest in Mercedes cars.', canonical: 'https://viennadaytrip.com/', schemaMarkup: '' },
   { path: '/about-vienna-day-trip/', name: 'About Us', title: 'About Vienna Day Trip | Licensed Chauffeur Company Since 2019', desc: 'Discover Vienna Day Trip, a premier licensed chauffeur company founded in 2019. Built on precision, elegance, and authentic Austrian hospitality.', canonical: 'https://viennadaytrip.com/about-vienna-day-trip/', schemaMarkup: '' },
   { path: '/our-fleet/', name: 'Luxury Fleet', title: 'Mercedes-Benz Luxury Chauffeur Fleet | Vienna Day Trip', desc: 'Explore our flagship Mercedes-Benz fleet: S-Class First Class, E-Class Business, V-Class VIP Van, Sprinter Minibus, and certified Armored VR6/VR7.', canonical: 'https://viennadaytrip.com/our-fleet/', schemaMarkup: '' },
   { path: '/our-services/', name: 'Services Overview', title: 'Executive Chauffeur Services | Vienna Day Trip', desc: 'Comprehensive luxury private transportation: Airport transfers, hourly chauffeur hire, private day trips, and high-security diplomatic convoys.', canonical: 'https://viennadaytrip.com/our-services/', schemaMarkup: '' },
@@ -138,6 +139,7 @@ export default function SeoManager() {
           schemaMarkup: savedSchema
         }));
         setSchemaJson(savedSchema || '');
+        clearSeoCache();
         setMessage({
           type: 'success',
           text: `SEO Metadata and Custom Schema for "${selectedRoute.name}" updated successfully.`

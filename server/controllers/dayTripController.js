@@ -1,4 +1,4 @@
-import { db } from '../config/db.js';
+﻿import { db } from '../config/db.js';
 
 const DAY_TRIP_IMAGE_OVERRIDES = {
   'salzburg-day-trip': '/images/salzburg.jpg',
@@ -11,6 +11,7 @@ const DAY_TRIP_IMAGE_OVERRIDES = {
 
 export async function getPublicDayTrips(req, res) {
   try {
+    res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
     const rawDayTrips = await db.dayTrips.findMany({ where: { isPublished: true } });
     const dayTrips = rawDayTrips.map((dt) => ({
       ...dt,
@@ -24,6 +25,7 @@ export async function getPublicDayTrips(req, res) {
 
 export async function getPublicDayTripBySlug(req, res) {
   try {
+    res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
     const rawTour = await db.dayTrips.findUnique({ where: { slug: req.params.slug } });
     if (!rawTour || !rawTour.isPublished) {
       return res.status(404).json({ success: false, error: 'Day trip destination not found.' });

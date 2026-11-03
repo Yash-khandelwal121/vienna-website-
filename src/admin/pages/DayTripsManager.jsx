@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import {
   MapPin,
   Search,
@@ -31,7 +31,7 @@ import {
 import AdminLayout from '../components/AdminLayout';
 import { useAdminAuth } from '../context/AdminAuthContext';
 import RichTextEditor from '../components/RichTextEditor';
-import { CANONICAL_DAY_TRIP_IMAGES, sanitizeImageUrl } from '../../services/api';
+import { CANONICAL_DAY_TRIP_IMAGES, sanitizeImageUrl, clearSeoCache } from '../../services/api';
 import { cleanAndValidateJson } from '../../utils/schemaInjector';
 
 const STEPS = [
@@ -501,6 +501,7 @@ export default function DayTripsManager() {
           }
         }));
         setIsDirty(false);
+        clearSeoCache();
         setModalNotice({
           type: 'success',
           text: isPub ? 'Day Trip tour published successfully!' : 'Day Trip saved as draft successfully!'

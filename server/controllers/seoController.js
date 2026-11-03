@@ -1,11 +1,11 @@
-import { db } from '../config/db.js';
+﻿import { db } from '../config/db.js';
 
 export const DEFAULT_SEO_ROUTES = [
   {
     routePath: '/',
     name: 'Homepage',
-    metaTitle: 'Vienna Day Trip | Ultra-Luxury Chauffeur & Private Tours',
-    metaDescription: 'Licensed ultra-luxury private chauffeur service in Vienna, Austria. Airport transfers, hourly hire, and day trips to Hallstatt, Salzburg, Budapest, Prague & Wachau.',
+    metaTitle: 'Vienna Private Chauffeur, Transfers & Day Trips',
+    metaDescription: 'Private chauffeur service in Vienna since 2019; airport transfers, hourly hire and day trips to Hallstatt, Salzburg and Budapest in Mercedes cars.',
     canonicalUrl: 'https://viennadaytrip.com/',
     schemaMarkup: null
   },
@@ -132,6 +132,7 @@ export async function getAdminSeoRecords(req, res) {
  */
 export async function getPublicSeoRecord(req, res) {
   try {
+    res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
     const rawPath = req.query.path || req.params.routePath || '/';
     const norm = normalizePath(rawPath);
 
@@ -155,6 +156,25 @@ export async function getPublicSeoRecord(req, res) {
       }
     }
 
+    // If still no record, check if route matches a published day trip destination
+    if (!record) {
+      const cleanSlug = norm.replace(/^\/+|\/+$/g, '');
+      if (cleanSlug) {
+        try {
+          const dayTrip = await db.dayTrips.findUnique({ where: { slug: cleanSlug } });
+          if (dayTrip && dayTrip.isPublished !== false) {
+            record = {
+              routePath: norm,
+              metaTitle: dayTrip.seoTitle || dayTrip.title || `${dayTrip.name} from Vienna`,
+              metaDescription: dayTrip.seoDesc || dayTrip.shortDesc || '',
+              canonicalUrl: `https://viennadaytrip.com/${dayTrip.slug}/`,
+              schemaMarkup: dayTrip.schemaMarkup || null
+            };
+          }
+        } catch (_dtErr) {}
+      }
+    }
+
     res.json({ success: true, record: record || null });
   } catch (error) {
     console.error('[seoController] Error fetching public SEO record:', error);
@@ -168,6 +188,7 @@ export async function getPublicSeoRecord(req, res) {
  */
 export async function getPublicAllSeoRecords(req, res) {
   try {
+    res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
     const dbRecords = await db.seo.findMany();
     const dbMap = new Map();
     (dbRecords || []).forEach((r) => {

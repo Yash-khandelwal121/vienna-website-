@@ -1,4 +1,4 @@
-import { fleetData } from '../data/fleet';
+﻿import { fleetData } from '../data/fleet';
 import { allBlogPosts } from '../data/blogs';
 import { toursData } from '../data/tours';
 import { servicesData } from '../data/pages';
@@ -80,6 +80,11 @@ export function sanitizeImageUrl(url, fallbackUrl = '') {
 const requestCache = new Map();
 const inFlightRequests = new Map();
 const CACHE_TTL_MS = 30000; // 30 seconds
+
+export function clearSeoCache() {
+  requestCache.clear();
+  inFlightRequests.clear();
+}
 
 function dedupeRequest(key, fetcher) {
   const cached = requestCache.get(key);

@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+﻿import { PrismaClient } from '@prisma/client';
 import fs from 'fs';
 import path from 'path';
 import { hashPassword } from '../utils/password.js';
@@ -6,8 +6,8 @@ import { hashPassword } from '../utils/password.js';
 export const DEFAULT_SEO_ROUTES = [
   {
     routePath: '/',
-    metaTitle: 'Vienna Day Trip | Ultra-Luxury Chauffeur & Private Tours',
-    metaDescription: 'Licensed ultra-luxury private chauffeur service in Vienna, Austria. Airport transfers, hourly hire, and day trips to Hallstatt, Salzburg, Budapest, Prague & Wachau.',
+    metaTitle: 'Vienna Private Chauffeur, Transfers & Day Trips',
+    metaDescription: 'Private chauffeur service in Vienna since 2019; airport transfers, hourly hire and day trips to Hallstatt, Salzburg and Budapest in Mercedes cars.',
     canonicalUrl: 'https://viennadaytrip.com/',
     schemaMarkup: null
   },

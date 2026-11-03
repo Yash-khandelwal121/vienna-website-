@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import {
   MapPin, Clock, Calendar, Check, X, ArrowRight, ShieldCheck,
@@ -11,6 +11,7 @@ import { siteConfig } from '../data/site';
 import { signatureDestinations } from '../components/DestinationCarousel';
 import { fetchPublicDayTripBySlug, CANONICAL_DAY_TRIP_IMAGES } from '../services/api';
 import { injectCustomSchema, removeCustomSchema } from '../utils/schemaInjector';
+import { applyPageMeta } from '../hooks/usePageMeta';
 
 export default function TourPage({ tourKey }) {
   const params = useParams();
@@ -26,7 +27,21 @@ export default function TourPage({ tourKey }) {
       }
       // 2. Fetch live database record to retrieve custom schemaMarkup and latest content
       try {
-        const fetched = await fetchPublicDayTripBySlug(key);
+        // Use direct cache-busting fetch so admin saves are reflected immediately
+        // without waiting for the 30s module-level dedupeRequest cache to expire.
+        let fetched = null;
+        try {
+          const res = await fetch('/api/v1/public/day-trips/' + key + '?_t=' + Date.now());
+          if (res.ok) {
+            const data = await res.json();
+            if (data.success && data.tour) fetched = data.tour;
+          }
+        } catch (_e) {}
+        if (!fetched) {
+          // Fallback to bundled toursData if direct fetch failed
+          // (avoids re-importing api.js which is already statically imported)
+          fetched = null;
+        }
         if (isMounted && fetched) {
           const formatted = {
             ...(toursData[key] || {}),
@@ -58,9 +73,15 @@ export default function TourPage({ tourKey }) {
             ]),
             notIncluded: Array.isArray(fetched.exclusions) && fetched.exclusions.length > 0 ? fetched.exclusions : (toursData[key]?.notIncluded || ['Entrance tickets & meals']),
             faqs: Array.isArray(fetched.faqs) && fetched.faqs.length > 0 ? fetched.faqs : (toursData[key]?.faqs || []),
-            schemaMarkup: fetched.schemaMarkup || null
+            schemaMarkup: fetched.schemaMarkup || null,
+            seoTitle: fetched.seoTitle || null,
+            seoDesc: fetched.seoDesc || null
           };
           setLiveTour(formatted);
+          // Apply admin-saved tour SEO title/description to the browser head
+          if (formatted.seoTitle || formatted.seoDesc) {
+            applyPageMeta(formatted.seoTitle || formatted.title, formatted.seoDesc || formatted.overview?.[0] || '');
+          }
         }
       } catch (e) {}
     }
