@@ -1,12 +1,12 @@
 ﻿import { db } from '../config/db.js';
 
 const DAY_TRIP_IMAGE_OVERRIDES = {
-  'salzburg-day-trip': '/images/salzburg.jpg',
-  'bratislava-day-trip': '/images/bratislava.jpg',
-  'customized-day-trips': '/images/customized.jpg',
-  'wachau-valley-trip': '/images/wachauvalley.jpg',
-  'budapest-day-trip': '/images/budapest.jpg',
-  'prague-day-trip': '/images/parague.jpg',
+  'salzburg-day-trip': 'https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/images/salzburg.jpg',
+  'bratislava-day-trip': 'https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/images/bratislava.jpg',
+  'customized-day-trips': 'https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/images/customized.jpg',
+  'wachau-valley-trip': 'https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/images/wachauvalley.jpg',
+  'budapest-day-trip': 'https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/images/budapest.jpg',
+  'prague-day-trip': 'https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/images/parague.jpg',
 };
 
 export async function getPublicDayTrips(req, res) {
