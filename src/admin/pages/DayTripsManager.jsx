@@ -485,8 +485,13 @@ export default function DayTripsManager() {
         },
         body: JSON.stringify(payload)
       });
-      const data = await res.json();
-      if (data.success && data.tour) {
+      let data = null;
+      try {
+        data = await res.json();
+      } catch (jsonErr) {
+        console.error('Failed to parse response JSON:', jsonErr);
+      }
+      if (res.ok && data?.success && data?.tour) {
         setTourStatus(isPub ? 'PUBLISHED' : 'DRAFT');
         setSelectedTour(data.tour);
         const savedSchema = data.tour.schemaMarkup || cleanedSchema;
@@ -517,9 +522,11 @@ export default function DayTripsManager() {
         setModalNotice({ type: 'error', text: data.error || 'Failed to save day trip.' });
       }
     } catch (err) {
+      console.error('[DayTripsManager] Save exception:', err);
+      const errorMsg = err.message || 'Network error while saving day trip.';
       setTourStatus('ERROR');
-      setSaveError('Network error while saving day trip.');
-      setModalNotice({ type: 'error', text: 'Network error while saving.' });
+      setSaveError(errorMsg);
+      setModalNotice({ type: 'error', text: errorMsg });
     } finally {
       setSaving(false);
     }

@@ -2,6 +2,7 @@ import { db } from '../config/db.js';
 
 export async function getPublicServices(req, res) {
   try {
+    res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
     const services = await db.services.findMany({
       where: { isPublished: true },
       orderBy: { displayOrder: 'asc' }
@@ -10,6 +11,21 @@ export async function getPublicServices(req, res) {
   } catch (error) {
     console.error('[serviceController] Failed to fetch public services:', error);
     res.status(500).json({ success: false, error: 'Failed to fetch services.' });
+  }
+}
+
+export async function getPublicServiceBySlug(req, res) {
+  try {
+    res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+    const { slug } = req.params;
+    const rawService = await db.services.findUnique({ where: { slug } });
+    if (!rawService || !rawService.isPublished) {
+      return res.status(404).json({ success: false, error: 'Service not found.' });
+    }
+    res.json({ success: true, service: rawService });
+  } catch (error) {
+    console.error('[serviceController] Error fetching service by slug:', error);
+    res.status(500).json({ success: false, error: 'Error fetching service.' });
   }
 }
 
@@ -69,6 +85,19 @@ export async function createService(req, res) {
       features = [];
     }
 
+    let finalSchema = null;
+    if (data.schemaMarkup && data.schemaMarkup.trim()) {
+      let cleaned = data.schemaMarkup.trim();
+      const scriptMatch = cleaned.match(/<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/i);
+      if (scriptMatch) cleaned = scriptMatch[1].trim();
+      try {
+        const parsed = JSON.parse(cleaned);
+        finalSchema = JSON.stringify(parsed, null, 2);
+      } catch (err) {
+        return res.status(400).json({ success: false, error: `Custom Schema Markup is not valid JSON: ${err.message}` });
+      }
+    }
+
     const created = await db.services.create({
       data: {
         slug,
@@ -82,8 +111,10 @@ export async function createService(req, res) {
         ctaUrl: data.ctaUrl ? data.ctaUrl.trim() : `/${slug}/`,
         displayOrder: Number(data.displayOrder) || 0,
         isPublished: data.isPublished !== false,
-        seoTitle: data.seoTitle || null,
-        seoDesc: data.seoDesc || null
+        seoTitle: data.seoTitle ? data.seoTitle.trim() : null,
+        seoDesc: data.seoDesc ? data.seoDesc.trim() : null,
+        canonicalUrl: data.canonicalUrl ? data.canonicalUrl.trim() : `https://viennadaytrip.com/${slug}/`,
+        schemaMarkup: finalSchema
       }
     });
 
@@ -158,9 +189,46 @@ export async function updateService(req, res) {
       cleanData.isPublished = Boolean(cleanData.isPublished);
     }
 
+    // Validate and preserve schemaMarkup
+    if (cleanData.schemaMarkup !== undefined) {
+      if (!cleanData.schemaMarkup || !cleanData.schemaMarkup.trim()) {
+        cleanData.schemaMarkup = existing.schemaMarkup || null;
+      } else {
+        let cleaned = cleanData.schemaMarkup.trim();
+        const scriptMatch = cleaned.match(/<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/i);
+        if (scriptMatch) cleaned = scriptMatch[1].trim();
+        try {
+          const parsed = JSON.parse(cleaned);
+          cleanData.schemaMarkup = JSON.stringify(parsed, null, 2);
+        } catch (err) {
+          return res.status(400).json({ success: false, error: `Custom Schema Markup is not valid JSON: ${err.message}` });
+        }
+      }
+    }
+
+    if (cleanData.canonicalUrl !== undefined) {
+      cleanData.canonicalUrl = cleanData.canonicalUrl ? cleanData.canonicalUrl.trim() : null;
+    }
+    if (cleanData.seoTitle !== undefined) {
+      cleanData.seoTitle = cleanData.seoTitle ? cleanData.seoTitle.trim() : null;
+    }
+    if (cleanData.seoDesc !== undefined) {
+      cleanData.seoDesc = cleanData.seoDesc ? cleanData.seoDesc.trim() : null;
+    }
+
+    const validKeys = new Set([
+      'slug', 'name', 'shortDesc', 'fullDesc', 'features', 'icon',
+      'image', 'ctaLabel', 'ctaUrl', 'displayOrder', 'isPublished',
+      'seoTitle', 'seoDesc', 'canonicalUrl', 'schemaMarkup'
+    ]);
+    const prismaSafeData = {};
+    for (const [k, v] of Object.entries(cleanData)) {
+      if (validKeys.has(k)) prismaSafeData[k] = v;
+    }
+
     const updated = await db.services.update({
       where: { id },
-      data: cleanData
+      data: prismaSafeData
     });
 
     res.json({ success: true, service: updated });

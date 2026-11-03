@@ -612,15 +612,17 @@
         "Fixed all-inclusive rates"
       ],
       "icon": null,
-      "image": "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.comhttps://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/images/airport-transfer.webp",
+      "image": "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/images/airport-transfer.webp",
       "ctaLabel": "Book Airport Transfer",
       "ctaUrl": "/airport-transfer-vienna//",
       "displayOrder": 1,
       "isPublished": true,
       "seoTitle": "Vienna Airport Transfer with Meet & Greet (VIE)",
       "seoDesc": "Private Vienna Airport transfer in 25 to 35 minutes: a chauffeur with name sign in arrivals, flight tracking, child seats and 24/7 Mercedes service.",
+      "canonicalUrl": null,
+      "schemaMarkup": null,
       "createdAt": "2026-10-24T10:30:58.537Z",
-      "updatedAt": "2026-11-03T07:48:38.743Z"
+      "updatedAt": "2026-11-03T10:05:47.842Z"
     },
     {
       "id": "srv_hourly",
@@ -635,15 +637,17 @@
         "Minimum 2 hours hire"
       ],
       "icon": null,
-      "image": "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.comhttps://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/images/about-vclass-chauffeur.webp",
+      "image": "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/images/about-vclass-chauffeur.webp",
       "ctaLabel": "Hire Hourly Chauffeur",
       "ctaUrl": "/hourly-chauffeur-service/",
       "displayOrder": 2,
       "isPublished": true,
       "seoTitle": "Hourly Chauffeur Service",
       "seoDesc": "Flexible by-the-hour private Mercedes chauffeur at your complete disposal for business meetings, shopping, or dinners.",
+      "canonicalUrl": null,
+      "schemaMarkup": null,
       "createdAt": "2026-10-24T10:30:58.904Z",
-      "updatedAt": "2026-11-03T07:48:39.193Z"
+      "updatedAt": "2026-11-03T10:05:49.425Z"
     },
     {
       "id": "srv_daytrips",
@@ -802,10 +806,11 @@
       "isPublished": true,
       "displayOrder": 6,
       "createdAt": "2026-10-24T07:46:37.830Z",
-      "updatedAt": "2026-11-03T07:48:37.371Z",
+      "updatedAt": "2026-11-03T09:51:20.170Z",
       "gallery": [],
       "itinerary": [],
-      "schemaMarkup": null
+      "schemaMarkup": null,
+      "seoTitle": "Wachau Wine Valley & Melk Abbey Tour — Verified"
     }
   ],
   "blogs": [
@@ -25092,6 +25097,17 @@
       "schemaMarkup": null,
       "isIndexed": true,
       "updatedAt": "2026-11-02T15:23:40.161Z"
+    },
+    {
+      "id": "seo_1793699936827",
+      "routePath": "/b2b-solution/",
+      "metaTitle": "B2B & Corporate Chauffeur Solutions Vienna | Vienna Day Trip",
+      "metaDescription": "Executive corporate chauffeur services, diplomatic delegations, VIP roadshows, and business event transportation in Vienna.",
+      "canonicalUrl": "https://viennadaytrip.com/b2b-solution/",
+      "schemaMarkup": "{\n  \"@context\": \"https://schema.org\",\n  \"@type\": \"Service\",\n  \"name\": \"Corporate Chauffeur Vienna Test\",\n  \"provider\": {\n    \"@type\": \"Organization\",\n    \"name\": \"Vienna Day Trip\"\n  }\n}",
+      "isIndexed": true,
+      "createdAt": "2026-11-03T09:58:56.827Z",
+      "updatedAt": "2026-11-03T09:58:57.737Z"
     }
   ],
   "reviews": {

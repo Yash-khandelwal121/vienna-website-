@@ -48,6 +48,46 @@ export const DEFAULT_SEO_ROUTES = [
     metaDescription: 'Contact our 24/7 private chauffeur concierge desk for bespoke travel itineraries, airport transfers, and tailored Central European day trips.',
     canonicalUrl: 'https://viennadaytrip.com/contact-us-i/',
     schemaMarkup: null
+  },
+  {
+    routePath: '/b2b-solution/',
+    name: 'B2B Solutions',
+    metaTitle: 'B2B & Corporate Chauffeur Solutions Vienna | Vienna Day Trip',
+    metaDescription: 'Executive corporate chauffeur services, diplomatic delegations, VIP roadshows, and business event transportation in Vienna.',
+    canonicalUrl: 'https://viennadaytrip.com/b2b-solution/',
+    schemaMarkup: null
+  },
+  {
+    routePath: '/day-trips/',
+    name: 'Day Trips & Tours',
+    metaTitle: 'Luxury Private Day Trips & Tours from Vienna | Vienna Day Trip',
+    metaDescription: 'Bespoke private day trips from Vienna to Hallstatt, Salzburg, Budapest, Prague, and Wachau Valley in luxury Mercedes-Benz vehicles.',
+    canonicalUrl: 'https://viennadaytrip.com/day-trips/',
+    schemaMarkup: null
+  },
+  {
+    routePath: '/privacy-policy/',
+    name: 'Privacy Policy',
+    metaTitle: 'Privacy Policy | Vienna Day Trip',
+    metaDescription: 'Privacy policy and data protection terms for Vienna Day Trip chauffeur services in accordance with GDPR regulations.',
+    canonicalUrl: 'https://viennadaytrip.com/privacy-policy/',
+    schemaMarkup: null
+  },
+  {
+    routePath: '/cancellation-refund-policy/',
+    name: 'Cancellation & Refund Policy',
+    metaTitle: 'Cancellation & Refund Policy | Vienna Day Trip',
+    metaDescription: 'Transparent cancellation and refund terms for private chauffeur bookings and day trips with Vienna Day Trip.',
+    canonicalUrl: 'https://viennadaytrip.com/cancellation-refund-policy/',
+    schemaMarkup: null
+  },
+  {
+    routePath: '/imprint/',
+    name: 'Imprint / Impressum',
+    metaTitle: 'Imprint & Legal Notice | Vienna Day Trip',
+    metaDescription: 'Legal notice, licensing details, and company information for Vienna Day Trip private chauffeur services.',
+    canonicalUrl: 'https://viennadaytrip.com/imprint/',
+    schemaMarkup: null
   }
 ];
 
@@ -135,15 +175,23 @@ export async function getPublicSeoRecord(req, res) {
     res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
     const rawPath = req.query.path || req.params.routePath || '/';
     const norm = normalizePath(rawPath);
+    const withoutSlash = norm.endsWith('/') && norm !== '/' ? norm.slice(0, -1) : norm;
 
+    // Check DB by normalised path (with slash), rawPath, or without slash
     let record = await db.seo.findUnique({ where: { routePath: norm } });
     if (!record && norm !== rawPath) {
       record = await db.seo.findUnique({ where: { routePath: rawPath } });
     }
+    if (!record && withoutSlash !== norm) {
+      record = await db.seo.findUnique({ where: { routePath: withoutSlash } });
+    }
 
     if (!record) {
       const fallback = DEFAULT_SEO_ROUTES.find(
-        (d) => normalizePath(d.routePath) === norm || d.routePath === rawPath
+        (d) => normalizePath(d.routePath) === norm ||
+               d.routePath === rawPath ||
+               d.routePath === withoutSlash ||
+               normalizePath(d.routePath) === normalizePath(rawPath)
       );
       if (fallback) {
         record = {
@@ -151,7 +199,7 @@ export async function getPublicSeoRecord(req, res) {
           metaTitle: fallback.metaTitle,
           metaDescription: fallback.metaDescription,
           canonicalUrl: fallback.canonicalUrl,
-          schemaMarkup: null
+          schemaMarkup: fallback.schemaMarkup || null
         };
       }
     }
@@ -172,6 +220,25 @@ export async function getPublicSeoRecord(req, res) {
             };
           }
         } catch (_dtErr) {}
+      }
+    }
+
+    // If still no record, check if route matches a published service
+    if (!record) {
+      const cleanSlug = norm.replace(/^\/+|\/+$/g, '');
+      if (cleanSlug) {
+        try {
+          const service = await db.services.findUnique({ where: { slug: cleanSlug } });
+          if (service && service.isPublished !== false) {
+            record = {
+              routePath: norm,
+              metaTitle: service.seoTitle || service.name || 'Executive Chauffeur Service',
+              metaDescription: service.seoDesc || service.shortDesc || '',
+              canonicalUrl: service.canonicalUrl || `https://viennadaytrip.com/${service.slug}/`,
+              schemaMarkup: service.schemaMarkup || null
+            };
+          }
+        } catch (_srvErr) {}
       }
     }
 

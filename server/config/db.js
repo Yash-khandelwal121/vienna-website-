@@ -763,18 +763,6 @@ export const db = {
       }
       return null;
     },
-    async update({ where, data }) {
-      if (isPostgresConnected) {
-        try { return await prisma.mediaAsset.update({ where, data }); } catch (e) {}
-      }
-      const idx = memoryStore.media.findIndex((m) => m.id === where.id);
-      if (idx !== -1) {
-        memoryStore.media[idx] = { ...memoryStore.media[idx], ...data };
-        persistStore();
-        return memoryStore.media[idx];
-      }
-      return null;
-    },
     async delete({ where }) {
       if (isPostgresConnected) {
         try { return await prisma.adminUser.delete({ where }); } catch (e) {}
@@ -927,18 +915,6 @@ export const db = {
       return this._hydrateBooking(updated);
     },
 
-    async update({ where, data }) {
-      if (isPostgresConnected) {
-        try { return await prisma.mediaAsset.update({ where, data }); } catch (e) {}
-      }
-      const idx = memoryStore.media.findIndex((m) => m.id === where.id);
-      if (idx !== -1) {
-        memoryStore.media[idx] = { ...memoryStore.media[idx], ...data };
-        persistStore();
-        return memoryStore.media[idx];
-      }
-      return null;
-    },
     async delete({ where }) {
       if (!isPostgresConnected || !prisma) {
         throw new Error('[DB] Database unavailable: PostgreSQL connection required to delete bookings.');
@@ -1090,18 +1066,6 @@ export const db = {
       }
       return null;
     },
-    async update({ where, data }) {
-      if (isPostgresConnected) {
-        try { return await prisma.mediaAsset.update({ where, data }); } catch (e) {}
-      }
-      const idx = memoryStore.media.findIndex((m) => m.id === where.id);
-      if (idx !== -1) {
-        memoryStore.media[idx] = { ...memoryStore.media[idx], ...data };
-        persistStore();
-        return memoryStore.media[idx];
-      }
-      return null;
-    },
     async delete({ where }) {
       if (isPostgresConnected) {
         try { return await prisma.vehicle.delete({ where }); } catch (e) {}
@@ -1220,18 +1184,6 @@ export const db = {
       }
       return updated;
     },
-    async update({ where, data }) {
-      if (isPostgresConnected) {
-        try { return await prisma.mediaAsset.update({ where, data }); } catch (e) {}
-      }
-      const idx = memoryStore.media.findIndex((m) => m.id === where.id);
-      if (idx !== -1) {
-        memoryStore.media[idx] = { ...memoryStore.media[idx], ...data };
-        persistStore();
-        return memoryStore.media[idx];
-      }
-      return null;
-    },
     async delete({ where }) {
       if (isPostgresConnected) {
         try { await prisma.blogPost.delete({ where }); } catch (e) {}
@@ -1322,18 +1274,6 @@ export const db = {
       persistStore();
       return updated;
     },
-    async update({ where, data }) {
-      if (isPostgresConnected) {
-        try { return await prisma.mediaAsset.update({ where, data }); } catch (e) {}
-      }
-      const idx = memoryStore.media.findIndex((m) => m.id === where.id);
-      if (idx !== -1) {
-        memoryStore.media[idx] = { ...memoryStore.media[idx], ...data };
-        persistStore();
-        return memoryStore.media[idx];
-      }
-      return null;
-    },
     async delete({ where }) {
       if (isPostgresConnected) {
         try {
@@ -1398,18 +1338,6 @@ export const db = {
         return updated || memoryStore.dayTrips[idx];
       }
       return updated;
-    },
-    async update({ where, data }) {
-      if (isPostgresConnected) {
-        try { return await prisma.mediaAsset.update({ where, data }); } catch (e) {}
-      }
-      const idx = memoryStore.media.findIndex((m) => m.id === where.id);
-      if (idx !== -1) {
-        memoryStore.media[idx] = { ...memoryStore.media[idx], ...data };
-        persistStore();
-        return memoryStore.media[idx];
-      }
-      return null;
     },
     async delete({ where }) {
       if (isPostgresConnected) {

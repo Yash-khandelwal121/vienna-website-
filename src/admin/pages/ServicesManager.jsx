@@ -32,7 +32,8 @@ import {
 import AdminLayout from '../components/AdminLayout';
 import { useAdminAuth } from '../context/AdminAuthContext';
 import RichTextEditor from '../components/RichTextEditor';
-import { CANONICAL_SERVICE_IMAGES, sanitizeImageUrl } from '../../services/api';
+import { cleanAndValidateJson } from '../../utils/schemaInjector';
+import { CANONICAL_SERVICE_IMAGES, sanitizeImageUrl, clearSeoCache } from '../../services/api';
 
 const STEPS = [
   { id: 'basic', label: '1. Basic Information', icon: FileText },
@@ -109,7 +110,8 @@ export default function ServicesManager() {
       canonicalUrl: '',
       ogTitle: '',
       ogDescription: '',
-      ogImage: ''
+      ogImage: '',
+      schemaJson: ''
     }
   });
 
@@ -204,7 +206,8 @@ export default function ServicesManager() {
         canonicalUrl: '',
         ogTitle: '',
         ogDescription: '',
-        ogImage: ''
+        ogImage: '',
+        schemaJson: ''
       }
     });
     setSelectedService(null);
@@ -254,7 +257,8 @@ export default function ServicesManager() {
         canonicalUrl: s.canonicalUrl || `https://viennadaytrip.com/${s.slug}/`,
         ogTitle: s.seo?.ogTitle || s.name || '',
         ogDescription: s.seo?.ogDescription || s.shortDesc || '',
-        ogImage: s.seo?.ogImage || s.image || ''
+        ogImage: s.seo?.ogImage || s.image || '',
+        schemaJson: s.schemaMarkup ? (typeof s.schemaMarkup === 'string' ? s.schemaMarkup : JSON.stringify(s.schemaMarkup, null, 2)) : ''
       }
     });
 
@@ -351,6 +355,20 @@ export default function ServicesManager() {
 
     const isPub = publishStatus !== null ? publishStatus : form.isPublished;
 
+    // Validate JSON-LD Schema if provided
+    let cleanedSchema = form.seo.schemaJson;
+    if (form.seo.schemaJson && form.seo.schemaJson.trim()) {
+      const validation = cleanAndValidateJson(form.seo.schemaJson);
+      if (!validation.valid) {
+        setValidationError('Custom Schema Markup is not valid JSON: ' + validation.error + '. Please correct it before saving.');
+        setActiveTab('seo');
+        return;
+      }
+      cleanedSchema = validation.jsonString;
+    } else {
+      cleanedSchema = selectedService?.schemaMarkup || null;
+    }
+
     try {
       setSaving(true);
       const cleanSlug = (form.slug || form.name)
@@ -367,53 +385,72 @@ export default function ServicesManager() {
         features: form.features || [],
         image: form.image || '/images/vienna-palace-backdrop.webp',
         ctaLabel: form.ctaLabel || 'Book Service',
-        ctaUrl: form.ctaUrl || `/${cleanSlug}/`,
+        ctaUrl: form.ctaUrl || ('/' + cleanSlug + '/'),
         displayOrder: Number(form.displayOrder) || 1,
         isPublished: isPub,
         seoTitle: form.seo.metaTitle || form.name,
-        seoDesc: form.seo.metaDescription || form.shortDesc
+        seoDesc: form.seo.metaDescription || form.shortDesc,
+        canonicalUrl: form.seo.canonicalUrl || ('https://viennadaytrip.com/' + cleanSlug + '/'),
+        schemaMarkup: form.seo.schemaJson?.trim() ? cleanedSchema : (selectedService?.schemaMarkup || null)
       };
 
-      const url = selectedService ? `/api/v1/admin/services/${selectedService.id}` : '/api/v1/admin/services';
+      const url = selectedService ? ('/api/v1/admin/services/' + selectedService.id) : '/api/v1/admin/services';
       const method = selectedService ? 'PATCH' : 'POST';
 
       const res = await fetch(url, {
         method,
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
+          Authorization: 'Bearer ' + token
         },
         body: JSON.stringify(payload)
       });
-      const data = await res.json();
-      if (data.success && data.service) {
+      let data = null;
+      try {
+        data = await res.json();
+      } catch (jsonErr) {
+        console.error('Failed to parse response JSON:', jsonErr);
+      }
+      if (res.ok && data?.success && data?.service) {
         setServiceStatus(isPub ? 'PUBLISHED' : 'DRAFT');
         setSelectedService(data.service);
+        const savedSchema = data.service.schemaMarkup || cleanedSchema;
         setForm((prev) => ({
           ...prev,
           id: data.service.id,
           slug: data.service.slug,
-          isPublished: isPub
+          isPublished: isPub,
+          seo: {
+            ...prev.seo,
+            metaTitle: data.service.seoTitle || prev.seo.metaTitle,
+            metaDescription: data.service.seoDesc || prev.seo.metaDescription,
+            canonicalUrl: data.service.canonicalUrl || prev.seo.canonicalUrl,
+            schemaJson: savedSchema ? (typeof savedSchema === 'string' ? savedSchema : JSON.stringify(savedSchema, null, 2)) : ''
+          }
         }));
         setIsDirty(false);
+        clearSeoCache();
         setModalNotice({
           type: 'success',
           text: isPub ? 'Service published successfully!' : 'Service saved as draft!'
         });
         setMessage({
           type: 'success',
-          text: `Service "${data.service.name}" ${isPub ? 'published' : 'saved as draft'}.`
+          text: 'Service "' + data.service.name + '" ' + (isPub ? 'published' : 'saved as draft') + '.'
         });
         fetchServices();
       } else {
+        const errorMsg = data?.error || ('Failed to save service (HTTP ' + res.status + ').');
         setServiceStatus('ERROR');
-        setSaveError(data.error || 'Failed to save service.');
-        setModalNotice({ type: 'error', text: data.error || 'Failed to save service.' });
+        setSaveError(errorMsg);
+        setModalNotice({ type: 'error', text: errorMsg });
       }
     } catch (err) {
+      console.error('[ServicesManager] Save exception:', err);
+      const errorMsg = err.message || 'Network error while saving service.';
       setServiceStatus('ERROR');
-      setSaveError('Network error while saving service.');
-      setModalNotice({ type: 'error', text: 'Network error while saving.' });
+      setSaveError(errorMsg);
+      setModalNotice({ type: 'error', text: errorMsg });
     } finally {
       setSaving(false);
     }
@@ -953,7 +990,7 @@ export default function ServicesManager() {
                     <input
                       type="text"
                       className="vdt-form-input"
-                      placeholder="e.g. Vienna Airport Transfer | Private Mercedes-Benz Chauffeur"
+                      placeholder="e.g. Vienna Airport Transfer with Meet & Greet | Vienna Day Trip"
                       value={form.seo.metaTitle}
                       onChange={(e) => updateSeo({ metaTitle: e.target.value })}
                     />
@@ -964,13 +1001,54 @@ export default function ServicesManager() {
                     <textarea
                       className="vdt-form-textarea"
                       rows={3}
-                      placeholder="Reliable, fixed-price private chauffeur transfers between Vienna Airport and city center..."
+                      placeholder="Reliable, fixed-price private chauffeur transfers between Vienna Airport and city center in luxury Mercedes vehicles..."
                       value={form.seo.metaDescription}
                       onChange={(e) => updateSeo({ metaDescription: e.target.value })}
                     />
                   </div>
 
-                  {/* SERP Preview */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }}>
+                    <div className="vdt-form-group">
+                      <label className="vdt-form-label">Focus Keyword</label>
+                      <input
+                        type="text"
+                        className="vdt-form-input"
+                        placeholder="e.g. Vienna Airport Transfer"
+                        value={form.seo.focusKeyword}
+                        onChange={(e) => updateSeo({ focusKeyword: e.target.value })}
+                      />
+                    </div>
+                    <div className="vdt-form-group">
+                      <label className="vdt-form-label">Canonical URL</label>
+                      <input
+                        type="text"
+                        className="vdt-form-input"
+                        placeholder={'https://viennadaytrip.com/' + (form.slug || 'services') + '/'}
+                        value={form.seo.canonicalUrl}
+                        onChange={(e) => updateSeo({ canonicalUrl: e.target.value })}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Custom JSON-LD Schema Markup (Structured Data) */}
+                  <div className="vdt-form-group">
+                    <label className="vdt-form-label" style={{ fontWeight: 700 }}>
+                      Custom JSON-LD Schema Markup (Structured Data)
+                    </label>
+                    <textarea
+                      className="vdt-form-textarea"
+                      rows={8}
+                      value={form.seo.schemaJson || ''}
+                      onChange={(e) => updateSeo({ schemaJson: e.target.value })}
+                      placeholder={'{\n  "@context": "https://schema.org",\n  "@type": "Service",\n  "name": "' + (form.name || 'Airport Transfers') + '",\n  "description": "' + (form.shortDesc || 'Luxury chauffeur airport transfers in Vienna') + '",\n  "provider": {\n    "@type": "TravelAgency",\n    "name": "Vienna Day Trip",\n    "url": "https://viennadaytrip.com"\n  }\n}'}
+                      style={{ fontFamily: 'monospace', fontSize: '0.82rem', lineHeight: '1.4' }}
+                    />
+                    <small style={{ color: '#8E929B', marginTop: '4px', display: 'block' }}>
+                      Paste custom JSON-LD structured data. Validated before saving. Leave blank to preserve existing schema.
+                    </small>
+                  </div>
+
+                  {/* Google SERP Live Preview */}
                   <div style={{ borderTop: '1px solid #E6D8C3', paddingTop: '1.25rem' }}>
                     <div style={{ fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#8C877E', fontWeight: 700, marginBottom: '0.65rem' }}>
                       Google Search Result Preview

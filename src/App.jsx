@@ -120,6 +120,8 @@ export default function App() {
         {/* 16. B2B Solutions */}
         <Route path="b2b-solutions/" element={<B2B />} />
         <Route path="b2b-solutions" element={<B2B />} />
+        <Route path="b2b-solution/" element={<B2B />} />
+        <Route path="b2b-solution" element={<B2B />} />
 
         {/* 17. Private Day Trips / Tours & Pricing (Primary canonical route: /day-trips/) */}
         <Route path="day-trips/" element={<Pricing />} />

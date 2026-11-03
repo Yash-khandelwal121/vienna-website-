@@ -49,7 +49,7 @@ export function invalidateSeoCache(pathname) {
  * Apply title and description to the live <head>.
  * Exported for direct imperative use in tests / debugging.
  */
-export function applyPageMeta(title, description) {
+export function applyPageMeta(title, description, canonicalUrl = null) {
   if (title && typeof title === 'string' && title.trim()) {
     document.title = title.trim();
   }
@@ -67,6 +67,15 @@ export function applyPageMeta(title, description) {
       document.head.appendChild(el);
     }
     el.setAttribute('content', description.trim());
+  }
+  if (canonicalUrl && typeof canonicalUrl === 'string' && canonicalUrl.trim()) {
+    let link = document.querySelector('link[rel="canonical"]');
+    if (!link) {
+      link = document.createElement('link');
+      link.setAttribute('rel', 'canonical');
+      document.head.appendChild(link);
+    }
+    link.setAttribute('href', canonicalUrl.trim());
   }
 }
 
@@ -108,8 +117,8 @@ export default function usePageMeta(overrideTitle = null, overrideDescription = 
         if (res.ok) {
           const data = await res.json();
           if (data.success && data.record) {
-            const { metaTitle, metaDescription } = data.record;
-            applyPageMeta(metaTitle, metaDescription);
+            const { metaTitle, metaDescription, canonicalUrl } = data.record;
+            applyPageMeta(metaTitle, metaDescription, canonicalUrl);
           }
         }
       } catch (_e) {

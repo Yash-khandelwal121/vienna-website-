@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { createBooking } from '../controllers/bookingController.js';
 import { createContactEnquiry } from '../controllers/enquiryController.js';
 import { getPublicVehicles } from '../controllers/fleetController.js';
-import { getPublicServices } from '../controllers/serviceController.js';
+import { getPublicServices, getPublicServiceBySlug } from '../controllers/serviceController.js';
 import { getPublicDayTrips, getPublicDayTripBySlug } from '../controllers/dayTripController.js';
 import { getPublicBlogs, getPublicBlogBySlug } from '../controllers/blogController.js';
 import { getSettings, getReviewsSettings } from '../controllers/settingsController.js';
@@ -30,6 +30,7 @@ router.post('/payments/simulate-confirmation', simulatePaymentConfirmation);
 // Public Content Endpoints (Only published items)
 router.get('/vehicles', getPublicVehicles);
 router.get('/services', getPublicServices);
+router.get('/services/:slug', getPublicServiceBySlug);
 router.get('/day-trips', getPublicDayTrips);
 router.get('/day-trips/:slug', getPublicDayTripBySlug);
 router.get('/blogs', getPublicBlogs);

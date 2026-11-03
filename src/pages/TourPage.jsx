@@ -38,9 +38,28 @@ export default function TourPage({ tourKey }) {
           }
         } catch (_e) {}
         if (!fetched) {
-          // Fallback to bundled toursData if direct fetch failed
-          // (avoids re-importing api.js which is already statically imported)
-          fetched = null;
+          try {
+            const res = await fetch('/api/v1/public/services/' + key + '?_t=' + Date.now());
+            if (res.ok) {
+              const data = await res.json();
+              if (data.success && data.service) {
+                const s = data.service;
+                let feat = [];
+                if (Array.isArray(s.features)) feat = s.features;
+                else if (typeof s.features === 'string') {
+                  try { feat = JSON.parse(s.features); } catch { feat = s.features.split('\n').filter(Boolean); }
+                }
+                fetched = {
+                  ...s,
+                  title: s.name,
+                  eyebrow: 'EXECUTIVE CHAUFFEUR SERVICE',
+                  fullDesc: s.fullDesc || s.shortDesc || '',
+                  inclusions: feat,
+                  exclusions: []
+                };
+              }
+            }
+          } catch (_sErr) {}
         }
         if (isMounted && fetched) {
           const formatted = {
@@ -75,12 +94,17 @@ export default function TourPage({ tourKey }) {
             faqs: Array.isArray(fetched.faqs) && fetched.faqs.length > 0 ? fetched.faqs : (toursData[key]?.faqs || []),
             schemaMarkup: fetched.schemaMarkup || null,
             seoTitle: fetched.seoTitle || null,
-            seoDesc: fetched.seoDesc || null
+            seoDesc: fetched.seoDesc || null,
+            canonicalUrl: fetched.canonicalUrl || `https://viennadaytrip.com/${fetched.slug || key}/`
           };
           setLiveTour(formatted);
-          // Apply admin-saved tour SEO title/description to the browser head
-          if (formatted.seoTitle || formatted.seoDesc) {
-            applyPageMeta(formatted.seoTitle || formatted.title, formatted.seoDesc || formatted.overview?.[0] || '');
+          // Apply admin-saved tour SEO title/description/canonical to the browser head
+          if (formatted.seoTitle || formatted.seoDesc || formatted.canonicalUrl) {
+            applyPageMeta(
+              formatted.seoTitle || formatted.title,
+              formatted.seoDesc || formatted.overview?.[0] || '',
+              formatted.canonicalUrl
+            );
           }
         }
       } catch (e) {}
