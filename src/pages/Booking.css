@@ -162,13 +162,17 @@
 
 .booking-vdt-root .hero img {
   width: 100%;
-  height: auto;
-  aspect-ratio: 16 / 9;
-  object-fit: contain;
-  border-radius: 20px;
+  max-width: 440px;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  object-position: 20% center;
+  padding: 14px;
+  border-radius: 24px;
   border: 6px solid #fff;
   background: var(--soft);
   box-shadow: 0 30px 70px rgba(60, 45, 15, 0.25);
+  margin-left: auto;
+  display: block;
 }
 
 /* Card & Steps Container */
@@ -612,9 +616,10 @@
 .booking-vdt-root .car img {
   width: 170px;
   height: 100px;
-  object-fit: cover;
+  object-fit: contain;
   border-radius: 10px;
   background: var(--soft);
+  padding: 4px;
 }
 
 .booking-vdt-root .car h3 {
@@ -1390,7 +1395,7 @@
   .booking-vdt-root .hero { padding: 24px 16px 28px; padding-top: calc(70px + 24px); }
   .booking-vdt-root .hg { grid-template-columns: 1fr; gap: 24px; }
   .booking-vdt-root .hero h1 { font-size: clamp(26px, 7vw, 38px); }
-  .booking-vdt-root .hero img { order: -1; border-radius: 14px; border-width: 4px; max-height: 240px; object-fit: cover; }
+  .booking-vdt-root .hero img { order: -1; border-radius: 18px; border-width: 4px; width: 100%; max-width: 320px; aspect-ratio: 1 / 1; object-fit: cover; object-position: 20% center; padding: 10px; margin: 0 auto; display: block; }
   .booking-vdt-root .wrap { padding: 0 12px; margin-top: 20px; }
   .booking-vdt-root .card { border-radius: 18px; padding: 16px 14px; }
   .booking-vdt-root .steps { gap: 4px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 4px; }
@@ -1404,7 +1409,7 @@
   .booking-vdt-root .stats { grid-template-columns: 1fr 1fr; }
   .booking-vdt-root .stats b { font-size: 20px; }
   .booking-vdt-root .car { grid-template-columns: 1fr; gap: 12px; padding: 14px; }
-  .booking-vdt-root .car img { width: 100%; height: 180px; object-fit: cover; }
+  .booking-vdt-root .car img { width: 100%; height: 180px; object-fit: contain; }
   .booking-vdt-root .price { text-align: left; font-size: 22px; }
   .booking-vdt-root .sm { grid-template-columns: 1fr; gap: 16px; }
   .booking-vdt-root .rev { grid-template-columns: 1fr; gap: 14px; }

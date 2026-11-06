@@ -1,4 +1,4 @@
-﻿/**
+/**
  * ============================================================
  * Vienna Day Trip -- Centralized Pricing Engine  v2.0
  * ============================================================
@@ -19,10 +19,10 @@
 // 1. VEHICLE CATALOGUE
 export const VEHICLES = [
   { id: 'sedan_business', name: 'Mercedes-Benz E-Class', tag: 'Business Class', pax: 3, bags: 2, kmRate: 1.90, hourlyRate: 55, img: '/cars/e-class.webp', _tier: 0 },
-  { id: 'eqe',            name: 'Mercedes-Benz EQE',     tag: 'Electric Business', pax: 3, bags: 2, kmRate: 1.90, hourlyRate: 55, img: '/cars/e-class.webp', _tier: 0 },
+  { id: 'eqe',            name: 'Mercedes-Benz EQE',     tag: 'Electric Business', pax: 3, bags: 2, kmRate: 1.90, hourlyRate: 55, img: '/cars/eqe-black.jpg', _tier: 0 },
   { id: 'van_business',   name: 'Mercedes-Benz V-Class', tag: 'Executive Van',  pax: 7, bags: 7, kmRate: 2.03, hourlyRate: 65, img: '/cars/v-class.webp', _tier: 1 },
-  { id: 'sedan_first',    name: 'Mercedes-Benz S-Class', tag: 'First Class VIP', pax: 3, bags: 2, kmRate: 2.70, hourlyRate: 85, img: '/cars/s-class.webp', _tier: 2 },
-  { id: 'eqs',            name: 'Mercedes-Benz EQS',     tag: 'Electric VIP',   pax: 3, bags: 2, kmRate: 2.70, hourlyRate: 85, img: '/cars/s-class.webp', _tier: 2 },
+  { id: 'sedan_first',    name: 'Mercedes-Benz S-Class', tag: 'First Class VIP', pax: 3, bags: 2, kmRate: 2.70, hourlyRate: 85, img: '/cars/s-class-black.jpg', _tier: 2 },
+  { id: 'eqs',            name: 'Mercedes-Benz EQS',     tag: 'Electric VIP',   pax: 3, bags: 2, kmRate: 2.70, hourlyRate: 85, img: '/cars/eqs-black.jpg', _tier: 2 },
 ];
 
 // 2. FIXED FARE TABLES

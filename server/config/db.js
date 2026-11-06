@@ -361,15 +361,15 @@ async function loadSeedData() {
         vehicleId: 'armored',
         name: 'Armored Luxury Vehicle',
         category: 'Security & Diplomatic Escort',
-        badge: 'Ballistic Protection VR6/VR7',
+        badge: 'Executive Tactical Protection',
         tagline: 'Certified Ballistic & Blast Security Protection',
         shortDescription: 'Certified ballistic and blast-protected transportation for VIPs, diplomats, and high-profile executives.',
-        fullDescription: 'VR6/VR7 certified armored luxury limousine with run-flat tire systems, emergency oxygen supply, intercom communications, and specialized close-protection certified chauffeurs.',
+        fullDescription: 'High-security luxury protection limousine with run-flat tire systems, reinforced security chassis, and specialized close-protection certified chauffeurs. Ballistic specifications confirmed upon confidential inquiry.',
         passengers: '3 Guests',
         luggage: '2 Large Bags',
         ride: 'Reinforced Security Suspension',
         features: [
-          'Certified VR6 / VR7 ballistic steel armor plating',
+          'Reinforced security body and multi-layer ballistic glass',
           'Multi-layer polycarbonate bullet-resistant glass',
           'Run-flat tire inserts & reinforced braking system',
           'Discreet civilian appearance & police-vetted chauffeurs'

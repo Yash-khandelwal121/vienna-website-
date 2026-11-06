@@ -572,30 +572,30 @@
       "vehicleId": "armored",
       "name": "Armored Luxury Vehicle",
       "category": "Security & Diplomatic Escort",
-      "badge": "Ballistic Protection VR6/VR7",
-      "tagline": "Certified Ballistic & Blast Security Protection",
-      "shortDescription": "Certified ballistic and blast-protected transportation for VIPs, diplomats, and high-profile executives.",
-      "fullDescription": "VR6/VR7 certified armored luxury limousine with run-flat tire systems, emergency oxygen supply, intercom communications, and specialized close-protection certified chauffeurs.",
+      "badge": "Executive Tactical Protection",
+      "tagline": "Discreet Security & Diplomatic Protection",
+      "shortDescription": "Discreet high-security transportation for VIPs, diplomats, and high-profile executives.",
+      "fullDescription": "High-security luxury protection limousine with run-flat tire systems, reinforced security chassis, and specialized close-protection certified chauffeurs. Ballistic specifications confirmed upon confidential inquiry.",
       "passengers": "3 Guests",
       "luggage": "2 Large Bags",
       "ride": "Reinforced Security Suspension",
       "features": [
-        "Certified VR6 / VR7 ballistic steel armor plating",
-        "Multi-layer polycarbonate bullet-resistant glass",
+        "Reinforced security body and multi-layer ballistic glass",
         "Run-flat tire inserts & reinforced braking system",
-        "Discreet civilian appearance & police-vetted chauffeurs"
+        "Discreet civilian appearance & police-vetted chauffeurs",
+        "Convoy coordination and advance route reconnaissance"
       ],
-      "mainImage": "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/cars/armored.webp",
-      "transparentImage": "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/cars/armored.png",
+      "mainImage": "/cars/bmw-armored.webp",
+      "transparentImage": "/cars/bmw-armored.png",
       "gallery": [
-        "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/cars/armored.webp"
+        "/cars/bmw-armored.png"
       ],
       "availability": "ON_REQUEST",
       "displayOrder": 5,
       "isPublished": true,
       "createdAt": "2026-10-24T07:46:37.830Z",
       "updatedAt": "2026-10-24T07:46:37.830Z",
-      "image": "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/cars/armored.png"
+      "image": "/cars/bmw-armored.png"
     }
   ],
   "services": [

@@ -188,6 +188,8 @@ export default function HeroBanner() {
   const puACRef     = useRef(null);
   const drACRef     = useRef(null);
   const hPuACRef    = useRef(null);
+  const dtPuInputRef = useRef(null); // daytrip pickup ref
+  const dtPuACRef    = useRef(null);
   const [gmapsReady, setGmapsReady] = useState(Boolean(window.google?.maps?.places));
 
   // Load Google Maps script (places library) if not already present
@@ -232,6 +234,7 @@ export default function HeroBanner() {
   useEffect(() => { const c = attachAutocomplete(puInputRef,  puACRef,  'pickup');  return c; }, [gmapsReady, attachAutocomplete, activeTab]);
   useEffect(() => { const c = attachAutocomplete(drInputRef,  drACRef,  'dropoff'); return c; }, [gmapsReady, attachAutocomplete, activeTab]);
   useEffect(() => { const c = attachAutocomplete(hPuInputRef, hPuACRef, 'pickup');  return c; }, [gmapsReady, attachAutocomplete, activeTab]);
+  useEffect(() => { const c = attachAutocomplete(dtPuInputRef, dtPuACRef, 'pickup'); return c; }, [gmapsReady, attachAutocomplete, activeTab]);
 
   // Modal showcase state (for vehicle inspection if clicked)
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -328,9 +331,15 @@ export default function HeroBanner() {
       setErrorMsg('Please select a pickup time.');
       return;
     }
-    if (!formData.pickup || !formData.pickup.trim()) {
-      setErrorMsg('Please enter a pickup location.');
-      return;
+    if (activeTab === 'daytrip') {
+      if (!formData.pickup || !formData.pickup.trim()) {
+        formData.pickup = 'Vienna, Austria';
+      }
+    } else {
+      if (!formData.pickup || !formData.pickup.trim()) {
+        setErrorMsg('Please enter a pickup location.');
+        return;
+      }
     }
     if (activeTab === 'transfer' && (!formData.dropoff || !formData.dropoff.trim())) {
       setErrorMsg('Please enter a drop-off location.');
@@ -840,8 +849,8 @@ export default function HeroBanner() {
 
             {activeTab === 'daytrip' && (
               <>
-                {/* Row 1: Pickup Date, Pickup Time, Route, Extra Time */}
-                <div className="vdt-ref-grid-row vdt-ref-grid-4">
+                {/* Row 1: Pickup Date, Pickup Time, Pickup Location */}
+                <div className="vdt-ref-grid-row vdt-ref-grid-3">
                   <div className="vdt-ref-cell">
                     <label className="vdt-ref-cell-label" htmlFor="hero-daytrip-date">
                       <span>PICKUP DATE</span>
@@ -871,6 +880,42 @@ export default function HeroBanner() {
                     />
                   </div>
 
+                  <div className="vdt-ref-cell">
+                    <label className="vdt-ref-cell-label" htmlFor="hero-daytrip-pickup">
+                      <span>PICKUP LOCATION</span>
+                      <span className="vdt-ref-help" title="Vienna hotel, address, or meeting point">?</span>
+                    </label>
+                    <input
+                      ref={dtPuInputRef}
+                      id="hero-daytrip-pickup"
+                      type="text"
+                      placeholder="Vienna hotel or address"
+                      value={formData.pickup}
+                      onChange={(e) => handleInputChange('pickup', e.target.value)}
+                      onFocus={() => setFocusedField('daytrip-pickup')}
+                      onBlur={() => setTimeout(() => setFocusedField(null), 250)}
+                      className="vdt-ref-cell-input"
+                      autoComplete="off"
+                    />
+                    {!gmapsReady && focusedField === 'daytrip-pickup' && (
+                      <div className="vdt-ref-suggestions-menu">
+                        {popularLocations.filter(loc => !formData.pickup || loc.toLowerCase().includes(formData.pickup.toLowerCase())).slice(0, 5).map((loc, i) => (
+                          <div
+                            key={i}
+                            className="vdt-ref-suggestion-item"
+                            onMouseDown={() => handleInputChange('pickup', loc)}
+                          >
+                            <MapPin size={12} className="vdt-ref-suggestion-icon" />
+                            <span>{loc}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Row 2: Route, Extra Time */}
+                <div className="vdt-ref-grid-row vdt-ref-grid-daytrip-2">
                   <div className="vdt-ref-cell">
                     <label className="vdt-ref-cell-label" htmlFor="hero-daytrip-route">
                       <span>ROUTE</span>
@@ -1336,6 +1381,10 @@ export default function HeroBanner() {
           grid-template-columns: 1fr 2fr;
         }
 
+        .vdt-ref-grid-daytrip-2 {
+          grid-template-columns: 3fr 2fr;
+        }
+
         .vdt-ref-grid-4 {
           grid-template-columns: repeat(4, 1fr);
         }
@@ -1632,7 +1681,8 @@ export default function HeroBanner() {
           .vdt-ref-grid-4 {
             grid-template-columns: repeat(2, 1fr);
           }
-          .vdt-ref-grid-hourly-2 {
+          .vdt-ref-grid-hourly-2,
+          .vdt-ref-grid-daytrip-2 {
             grid-template-columns: 1fr;
           }
           .vdt-ref-cell:nth-child(2n) {
@@ -1766,6 +1816,7 @@ export default function HeroBanner() {
           }
           .vdt-ref-grid-3,
           .vdt-ref-grid-hourly-2,
+          .vdt-ref-grid-daytrip-2,
           .vdt-ref-grid-4 {
             grid-template-columns: 1fr;
           }

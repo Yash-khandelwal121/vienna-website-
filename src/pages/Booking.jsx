@@ -1087,10 +1087,10 @@ export default function Booking() {
             </a>
           </div>
           <img
-            src="/cars/hero-s-class-car.webp"
+            src="/images/booking-hero-chauffeur.webp"
             alt="Mercedes-Benz S-Class private chauffeur car in Vienna"
-            width="1600"
-            height="900"
+            width="440"
+            height="440"
           />
         </div>
       </section>

@@ -103,7 +103,7 @@ export const fleetData = [
     name: "Armored Luxury Vehicle",
     category: "Tactical & Diplomatic Protection",
     tagline: "Discreet Ballistic Protection & Executive Security",
-    image: "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/cars/armored.png",
+    image: "/cars/bmw-armored.png",
     passengers: "3 Guests",
     luggage: "3 Bags",
     transmission: "Reinforced Chassis",
@@ -118,7 +118,7 @@ export const fleetData = [
       "Available upon confidential advance inquiry"
     ],
     gallery: [
-      "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/cars/armored.png",
+      "/cars/bmw-armored.png",
       "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/wp-uploads/2026/03/Celebrity-VIP-Secure-Transfers.jpeg",
       "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/wp-uploads/2026/03/Diplomatic-Embassy-Transportation.jpeg",
       "https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/wp-uploads/2026/03/Executive-Chauffeur-Protection-Services.jpeg"

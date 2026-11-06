@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   MapPin,
   Search,
@@ -416,6 +416,8 @@ export default function DayTripsManager() {
     if (saving) return;
     setValidationError(null);
     setSaveError(null);
+
+    const isPub = publishStatus !== null ? publishStatus : form.isPublished;
 
     if (!form.name.trim() || !form.title.trim()) {
       setValidationError('Destination Name and Tour Title are required in Basic Information.');
@@ -986,7 +988,7 @@ export default function DayTripsManager() {
                     />
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.25rem' }}>
                     <div className="vdt-form-group">
                       <label className="vdt-form-label">Departure & Return Point</label>
                       <input
@@ -1191,7 +1193,7 @@ export default function DayTripsManager() {
                     />
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.25rem' }}>
                     <div className="vdt-form-group">
                       <label className="vdt-form-label">Focus Keyword</label>
                       <input
@@ -1253,7 +1255,9 @@ export default function DayTripsManager() {
                         backgroundColor: '#FFFFFF',
                         border: '1px solid #E6D8C3',
                         borderRadius: '8px',
-                        maxWidth: '650px'
+                        maxWidth: '650px',
+                        wordBreak: 'break-word',
+                        overflowWrap: 'break-word'
                       }}
                     >
                       <div style={{ fontSize: '0.82rem', color: '#202124', marginBottom: '0.2rem' }}>

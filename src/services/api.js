@@ -1,4 +1,4 @@
-﻿import { fleetData } from '../data/fleet';
+import { fleetData } from '../data/fleet';
 import { allBlogPosts } from '../data/blogs';
 import { toursData } from '../data/tours';
 import { servicesData } from '../data/pages';
@@ -43,7 +43,7 @@ export const CANONICAL_FLEET_IMAGES = {
   's-class': 'https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/cars/s-class.png',
   'v-class': 'https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/cars/v-class.png',
   'sprinter': 'https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/cars/sprinter.png',
-  'armored': 'https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/cars/armored.png',
+  'armored': '/cars/bmw-armored.png',
   'sedan_business': 'https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/cars/e-class.png',
   'sedan_first': 'https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/cars/s-class.png',
   'van_business': 'https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/cars/v-class.png',
@@ -52,7 +52,7 @@ export const CANONICAL_FLEET_IMAGES = {
   'mercedes-benz-v-class': 'https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/cars/v-class.png',
   'mercedes-benz-sprinter': 'https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/cars/sprinter.png',
   'mercedes-benz-sprinter-vip': 'https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/cars/sprinter.png',
-  'armored-luxury-vehicle': 'https://rb4vuv7nb5ua2e2d.public.blob.vercel-storage.com/cars/armored.png'
+  'armored-luxury-vehicle': '/cars/bmw-armored.png'
 };
 
 export const CANONICAL_SERVICE_IMAGES = {
